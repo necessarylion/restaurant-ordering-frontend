@@ -102,14 +102,29 @@ export interface MenuItem {
   images?: MenuItemImage[];
 }
 
+export interface Zone {
+  id: number;
+  restaurant_id: number;
+  name: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+  restaurant?: Restaurant;
+}
+
 export interface Table {
   id: number;
   restaurant_id: number;
   table_number: string;
+  seats: number;
+  position_x: number;
+  position_y: number;
+  zone_id: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
   restaurant?: Restaurant;
+  zone?: Zone;
 }
 
 export interface OrderItem {

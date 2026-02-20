@@ -101,7 +101,7 @@ const createApiClient = (): AxiosInstance => {
 
         try {
           // Attempt to refresh token
-          const refreshed = await refreshToken();
+          const refreshed = await refreshAuthToken();
 
           if (refreshed) {
             // Retry original request with new token
@@ -163,7 +163,7 @@ const transformError = (error: AxiosError): ApiError => {
 /**
  * Refresh authentication token
  */
-const refreshToken = async (): Promise<boolean> => {
+export const refreshAuthToken = async (): Promise<boolean> => {
   try {
     const response = await axios.get("/auth/refresh", {
       baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000",

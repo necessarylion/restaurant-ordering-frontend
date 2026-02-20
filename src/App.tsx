@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RestaurantProvider } from "@/contexts/RestaurantContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { GuestLayout } from "@/layouts/GuestLayout";
@@ -25,6 +26,7 @@ export function App() {
       <AuthProvider>
         <RestaurantProvider>
           <CartProvider>
+            <TooltipProvider>
             <Routes>
               {/* Redirect root to restaurants */}
               <Route path="/" element={<Navigate to="/dashboard/restaurants" replace />} />
@@ -66,6 +68,7 @@ export function App() {
               {/* 404 fallback */}
               <Route path="*" element={<Navigate to="/dashboard/restaurants" replace />} />
             </Routes>
+            </TooltipProvider>
           </CartProvider>
         </RestaurantProvider>
       </AuthProvider>

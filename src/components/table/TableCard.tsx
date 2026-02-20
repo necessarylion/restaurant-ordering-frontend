@@ -1,6 +1,6 @@
 /**
  * Table Card Component
- * Displays table information in a card format
+ * Displays table information in a card format with seats and zone info
  */
 
 import type { Table } from "@/types";
@@ -29,11 +29,24 @@ export const TableCard = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">{table.table_number}</CardTitle>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
               {table.is_active ? (
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} className="size-5 text-green-500" />
               ) : (
                 <Badge variant="secondary">Inactive</Badge>
+              )}
+              <Badge variant="outline">{table.seats} seats</Badge>
+              {table.zone && (
+                <Badge
+                  variant="outline"
+                  style={
+                    table.zone.color
+                      ? { borderColor: table.zone.color, color: table.zone.color }
+                      : undefined
+                  }
+                >
+                  {table.zone.name}
+                </Badge>
               )}
             </div>
           </div>

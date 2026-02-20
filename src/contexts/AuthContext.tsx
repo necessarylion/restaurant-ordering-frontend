@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useCallback, useEffect, useState } from "react";
-import { api, setToken, removeToken, getToken } from "@/lib/api/client";
+import { api, setToken, removeToken, getToken, refreshAuthToken } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type {
   User,
@@ -48,7 +48,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       try {
-        // Fetch current user
+        // Refresh token first to ensure it's valid
+        await refreshAuthToken();
+
+        // Fetch current user with fresh token
         const userData = await api.get<User>(endpoints.auth.me);
         setUser(userData);
       } catch (error) {

@@ -73,14 +73,44 @@ export interface UpdateMenuItemInput {
   images?: File[];
 }
 
+// Zone API types
+export interface CreateZoneInput {
+  name: string;
+  color?: string;
+}
+
+export interface UpdateZoneInput {
+  name: string;
+  color?: string;
+}
+
 // Table API types
 export interface CreateTableInput {
   table_number: string;
+  seats?: number;
+  zone_id?: number;
+  position_x?: number;
+  position_y?: number;
 }
 
 export interface UpdateTableInput {
   table_number: string;
   is_active: boolean;
+  seats?: number;
+  zone_id?: number;
+  position_x?: number;
+  position_y?: number;
+}
+
+// Floor Plan API types
+export interface FloorPlanTableInput {
+  id: number;
+  x: number;
+  y: number;
+}
+
+export interface FloorPlanInput {
+  tables: FloorPlanTableInput[];
 }
 
 // Order API types

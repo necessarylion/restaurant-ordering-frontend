@@ -1,20 +1,17 @@
 /**
  * Table hooks
- * React Query hooks for table CRUD operations and QR code generation
+ * React Query hooks for table CRUD operations, floor plan, and QR code generation
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
-import type { Table } from "@/types";
+import type { Table, Zone, FloorPlanInput } from "@/types";
 
 // ============================================================================
 // Query Hooks
 // ============================================================================
 
-/**
- * Fetch all tables for a restaurant
- */
 export const useTables = (restaurantId: number | undefined) => {
   return useQuery({
     queryKey: ["tables", restaurantId],
@@ -23,9 +20,6 @@ export const useTables = (restaurantId: number | undefined) => {
   });
 };
 
-/**
- * Fetch a single table by ID
- */
 export const useTable = (
   restaurantId: number | undefined,
   tableId: number | undefined
@@ -45,12 +39,12 @@ export const useTable = (
 interface CreateTableInput {
   restaurantId: number;
   table_number: string;
-  is_active?: boolean;
+  seats?: number;
+  zone_id?: number;
+  position_x?: number;
+  position_y?: number;
 }
 
-/**
- * Create a new table
- */
 export const useCreateTable = () => {
   const queryClient = useQueryClient();
 
@@ -70,13 +64,14 @@ export const useCreateTable = () => {
 interface UpdateTableInput {
   restaurantId: number;
   tableId: number;
-  table_number?: string;
-  is_active?: boolean;
+  table_number: string;
+  is_active: boolean;
+  seats?: number;
+  zone_id?: number;
+  position_x?: number;
+  position_y?: number;
 }
 
-/**
- * Update an existing table
- */
 export const useUpdateTable = () => {
   const queryClient = useQueryClient();
 
@@ -99,9 +94,6 @@ export const useUpdateTable = () => {
   });
 };
 
-/**
- * Delete a table
- */
 export const useDeleteTable = () => {
   const queryClient = useQueryClient();
 
@@ -126,9 +118,31 @@ export const useDeleteTable = () => {
   });
 };
 
-/**
- * Generate order token (QR code) for a table
- */
+export const useSaveFloorPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      restaurantId,
+      data,
+    }: {
+      restaurantId: number;
+      data: FloorPlanInput;
+    }) => {
+      return api.post<Table[]>(
+        endpoints.tables.floorPlan(restaurantId),
+        data
+      );
+    },
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(
+        ["tables", variables.restaurantId],
+        data
+      );
+    },
+  });
+};
+
 export const useGenerateTableToken = () => {
   return useMutation({
     mutationFn: async ({
@@ -141,6 +155,96 @@ export const useGenerateTableToken = () => {
       return api.post<{ token: string; expires_at: string }>(
         endpoints.tables.generateToken(restaurantId, tableId)
       );
+    },
+  });
+};
+
+// ============================================================================
+// Zone Hooks
+// ============================================================================
+
+export const useZones = (restaurantId: number | undefined) => {
+  return useQuery({
+    queryKey: ["zones", restaurantId],
+    queryFn: () => api.get<Zone[]>(endpoints.zones.list(restaurantId!)),
+    enabled: !!restaurantId,
+  });
+};
+
+export const useCreateZone = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      restaurantId,
+      name,
+      color,
+    }: {
+      restaurantId: number;
+      name: string;
+      color?: string;
+    }) => {
+      return api.post<Zone>(endpoints.zones.create(restaurantId), {
+        name,
+        color,
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["zones", variables.restaurantId],
+      });
+    },
+  });
+};
+
+export const useUpdateZone = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      restaurantId,
+      zoneId,
+      name,
+      color,
+    }: {
+      restaurantId: number;
+      zoneId: number;
+      name: string;
+      color?: string;
+    }) => {
+      return api.put<Zone>(endpoints.zones.update(restaurantId, zoneId), {
+        name,
+        color,
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["zones", variables.restaurantId],
+      });
+    },
+  });
+};
+
+export const useDeleteZone = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      restaurantId,
+      zoneId,
+    }: {
+      restaurantId: number;
+      zoneId: number;
+    }) => {
+      return api.delete(endpoints.zones.delete(restaurantId, zoneId));
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["zones", variables.restaurantId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tables", variables.restaurantId],
+      });
     },
   });
 };

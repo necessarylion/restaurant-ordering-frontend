@@ -25,6 +25,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  InboxIcon,
+  Clock01Icon,
+  CheckmarkCircle02Icon,
+  Fire02Icon,
+  HotelBellIcon,
+  Tick02Icon,
+  CancelCircleIcon,
+} from "@hugeicons/core-free-icons";
 import { OrderStatus, type Order } from "@/types";
 import { formatPrice } from "@/lib/utils";
 
@@ -137,14 +147,35 @@ export const OrderListPage = () => {
 
       {/* Status Filter */}
       <Tabs value={filterStatus} onValueChange={setFilterStatus}>
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value={OrderStatus.PENDING}>Pending</TabsTrigger>
-          <TabsTrigger value={OrderStatus.CONFIRMED}>Confirmed</TabsTrigger>
-          <TabsTrigger value={OrderStatus.PREPARING}>Preparing</TabsTrigger>
-          <TabsTrigger value={OrderStatus.READY}>Ready</TabsTrigger>
-          <TabsTrigger value={OrderStatus.COMPLETED}>Completed</TabsTrigger>
-          <TabsTrigger value={OrderStatus.CANCELLED}>Cancelled</TabsTrigger>
+        <TabsList className="gap-2">
+          <TabsTrigger value="all">
+            <HugeiconsIcon icon={InboxIcon} strokeWidth={2} className="size-4" />
+            All
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.PENDING}>
+            <HugeiconsIcon icon={Clock01Icon} strokeWidth={2} className="size-4" />
+            Pending
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.CONFIRMED}>
+            <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} className="size-4" />
+            Confirmed
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.PREPARING}>
+            <HugeiconsIcon icon={Fire02Icon} strokeWidth={2} className="size-4" />
+            Preparing
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.READY}>
+            <HugeiconsIcon icon={HotelBellIcon} strokeWidth={2} className="size-4" />
+            Ready
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.COMPLETED}>
+            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-4" />
+            Completed
+          </TabsTrigger>
+          <TabsTrigger value={OrderStatus.CANCELLED}>
+            <HugeiconsIcon icon={CancelCircleIcon} strokeWidth={2} className="size-4" />
+            Cancelled
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 

@@ -11,12 +11,16 @@ import {
   useUpdateTable,
   useDeleteTable,
   useGenerateTableToken,
+  useZones,
 } from "@/hooks/useTables";
 import { TableCard } from "@/components/table/TableCard";
 import { TableForm } from "@/components/table/TableForm";
 import { TableQRCode } from "@/components/table/TableQRCode";
+import { FloorPlanCanvas } from "@/components/table/FloorPlanCanvas";
+import { ZoneManagement } from "@/components/table/ZoneManagement";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +35,8 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { FloorPlanIcon, ListViewIcon, Layers01Icon } from "@hugeicons/core-free-icons";
 import type { Table } from "@/types";
 
 export const TableListPage = () => {
@@ -40,6 +46,7 @@ export const TableListPage = () => {
     isLoading,
     error,
   } = useTables(currentRestaurant?.id);
+  const { data: zones = [] } = useZones(currentRestaurant?.id);
   const createMutation = useCreateTable();
   const updateMutation = useUpdateTable();
   const deleteMutation = useDeleteTable();
@@ -54,14 +61,20 @@ export const TableListPage = () => {
     expiresAt: string;
   } | null>(null);
 
-  const handleCreate = async (data: any) => {
+  const handleCreate = async (data: {
+    table_number: string;
+    seats: number;
+    zone_id?: number;
+    is_active: boolean;
+  }) => {
     if (!currentRestaurant) return;
 
     try {
       await createMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
         table_number: data.table_number,
-        is_active: data.is_active,
+        seats: data.seats,
+        zone_id: data.zone_id,
       });
       setShowCreateForm(false);
     } catch (error: any) {
@@ -69,7 +82,12 @@ export const TableListPage = () => {
     }
   };
 
-  const handleUpdate = async (data: any) => {
+  const handleUpdate = async (data: {
+    table_number: string;
+    seats: number;
+    zone_id?: number;
+    is_active: boolean;
+  }) => {
     if (!currentRestaurant || !editingTable) return;
 
     try {
@@ -78,6 +96,10 @@ export const TableListPage = () => {
         tableId: editingTable.id,
         table_number: data.table_number,
         is_active: data.is_active,
+        seats: data.seats,
+        zone_id: data.zone_id,
+        position_x: editingTable.position_x,
+        position_y: editingTable.position_y,
       });
       setEditingTable(null);
     } catch (error: any) {
@@ -186,6 +208,7 @@ export const TableListPage = () => {
           </CardHeader>
           <CardContent>
             <TableForm
+              zones={zones}
               onSubmit={handleCreate}
               onCancel={() => setShowCreateForm(false)}
               isSubmitting={createMutation.isPending}
@@ -203,6 +226,7 @@ export const TableListPage = () => {
           <CardContent>
             <TableForm
               table={editingTable}
+              zones={zones}
               onSubmit={handleUpdate}
               onCancel={() => setEditingTable(null)}
               isSubmitting={updateMutation.isPending}
@@ -211,31 +235,58 @@ export const TableListPage = () => {
         </Card>
       )}
 
-      {/* Tables Grid */}
-      {tables.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              No tables yet. Create your first table to get started!
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {tables.map((table) => (
-            <TableCard
-              key={table.id}
-              table={table}
-              onEdit={(t) => {
-                setEditingTable(t);
-                setShowCreateForm(false);
-              }}
-              onDelete={(t) => setTableToDelete(t)}
-              onGenerateQR={handleGenerateQR}
-            />
-          ))}
-        </div>
-      )}
+      {/* View Tabs */}
+      <Tabs defaultValue="floorplan">
+        <TabsList className="gap-2">
+          <TabsTrigger value="floorplan">
+            <HugeiconsIcon icon={FloorPlanIcon} strokeWidth={2} className="size-4" />
+            Floor Plan
+          </TabsTrigger>
+          <TabsTrigger value="list">
+            <HugeiconsIcon icon={ListViewIcon} strokeWidth={2} className="size-4" />
+            Tables
+          </TabsTrigger>
+          <TabsTrigger value="zones">
+            <HugeiconsIcon icon={Layers01Icon} strokeWidth={2} className="size-4" />
+            Zones
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list">
+          {tables.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  No tables yet. Create your first table to get started!
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {tables.map((table) => (
+                <TableCard
+                  key={table.id}
+                  table={table}
+                  onEdit={(t) => {
+                    setEditingTable(t);
+                    setShowCreateForm(false);
+                  }}
+                  onDelete={(t) => setTableToDelete(t)}
+                  onGenerateQR={handleGenerateQR}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="floorplan">
+          <FloorPlanCanvas />
+        </TabsContent>
+
+        <TabsContent value="zones">
+          <ZoneManagement />
+        </TabsContent>
+      </Tabs>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog

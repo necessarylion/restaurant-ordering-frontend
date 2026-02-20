@@ -52,6 +52,17 @@ export const endpoints = {
       `/restaurants/${restaurantId}/menu-items/${itemId}`,
   },
 
+  zones: {
+    list: (restaurantId: number) => `/restaurants/${restaurantId}/zones`,
+    create: (restaurantId: number) => `/restaurants/${restaurantId}/zones`,
+    get: (restaurantId: number, zoneId: number) =>
+      `/restaurants/${restaurantId}/zones/${zoneId}`,
+    update: (restaurantId: number, zoneId: number) =>
+      `/restaurants/${restaurantId}/zones/${zoneId}`,
+    delete: (restaurantId: number, zoneId: number) =>
+      `/restaurants/${restaurantId}/zones/${zoneId}`,
+  },
+
   tables: {
     list: (restaurantId: number) => `/restaurants/${restaurantId}/tables`,
     create: (restaurantId: number) => `/restaurants/${restaurantId}/tables`,
@@ -61,6 +72,8 @@ export const endpoints = {
       `/restaurants/${restaurantId}/tables/${tableId}`,
     delete: (restaurantId: number, tableId: number) =>
       `/restaurants/${restaurantId}/tables/${tableId}`,
+    floorPlan: (restaurantId: number) =>
+      `/restaurants/${restaurantId}/tables/floor-plan`,
     generateToken: (restaurantId: number, tableId: number) =>
       `/restaurants/${restaurantId}/tables/${tableId}/order-token`,
   },

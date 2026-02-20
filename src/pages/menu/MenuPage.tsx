@@ -27,6 +27,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Menu01Icon, GridViewIcon } from "@hugeicons/core-free-icons";
 import type { MenuItem } from "@/types";
 
 export const MenuPage = () => {
@@ -224,8 +226,11 @@ export const MenuPage = () => {
 
       {/* Category Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList>
-          <TabsTrigger value="all">All Items ({menuItems.length})</TabsTrigger>
+        <TabsList className="gap-2">
+          <TabsTrigger value="all">
+            <HugeiconsIcon icon={GridViewIcon} strokeWidth={2} className="size-4" />
+            All Items ({menuItems.length})
+          </TabsTrigger>
           {activeCategories
             .sort((a, b) => a.sort_order - b.sort_order)
             .map((category) => (
@@ -233,6 +238,7 @@ export const MenuPage = () => {
                 key={category.id}
                 value={category.id.toString()}
               >
+                <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} className="size-4" />
                 {category.name} ({itemsByCategory.get(category.id)?.length || 0})
               </TabsTrigger>
             ))}
