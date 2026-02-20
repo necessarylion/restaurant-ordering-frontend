@@ -121,7 +121,7 @@ export const ZoneManagement = () => {
         table_number: table.table_number,
         is_active: table.is_active,
         seats: table.seats,
-        zone_id: newZoneId === "none" ? undefined : Number(newZoneId),
+        zone_id: newZoneId === "none" ? null : Number(newZoneId),
         position_x: table.position_x,
         position_y: table.position_y,
       });

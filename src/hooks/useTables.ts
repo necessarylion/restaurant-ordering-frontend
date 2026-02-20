@@ -17,6 +17,7 @@ export const useTables = (restaurantId: number | undefined) => {
     queryKey: ["tables", restaurantId],
     queryFn: () => api.get<Table[]>(endpoints.tables.list(restaurantId!)),
     enabled: !!restaurantId,
+    refetchOnMount: "always",
   });
 };
 
@@ -67,7 +68,7 @@ interface UpdateTableInput {
   table_number: string;
   is_active: boolean;
   seats?: number;
-  zone_id?: number;
+  zone_id?: number | null;
   position_x?: number;
   position_y?: number;
 }

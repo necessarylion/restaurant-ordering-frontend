@@ -5,14 +5,22 @@
  */
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Stage, Layer } from "react-konva";
 import type Konva from "konva";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useTables, useZones, useSaveFloorPlan, useUpdateTable } from "@/hooks/useTables";
-import { useOrders } from "@/hooks/useOrders";
-import { TableNode, type TableStatus } from "./TableNode";
+import { useCreateBooking } from "@/hooks/useBookings";
+import { BookingForm } from "@/components/booking/BookingForm";
+import { TableNode } from "./TableNode";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -30,41 +38,38 @@ import {
   ZoomInAreaIcon,
   ZoomOutAreaIcon,
   SearchAreaIcon,
+  ShoppingBasket03Icon,
+  Calendar03Icon,
 } from "@hugeicons/core-free-icons";
-import { OrderStatus } from "@/types/models";
-import type { Table, Order } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import type { CreateBookingFormData } from "@/lib/schemas";
+import { toRFC3339 } from "@/lib/utils";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 3;
 const SCALE_STEP = 0.15;
 
-function getTableStatus(table: Table, orders: Order[]): TableStatus {
-  if (!table.is_active) return "inactive";
-
-  const activeStatuses = [
-    OrderStatus.PENDING,
-    OrderStatus.CONFIRMED,
-    OrderStatus.PREPARING,
-    OrderStatus.READY,
-  ];
-
-  const hasActiveOrder = orders.some(
-    (o) => o.table_id === table.id && activeStatuses.includes(o.status)
-  );
-
-  return hasActiveOrder ? "occupied" : "available";
-}
-
 export const FloorPlanCanvas = () => {
+  const navigate = useNavigate();
   const { currentRestaurant } = useRestaurant();
   const { data: tables = [] } = useTables(currentRestaurant?.id);
   const { data: zones = [] } = useZones(currentRestaurant?.id);
-  const { data: orders = [] } = useOrders(currentRestaurant?.id);
   const saveFloorPlanMutation = useSaveFloorPlan();
   const updateTableMutation = useUpdateTable();
+  const createBookingMutation = useCreateBooking();
 
   const [activeZoneId, setActiveZoneId] = useState<number | null>(null);
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [seatsInput, setSeatsInput] = useState("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [scale, setScale] = useState(1);
@@ -84,35 +89,6 @@ export const FloorPlanCanvas = () => {
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
-  // Mouse wheel zoom
-  const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
-    e.evt.preventDefault();
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const oldScale = stage.scaleX();
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
-
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-
-    const direction = e.evt.deltaY > 0 ? -1 : 1;
-    const newScale = Math.min(
-      MAX_SCALE,
-      Math.max(MIN_SCALE, oldScale + direction * SCALE_STEP)
-    );
-
-    setScale(newScale);
-    stage.scale({ x: newScale, y: newScale });
-    stage.position({
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    });
   }, []);
 
   const handleZoomIn = useCallback(() => {
@@ -167,14 +143,13 @@ export const FloorPlanCanvas = () => {
 
   // Stats for current view
   const stats = useMemo(() => {
-    const result = { available: 0, occupied: 0, inactive: 0, totalSeats: 0 };
+    const result = { available: 0, unavailable: 0, booked: 0, totalSeats: 0 };
     filteredTables.forEach((table) => {
-      const status = getTableStatus(table, orders);
-      result[status]++;
+      result[table.status]++;
       result.totalSeats += table.seats;
     });
     return result;
-  }, [filteredTables, orders]);
+  }, [filteredTables]);
 
   // Global stats
   const globalStats = useMemo(() => {
@@ -223,7 +198,7 @@ export const FloorPlanCanvas = () => {
         table_number: table.table_number,
         is_active: table.is_active,
         seats,
-        zone_id: table.zone_id ?? undefined,
+        zone_id: table.zone_id,
         position_x: table.position_x,
         position_y: table.position_y,
       });
@@ -238,7 +213,7 @@ export const FloorPlanCanvas = () => {
     if (!table) return;
 
     setSelectedZoneId(zoneVal);
-    const zoneId = zoneVal === "none" ? undefined : Number(zoneVal);
+    const zoneId = zoneVal === "none" ? null : Number(zoneVal);
 
     try {
       await updateTableMutation.mutateAsync({
@@ -257,9 +232,7 @@ export const FloorPlanCanvas = () => {
   };
 
   const selectedTable = tables.find((t) => t.id === selectedTableId);
-  const selectedTableStatus = selectedTable
-    ? getTableStatus(selectedTable, orders)
-    : null;
+  const selectedTableStatus = selectedTable?.status ?? null;
 
   const activeZone = zones.find((z) => z.id === activeZoneId);
   const zoomPercent = Math.round(scale * 100);
@@ -332,12 +305,9 @@ export const FloorPlanCanvas = () => {
                 width={stageSize.width}
                 height={stageSize.height}
                 draggable
-                onWheel={handleWheel}
               >
                 <Layer>
-                  {filteredTables.map((table) => {
-                    const status = getTableStatus(table, orders);
-                    return (
+                  {filteredTables.map((table) => (
                       <TableNode
                         key={table.id}
                         id={table.id}
@@ -345,13 +315,12 @@ export const FloorPlanCanvas = () => {
                         x={table.position_x}
                         y={table.position_y}
                         seats={table.seats}
-                        status={status}
+                        status={table.status}
                         isSelected={selectedTableId === table.id}
                         onDragEnd={handleDragEnd}
                         onClick={handleTableClick}
                       />
-                    );
-                  })}
+                    ))}
                 </Layer>
               </Stage>
             )}
@@ -427,16 +396,16 @@ export const FloorPlanCanvas = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="size-2.5 rounded-full bg-amber-500" />
-                  <span className="text-sm">Occupied</span>
+                  <span className="text-sm">Booked</span>
                 </div>
-                <span className="text-sm font-medium">{stats.occupied}</span>
+                <span className="text-sm font-medium">{stats.booked}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-gray-400" />
-                  <span className="text-sm">Inactive</span>
+                  <span className="size-2.5 rounded-full bg-red-500" />
+                  <span className="text-sm">Unavailable</span>
                 </div>
-                <span className="text-sm font-medium">{stats.inactive}</span>
+                <span className="text-sm font-medium">{stats.unavailable}</span>
               </div>
             </div>
 
@@ -468,9 +437,9 @@ export const FloorPlanCanvas = () => {
                     className={`size-2 rounded-full ${
                       selectedTableStatus === "available"
                         ? "bg-green-500"
-                        : selectedTableStatus === "occupied"
+                        : selectedTableStatus === "booked"
                           ? "bg-amber-500"
-                          : "bg-gray-400"
+                          : "bg-red-500"
                     }`}
                   />
                   <span className="text-xs capitalize text-muted-foreground">
@@ -527,6 +496,28 @@ export const FloorPlanCanvas = () => {
                   </Select>
                 </div>
               )}
+
+              {/* Actions */}
+              <div className="space-y-1.5 pt-2 border-t">
+                <label className="text-xs text-muted-foreground">Actions</label>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => navigate(`/dashboard/orders/create?tableId=${selectedTable.id}`)}
+                >
+                  <HugeiconsIcon icon={ShoppingBasket03Icon} strokeWidth={2} className="size-4" />
+                  Create Order
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowBookingModal(true)}
+                >
+                  <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
+                  Create Booking
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="rounded-lg border border-dashed bg-card p-4">
@@ -536,6 +527,58 @@ export const FloorPlanCanvas = () => {
             </div>
           )}
         </div>
+
+        {/* Create Booking Modal */}
+        <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>
+                Create Booking — {selectedTable?.table_number}
+              </DialogTitle>
+            </DialogHeader>
+            <BookingForm
+              tables={tables}
+              defaultTableId={selectedTable ? String(selectedTable.id) : undefined}
+              onSubmit={async (data) => {
+                if (!currentRestaurant) return;
+                const formData = data as CreateBookingFormData;
+                try {
+                  await createBookingMutation.mutateAsync({
+                    restaurantId: currentRestaurant.id,
+                    table_id: Number(formData.table_id),
+                    customer_name: formData.customer_name,
+                    booking_date_time: toRFC3339(formData.booking_date_time),
+                    phone: formData.phone || undefined,
+                    notes: formData.notes || undefined,
+                  });
+                  setShowBookingModal(false);
+                } catch (err: any) {
+                  setErrorMessage(err.message || "Failed to create booking");
+                }
+              }}
+              onCancel={() => setShowBookingModal(false)}
+              isSubmitting={createBookingMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Error Dialog */}
+        <AlertDialog
+          open={!!errorMessage}
+          onOpenChange={(open) => !open && setErrorMessage(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Error</AlertDialogTitle>
+              <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setErrorMessage(null)}>
+                OK
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
   );
 };

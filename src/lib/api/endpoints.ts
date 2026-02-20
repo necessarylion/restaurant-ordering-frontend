@@ -78,6 +78,17 @@ export const endpoints = {
       `/restaurants/${restaurantId}/tables/${tableId}/order-token`,
   },
 
+  bookings: {
+    list: (restaurantId: number) => `/restaurants/${restaurantId}/bookings`,
+    create: (restaurantId: number) => `/restaurants/${restaurantId}/bookings`,
+    get: (restaurantId: number, bookingId: number) =>
+      `/restaurants/${restaurantId}/bookings/${bookingId}`,
+    update: (restaurantId: number, bookingId: number) =>
+      `/restaurants/${restaurantId}/bookings/${bookingId}`,
+    delete: (restaurantId: number, bookingId: number) =>
+      `/restaurants/${restaurantId}/bookings/${bookingId}`,
+  },
+
   orders: {
     list: (restaurantId: number) => `/restaurants/${restaurantId}/orders`,
     create: (restaurantId: number) => `/restaurants/${restaurantId}/orders`,

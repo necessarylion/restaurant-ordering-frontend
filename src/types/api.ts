@@ -2,6 +2,7 @@
 
 import type {
   User,
+  BookingStatus,
   OrderStatus,
   OrderType,
   Role,
@@ -111,6 +112,24 @@ export interface FloorPlanTableInput {
 
 export interface FloorPlanInput {
   tables: FloorPlanTableInput[];
+}
+
+// Booking API types
+export interface CreateBookingInput {
+  table_id: number;
+  customer_name: string;
+  booking_date_time: string;
+  phone?: string;
+  notes?: string;
+}
+
+export interface UpdateBookingInput {
+  table_id: number;
+  customer_name: string;
+  booking_date_time: string;
+  status: BookingStatus;
+  phone?: string;
+  notes?: string;
 }
 
 // Order API types

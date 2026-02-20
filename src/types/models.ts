@@ -21,6 +21,12 @@ export enum Role {
   STAFF = "staff",
 }
 
+export enum TableStatus {
+  AVAILABLE = "available",
+  UNAVAILABLE = "unavailable",
+  BOOKED = "booked",
+}
+
 export enum MemberStatus {
   PENDING = "pending",
   ACCEPTED = "accepted",
@@ -121,6 +127,7 @@ export interface Table {
   position_y: number;
   zone_id: number | null;
   is_active: boolean;
+  status: TableStatus;
   created_at: string;
   updated_at: string;
   restaurant?: Restaurant;
@@ -178,6 +185,29 @@ export interface OrderToken {
   table_id: number;
   token: string;
   expires_at: string;
+  created_at: string;
+  updated_at: string;
+  restaurant?: Restaurant;
+  table?: Table;
+}
+
+export enum BookingStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled",
+  COMPLETED = "completed",
+  NO_SHOW = "no_show",
+}
+
+export interface Booking {
+  id: number;
+  restaurant_id: number;
+  table_id: number;
+  customer_name: string;
+  phone: string | null;
+  notes: string | null;
+  booking_date_time: string;
+  status: BookingStatus;
   created_at: string;
   updated_at: string;
   restaurant?: Restaurant;

@@ -475,6 +475,304 @@
                 }
             }
         },
+        "/restaurants/{restaurantId}/bookings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Listing",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by table ID",
+                        "name": "table_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "cancelled",
+                            "completed",
+                            "no_show"
+                        ],
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter from date (YYYY-MM-DD)",
+                        "name": "date_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter to date (YYYY-MM-DD)",
+                        "name": "date_to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Booking"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Booking data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.CreateBookingInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Booking"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurants/{restaurantId}/bookings/{bookingId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "bookingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Booking"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "bookingId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Booking data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.UpdateBookingInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Booking"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "bookingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MessageResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/restaurants/{restaurantId}/categories": {
             "get": {
                 "security": [
@@ -2718,6 +3016,61 @@
                 }
             }
         },
+        "models.Booking": {
+            "type": "object",
+            "properties": {
+                "booking_date_time": {
+                    "type": "string",
+                    "example": "2025-01-01T14:00:00Z"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-01-01T00:00:00Z"
+                },
+                "customer_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "Window seat preferred"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "09123456789"
+                },
+                "restaurant": {
+                    "$ref": "#/definitions/models.Restaurant"
+                },
+                "restaurant_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.BookingStatus"
+                        }
+                    ],
+                    "example": "pending"
+                },
+                "table": {
+                    "$ref": "#/definitions/models.Table"
+                },
+                "table_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-01-01T00:00:00Z"
+                }
+            }
+        },
         "models.Category": {
             "type": "object",
             "properties": {
@@ -3147,11 +3500,11 @@
                     "example": true
                 },
                 "position_x": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "position_y": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "restaurant": {
@@ -3164,6 +3517,14 @@
                 "seats": {
                     "type": "integer",
                     "example": 4
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.TableStatus"
+                        }
+                    ],
+                    "example": "available"
                 },
                 "table_number": {
                     "type": "string",
@@ -3249,6 +3610,23 @@
                 }
             }
         },
+        "types.BookingStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "confirmed",
+                "cancelled",
+                "completed",
+                "no_show"
+            ],
+            "x-enum-varnames": [
+                "BookingStatusPending",
+                "BookingStatusConfirmed",
+                "BookingStatusCancelled",
+                "BookingStatusCompleted",
+                "BookingStatusNoShow"
+            ]
+        },
         "types.OrderStatus": {
             "type": "string",
             "enum": [
@@ -3280,6 +3658,49 @@
                 "RoleAdmin",
                 "RoleStaff"
             ]
+        },
+        "types.TableStatus": {
+            "type": "string",
+            "enum": [
+                "available",
+                "unavailable",
+                "booked"
+            ],
+            "x-enum-varnames": [
+                "TableStatusAvailable",
+                "TableStatusUnavailable",
+                "TableStatusBooked"
+            ]
+        },
+        "validators.CreateBookingInput": {
+            "type": "object",
+            "required": [
+                "booking_date_time",
+                "customer_name",
+                "table_id"
+            ],
+            "properties": {
+                "booking_date_time": {
+                    "type": "string",
+                    "example": "2025-01-01T14:00:00Z"
+                },
+                "customer_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "Window seat preferred"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "09123456789"
+                },
+                "table_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
         },
         "validators.CreateOrderInput": {
             "type": "object",
@@ -3388,11 +3809,11 @@
             ],
             "properties": {
                 "position_x": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "position_y": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "seats": {
@@ -3451,11 +3872,11 @@
                     "example": 1
                 },
                 "x": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 100
                 },
                 "y": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 200
                 }
             }
@@ -3544,6 +3965,48 @@
                     "type": "string",
                     "minLength": 6,
                     "example": "password123"
+                }
+            }
+        },
+        "validators.UpdateBookingInput": {
+            "type": "object",
+            "required": [
+                "booking_date_time",
+                "customer_name",
+                "status",
+                "table_id"
+            ],
+            "properties": {
+                "booking_date_time": {
+                    "type": "string",
+                    "example": "2025-01-01T14:00:00Z"
+                },
+                "customer_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "Window seat preferred"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "09123456789"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "confirmed",
+                        "cancelled",
+                        "completed",
+                        "no_show"
+                    ],
+                    "example": "confirmed"
+                },
+                "table_id": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -3649,11 +4112,11 @@
                     "example": true
                 },
                 "position_x": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "position_y": {
-                    "type": "integer",
+                    "type": "number",
                     "example": 0
                 },
                 "seats": {

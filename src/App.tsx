@@ -19,6 +19,8 @@ import { MenuPage } from "@/pages/menu/MenuPage";
 import { TableListPage } from "@/pages/table/TableListPage";
 import { GuestMenuPage } from "@/pages/guest/GuestMenuPage";
 import { OrderListPage } from "@/pages/orders/OrderListPage";
+import { StaffOrderCreatePage } from "@/pages/orders/StaffOrderCreatePage";
+import { BookingListPage } from "@/pages/bookings/BookingListPage";
 
 export function App() {
   return (
@@ -61,8 +63,12 @@ export function App() {
                 {/* Table routes */}
                 <Route path="tables" element={<TableListPage />} />
 
+                {/* Booking routes */}
+                <Route path="bookings" element={<BookingListPage />} />
+
                 {/* Order routes */}
                 <Route path="orders" element={<OrderListPage />} />
+                <Route path="orders/create" element={<StaffOrderCreatePage />} />
               </Route>
 
               {/* 404 fallback */}

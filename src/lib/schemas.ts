@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { OrderStatus, OrderType, Role } from "@/types/models";
+import { BookingStatus, OrderStatus, OrderType, Role } from "@/types/models";
 
 // ============================================================================
 // Auth Schemas
@@ -111,6 +111,22 @@ export const updateMenuItemFormSchema = createMenuItemFormSchema.extend({
 });
 
 // ============================================================================
+// Booking Schemas
+// ============================================================================
+
+export const createBookingFormSchema = z.object({
+  table_id: z.string().min(1, "Table is required"),
+  customer_name: z.string().min(1, "Customer name is required"),
+  booking_date_time: z.string().min(1, "Booking date/time is required"),
+  phone: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const updateBookingFormSchema = createBookingFormSchema.extend({
+  status: z.nativeEnum(BookingStatus),
+});
+
+// ============================================================================
 // Table Schemas
 // ============================================================================
 
@@ -207,3 +223,5 @@ export type TableFormData = z.infer<typeof tableSchema>;
 export type OrderFormData = z.infer<typeof createOrderSchema>;
 export type PaymentFormData = z.infer<typeof createPaymentFormSchema>;
 export type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
+export type CreateBookingFormData = z.infer<typeof createBookingFormSchema>;
+export type UpdateBookingFormData = z.infer<typeof updateBookingFormSchema>;

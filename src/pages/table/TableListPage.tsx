@@ -97,7 +97,7 @@ export const TableListPage = () => {
         table_number: data.table_number,
         is_active: data.is_active,
         seats: data.seats,
-        zone_id: data.zone_id,
+        zone_id: data.zone_id ?? null,
         position_x: editingTable.position_x,
         position_y: editingTable.position_y,
       });

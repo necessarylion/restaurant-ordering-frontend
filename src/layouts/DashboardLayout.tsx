@@ -12,7 +12,7 @@ import { RestaurantSelector } from "@/components/restaurant/RestaurantSelector";
 import { useTheme } from "@/hooks/useTheme";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Store01Icon, Menu01Icon, Grid02Icon, Table01Icon, ShoppingBasket01Icon, ShutDownIcon, Sun02Icon, Moon02Icon } from "@hugeicons/core-free-icons";
+import { Store01Icon, Menu01Icon, Grid02Icon, Table01Icon, ShoppingBasket01Icon, Calendar03Icon, ShutDownIcon, Sun02Icon, Moon02Icon } from "@hugeicons/core-free-icons";
 
 export const DashboardLayout = () => {
   const { user, logout } = useAuth();
@@ -110,6 +110,20 @@ export const DashboardLayout = () => {
                 >
                   <HugeiconsIcon icon={Table01Icon} strokeWidth={2} className="size-4" />
                   Tables
+                </NavLink>
+
+                <NavLink
+                  to="/dashboard/bookings"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent ${
+                      isActive
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-muted-foreground"
+                    }`
+                  }
+                >
+                  <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
+                  Bookings
                 </NavLink>
 
                 <NavLink

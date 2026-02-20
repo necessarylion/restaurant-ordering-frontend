@@ -7,7 +7,7 @@
 import { Group, Rect, Text, Circle } from "react-konva";
 import type Konva from "konva";
 
-export type TableStatus = "available" | "occupied" | "inactive";
+export type TableStatus = "available" | "unavailable" | "booked";
 
 interface TableNodeProps {
   id: number;
@@ -27,6 +27,7 @@ const MIN_W = 90;
 const MAX_W = 200;
 const H = 110;
 const R = 12;
+const CIRCLE_D = 100; // diameter for small (≤2 seat) tables
 
 function getWidth(seats: number) {
   return Math.min(MAX_W, Math.max(MIN_W, BASE_W + seats * PER_SEAT));
@@ -41,12 +42,12 @@ const STATUS: Record<
     fill: "rgba(34,197,94,0.08)",
     text: "#22c55e",
   },
-  occupied: {
+  booked: {
     stroke: "#eab308",
     fill: "rgba(234,179,8,0.08)",
     text: "#eab308",
   },
-  inactive: {
+  unavailable: {
     stroke: "#ef4444",
     fill: "rgba(239,68,68,0.08)",
     text: "#ef4444",
@@ -70,11 +71,48 @@ function TableIcon({
   seats: number;
   tableW: number;
 }) {
-  // Table surface scales with card width
-  const tw = Math.min(tableW * 0.4, 50);
-  const th = 16;
   const chairR = 3;
   const gap = 3;
+
+  // Circle table for ≤2 seats
+  if (seats <= 2) {
+    const tableRadius = 10;
+    const chairDist = tableRadius + gap + chairR;
+    const chairs: { x: number; y: number }[] = [];
+    for (let i = 0; i < seats; i++) {
+      const angle = (Math.PI * 2 * i) / seats - Math.PI / 2;
+      chairs.push({
+        x: cx + Math.cos(angle) * chairDist,
+        y: cy + Math.sin(angle) * chairDist,
+      });
+    }
+    return (
+      <>
+        <Circle
+          x={cx}
+          y={cy}
+          radius={tableRadius}
+          stroke={color}
+          strokeWidth={1.5}
+          fill="transparent"
+        />
+        {chairs.map((c, i) => (
+          <Circle
+            key={i}
+            x={c.x}
+            y={c.y}
+            radius={chairR}
+            stroke={color}
+            strokeWidth={1.2}
+          />
+        ))}
+      </>
+    );
+  }
+
+  // Rectangular table surface for >2 seats
+  const tw = Math.min(tableW * 0.4, 50);
+  const th = 16;
 
   // Distribute seats: top, bottom, left, right
   const top = Math.ceil(seats / 4);
@@ -154,7 +192,9 @@ export const TableNode = ({
   onDragEnd,
   onClick,
 }: TableNodeProps) => {
-  const w = getWidth(seats);
+  const isCircle = seats <= 2;
+  const w = isCircle ? CIRCLE_D : getWidth(seats);
+  const h = isCircle ? CIRCLE_D : H;
   const s = STATUS[status];
   const stroke = isSelected ? "#a78bfa" : s.stroke;
   const sw = isSelected ? 2.5 : 1.5;
@@ -169,7 +209,7 @@ export const TableNode = ({
   const labelW = Math.max(tableNumber.length * 7 + labelPadX * 2, 60);
   const labelH = 20;
   const labelX = (w - labelW) / 2;
-  const labelY = H - labelH / 2;
+  const labelY = h - labelH / 2;
 
   return (
     <Group
@@ -181,23 +221,40 @@ export const TableNode = ({
       onTap={() => onClick(id)}
     >
       {/* Card */}
-      <Rect
-        width={w}
-        height={H}
-        fill={s.fill}
-        stroke={stroke}
-        strokeWidth={sw}
-        cornerRadius={R}
-      />
+      {isCircle ? (
+        <Circle
+          x={w / 2}
+          y={h / 2}
+          radius={w / 2}
+          fill={s.fill}
+          stroke={stroke}
+          strokeWidth={sw}
+        />
+      ) : (
+        <Rect
+          width={w}
+          height={h}
+          fill={s.fill}
+          stroke={stroke}
+          strokeWidth={sw}
+          cornerRadius={R}
+        />
+      )}
 
       {/* Top-down table + chairs icon */}
-      <TableIcon cx={w / 2} cy={32} color={s.text} seats={seats} tableW={w} />
+      <TableIcon
+        cx={w / 2}
+        cy={isCircle ? 30 : 32}
+        color={s.text}
+        seats={seats}
+        tableW={w}
+      />
 
       {/* Seats count */}
       <Text
         text={`${seats} Seats`}
         width={w}
-        y={60}
+        y={isCircle ? 52 : 60}
         align="center"
         fontSize={13}
         fontFamily="system-ui, sans-serif"
