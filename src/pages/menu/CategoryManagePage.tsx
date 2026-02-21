@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Category } from "@/types";
+import { ErrorCard } from "@/components/ErrorCard";
 
 export const CategoryManagePage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -119,18 +120,10 @@ export const CategoryManagePage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load categories"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Categories"
+        message={(error as any).message || "Failed to load categories"}
+      />
     );
   }
 

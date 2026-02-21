@@ -44,6 +44,7 @@ import type {
   UpdateBookingFormData,
 } from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
+import { ErrorCard } from "@/components/ErrorCard";
 
 const statusVariants: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
   [BookingStatus.PENDING]: "secondary",
@@ -199,18 +200,10 @@ export const BookingListPage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load bookings"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Bookings"
+        message={(error as any).message || "Failed to load bookings"}
+      />
     );
   }
 

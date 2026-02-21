@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Menu01Icon, GridViewIcon } from "@hugeicons/core-free-icons";
 import type { MenuItem } from "@/types";
+import { ErrorCard } from "@/components/ErrorCard";
 
 export const MenuPage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -153,18 +154,10 @@ export const MenuPage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Menu</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load menu items"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Menu"
+        message={(error as any).message || "Failed to load menu items"}
+      />
     );
   }
 

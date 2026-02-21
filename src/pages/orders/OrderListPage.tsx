@@ -37,6 +37,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { OrderStatus, type Order } from "@/types";
 import { formatPrice } from "@/lib/utils";
+import { ErrorCard } from "@/components/ErrorCard";
 
 export const OrderListPage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -121,18 +122,10 @@ export const OrderListPage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load orders"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Orders"
+        message={(error as any).message || "Failed to load orders"}
+      />
     );
   }
 

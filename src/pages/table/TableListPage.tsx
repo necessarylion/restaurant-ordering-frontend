@@ -38,6 +38,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { FloorPlanIcon, ListViewIcon, Layers01Icon } from "@hugeicons/core-free-icons";
 import type { Table } from "@/types";
+import { ErrorCard } from "@/components/ErrorCard";
 
 export const TableListPage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -166,18 +167,10 @@ export const TableListPage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Tables</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load tables"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Tables"
+        message={(error as any).message || "Failed to load tables"}
+      />
     );
   }
 

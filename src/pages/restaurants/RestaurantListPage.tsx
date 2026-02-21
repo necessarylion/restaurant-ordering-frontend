@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { Restaurant } from "@/types";
 import type { RestaurantFormData } from "@/schemas/restaurant_schema";
+import { ErrorCard } from "@/components/ErrorCard";
 
 export const RestaurantListPage = () => {
   const { data: restaurants = [], isLoading, error } = useRestaurants();
@@ -64,18 +65,10 @@ export const RestaurantListPage = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Error Loading Restaurants</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-destructive">
-              {(error as any).message || "Failed to load restaurants"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorCard
+        title="Error Loading Restaurants"
+        message={(error as any).message || "Failed to load restaurants"}
+      />
     );
   }
 
