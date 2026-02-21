@@ -127,10 +127,10 @@ export const CategoryManagePage = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">Categories</h1>
-          <p className="text-muted-foreground">
-            Manage menu categories for {currentRestaurant.name}
+          <p className="text-muted-foreground mt-2">
+            Manage categories for {currentRestaurant.name}
           </p>
         </div>
         <Button
@@ -186,7 +186,7 @@ export const CategoryManagePage = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
           {categories
             .sort((a, b) => a.sort_order - b.sort_order)
             .map((category) => (

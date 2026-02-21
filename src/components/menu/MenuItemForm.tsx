@@ -71,7 +71,7 @@ export const MenuItemForm = ({
           category_id: menuItem.category_id.toString(),
           name: menuItem.name,
           description: menuItem.description || "",
-          price: (menuItem.price / 100).toString(), // Convert cents to dollars
+          price: menuItem.price.toString(),
           is_available: menuItem.is_available,
         }
       : {

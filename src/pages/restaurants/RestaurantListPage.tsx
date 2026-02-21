@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { useRestaurants, useCreateRestaurant, useDeleteRestaurant } from "@/hooks/useRestaurants";
+import { useRestaurants, useCreateRestaurant, useUpdateRestaurant, useDeleteRestaurant } from "@/hooks/useRestaurants";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { RestaurantCard } from "@/components/restaurant/RestaurantCard";
@@ -19,19 +19,48 @@ export const RestaurantListPage = () => {
   const { data: restaurants = [], isLoading, error } = useRestaurants();
   const { currentRestaurant, setCurrentRestaurant } = useRestaurant();
   const createMutation = useCreateRestaurant();
+  const updateMutation = useUpdateRestaurant();
   const deleteMutation = useDeleteRestaurant();
 
   const { confirm } = useAlertDialog();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
+
+  const toInput = (data: RestaurantFormData) => ({
+    ...data,
+    logo: data.logo?.[0],
+  });
 
   const handleCreate = async (data: RestaurantFormData) => {
     try {
-      const newRestaurant = await createMutation.mutateAsync(data);
+      const newRestaurant = await createMutation.mutateAsync(toInput(data));
       setShowCreateForm(false);
       setCurrentRestaurant(newRestaurant);
     } catch (error: any) {
       alert(error.message || "Failed to create restaurant");
+    }
+  };
+
+  const handleEdit = (restaurant: Restaurant) => {
+    setEditingRestaurant(restaurant);
+    setShowCreateForm(false);
+  };
+
+  const handleUpdate = async (data: RestaurantFormData) => {
+    if (!editingRestaurant) return;
+    try {
+      const updated = await updateMutation.mutateAsync({
+        id: editingRestaurant.id,
+        data: toInput(data),
+      });
+      setEditingRestaurant(null);
+      // Update selected restaurant if it was the one edited
+      if (currentRestaurant?.id === updated.id) {
+        setCurrentRestaurant(updated);
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to update restaurant");
     }
   };
 
@@ -102,6 +131,22 @@ export const RestaurantListPage = () => {
           </Card>
         )}
 
+        {editingRestaurant && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Edit Restaurant</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RestaurantForm
+                restaurant={editingRestaurant}
+                onSubmit={handleUpdate}
+                onCancel={() => setEditingRestaurant(null)}
+                isSubmitting={updateMutation.isPending}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         {restaurants.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -117,6 +162,7 @@ export const RestaurantListPage = () => {
                 key={restaurant.id}
                 restaurant={restaurant}
                 onSelect={handleSelect}
+                onEdit={handleEdit}
                 onDelete={handleDelete}
                 isSelected={currentRestaurant?.id === restaurant.id}
               />

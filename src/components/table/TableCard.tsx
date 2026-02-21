@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Edit02Icon, Delete02Icon, QrCodeIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import { PencilEdit01Icon, Delete01Icon, QrCodeIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
 
 interface TableCardProps {
   table: Table;
@@ -24,7 +24,7 @@ export const TableCard = ({
   onGenerateQR,
 }: TableCardProps) => {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="flex flex-col hover:shadow-md transition-shadow">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -53,7 +53,7 @@ export const TableCard = ({
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="mt-auto">
         <div className="space-y-2">
           {/* Generate QR Code Button */}
           {onGenerateQR && table.is_active && (
@@ -82,7 +82,7 @@ export const TableCard = ({
                 className="flex-1"
               >
                 <HugeiconsIcon
-                  icon={Edit02Icon}
+                  icon={PencilEdit01Icon}
                   strokeWidth={2}
                   className="size-4 mr-1"
                 />
@@ -97,7 +97,7 @@ export const TableCard = ({
                 className="flex-1 text-destructive hover:text-destructive"
               >
                 <HugeiconsIcon
-                  icon={Delete02Icon}
+                  icon={Delete01Icon}
                   strokeWidth={2}
                   className="size-4 mr-1"
                 />

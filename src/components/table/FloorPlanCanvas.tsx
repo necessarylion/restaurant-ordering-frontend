@@ -295,7 +295,7 @@ export const FloorPlanCanvas = () => {
               <Stage
                 ref={stageRef}
                 width={stageSize.width}
-                height={stageSize.height}
+                height={stageSize.height + 50}
                 draggable
               >
                 <Layer>

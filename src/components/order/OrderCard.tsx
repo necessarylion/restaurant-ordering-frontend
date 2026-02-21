@@ -1,103 +1,132 @@
 /**
  * Order Card Component
- * Display order summary in a card format
+ * Draggable order card for kanban board
  */
 
+import { forwardRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OrderStatusBadge } from "./OrderStatusBadge";
-import { useRestaurant } from "@/hooks/useRestaurant";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
-import type { Order } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import {
+  ArrowRight01Icon,
+  Calendar03Icon,
+  DiningTableIcon,
+  Restaurant01Icon,
+  ShoppingBag02Icon,
+} from "@hugeicons/core-free-icons";
+import { Badge } from "@/components/ui/badge";
+import { OrderType, type Order } from "@/types";
 
 interface OrderCardProps {
   order: Order;
   onViewDetails?: (order: Order) => void;
+  isDragging?: boolean;
+  style?: React.CSSProperties;
 }
 
-export const OrderCard = ({ order, onViewDetails }: OrderCardProps) => {
-  const { currentRestaurant } = useRestaurant();
-  const currency = currentRestaurant?.currency || "USD";
+export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLAttributes<HTMLDivElement>>(
+  ({ order, onViewDetails, isDragging, style, className, ...props }, ref) => {
+    const formatDateTime = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    };
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold">Order #{order.id}</h3>
-            <p className="text-sm text-muted-foreground">
-              {formatDateTime(order.created_at)}
-            </p>
+    return (
+      <Card
+        ref={ref}
+        style={style}
+        className={`flex flex-col transition-shadow cursor-grab active:cursor-grabbing ${
+          isDragging ? "opacity-50 shadow-lg" : "hover:shadow-md"
+        } ${className || ""}`}
+        {...props}
+      >
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <h3 className="font-semibold text-sm">Order #{order.id}</h3>
+            <OrderStatusBadge status={order.status} />
+          </div>
+          <Badge variant="outline" className="w-fit">
+            <HugeiconsIcon
+              icon={order.order_type === OrderType.DINE_IN ? Restaurant01Icon : ShoppingBag02Icon}
+              strokeWidth={2}
+              className="size-3.5"
+            />
+            {order.order_type === OrderType.DINE_IN ? "Dine In" : "Takeaway"}
+          </Badge>
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-3.5 shrink-0" />
+              <span className="text-xs">{formatDateTime(order.created_at)}</span>
+            </div>
             {order.table && (
-              <p className="text-sm text-muted-foreground">
-                Table: {order.table.table_number}
-              </p>
+              <div className="flex items-center gap-2">
+                <HugeiconsIcon icon={DiningTableIcon} strokeWidth={2} className="size-3.5 shrink-0" />
+                <span className="text-xs">{order.table.table_number}</span>
+              </div>
             )}
           </div>
-          <OrderStatusBadge status={order.status} />
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent className="space-y-3">
-        {/* Order Items */}
-        <div className="space-y-1">
-          {order.order_items && order.order_items.length > 0 ? (
-            order.order_items.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between text-sm"
-              >
-                <span className="text-muted-foreground">
-                  {item.quantity}x {item.menu_item?.name || "Item"}
-                </span>
-                <span>{formatPrice(item.price * item.quantity, currency)}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground">No items</p>
+        <CardContent className="mt-auto space-y-2">
+          {/* Order Items */}
+          <div className="space-y-1.5">
+            {order.order_items && order.order_items.length > 0 ? (
+              <>
+                {order.order_items.slice(0, 3).map((item) => (
+                  <div
+                    key={item.id}
+                    className="pb-1.5 border-b last:border-0 last:pb-0"
+                  >
+                    <p className="text-xs font-medium">
+                      {item.quantity}x {item.menu_item?.name || "Item"}
+                    </p>
+                    {item.notes && (
+                      <p className="text-xs text-muted-foreground">
+                        {item.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+                {order.order_items.length > 3 && (
+                  <p className="text-xs text-muted-foreground">
+                    +{order.order_items.length - 3} more
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground">No items</p>
+            )}
+          </div>
+
+          {/* Actions */}
+          {onViewDetails && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails(order);
+              }}
+              className="w-full"
+            >
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                strokeWidth={2}
+                className="size-4 mr-1"
+              />
+              View Details
+            </Button>
           )}
-          {order.order_items && order.order_items.length > 3 && (
-            <p className="text-xs text-muted-foreground">
-              +{order.order_items.length - 3} more items
-            </p>
-          )}
-        </div>
+        </CardContent>
+      </Card>
+    );
+  }
+);
 
-        {/* Total */}
-        <div className="flex justify-between pt-2 border-t font-semibold">
-          <span>Total:</span>
-          <span>{formatPrice(order.total, currency)}</span>
-        </div>
-
-        {/* Actions */}
-        {onViewDetails && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onViewDetails(order)}
-            className="w-full"
-          >
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              strokeWidth={2}
-              className="size-4 mr-1"
-            />
-            View Details
-          </Button>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+OrderCard.displayName = "OrderCard";

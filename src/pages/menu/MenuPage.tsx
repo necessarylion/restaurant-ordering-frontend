@@ -164,10 +164,10 @@ export const MenuPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">Menu Items</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-2">
             Manage menu items for {currentRestaurant.name}
           </p>
         </div>
@@ -236,7 +236,7 @@ export const MenuPage = () => {
             ))}
         </TabsList>
 
-        <TabsContent value={selectedCategory} className="mt-6">
+        <TabsContent value={selectedCategory} className="mt-3">
           {filteredItems.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
@@ -248,12 +248,12 @@ export const MenuPage = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
               {filteredItems.map((item) => (
                 <MenuItemCard
                   key={item.id}
                   menuItem={item}
-                  showCategory={selectedCategory === "all"}
+                  categoryName={selectedCategory === "all" ? categories.find((c) => c.id === item.category_id)?.name : undefined}
                   onEdit={(i) => {
                     setEditingItem(i);
                     setShowCreateForm(false);

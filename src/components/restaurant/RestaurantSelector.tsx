@@ -37,7 +37,7 @@ export const RestaurantSelector = () => {
         }
       }}
     >
-      <SelectTrigger className="w-50 cursor-pointer">
+      <SelectTrigger className="w-full cursor-pointer">
         <SelectValue placeholder="Select restaurant" />
       </SelectTrigger>
       <SelectContent>

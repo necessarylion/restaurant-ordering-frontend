@@ -3,7 +3,7 @@
  * Form for creating and editing categories with image upload
  */
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { createCategoryFormSchema, updateCategoryFormSchema } from "@/schemas/category_schema";
@@ -12,8 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldContent, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Upload01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { SORT_ORDER_OPTIONS } from "@/lib/sort-order";
 
 interface CategoryFormProps {
   category?: Category; // If provided, we're editing
@@ -41,6 +49,7 @@ export const CategoryForm = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     setValue,
     watch,
@@ -49,12 +58,12 @@ export const CategoryForm = ({
     defaultValues: isEdit
       ? {
           name: category.name,
-          sort_order: category.sort_order?.toString() || "0",
+          sort_order: category.sort_order?.toString() || "3",
           is_active: category.is_active,
         }
       : {
           name: "",
-          sort_order: "0",
+          sort_order: "3",
         },
   });
 
@@ -97,11 +106,26 @@ export const CategoryForm = ({
       <Field data-invalid={!!errors.sort_order}>
         <FieldLabel>Sort Order</FieldLabel>
         <FieldContent>
-          <Input
-            {...register("sort_order")}
-            type="number"
-            placeholder="0"
-            min="0"
+          <Controller
+            control={control}
+            name="sort_order"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full cursor-pointer">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_ORDER_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <span className="flex items-center gap-2">
+                        <span className={option.color}>{option.icon}</span>
+                        {option.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </FieldContent>
         {errors.sort_order && <FieldError>{errors.sort_order.message}</FieldError>}
@@ -159,7 +183,7 @@ export const CategoryForm = ({
               onCheckedChange={(checked) => setValue("is_active", !!checked)}
             />
             <FieldLabel htmlFor="is_active" className="!mb-0 cursor-pointer">
-              Active
+              Enable
             </FieldLabel>
           </div>
         </Field>

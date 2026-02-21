@@ -30,18 +30,15 @@ export function toDatetimeLocal(utcStr: string): string {
  * @returns Formatted price string
  */
 export function formatPrice(price: number, currency: string): string {
-  // Currency locale mapping
-  const localeMap: Record<string, string> = {
-    USD: "en-US",
-    MMK: "my-MM",
-    EUR: "de-DE",
-    GBP: "en-GB",
-  };
-
-  const locale = localeMap[currency] || "en-US";
-
-  return new Intl.NumberFormat(locale, {
+  const parts = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency,
-  }).format(price);
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).formatToParts(price);
+
+  return parts
+    .map((p) => (p.type === "literal" && p.value.trim() === "" ? " " : p.value))
+    .join("")
+    .replace(/^([^\d]+?)(\d)/, "$1 $2");
 }

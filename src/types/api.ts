@@ -34,12 +34,16 @@ export interface CreateRestaurantInput {
   name: string;
   address?: string;
   phone?: string;
+  currency?: string;
+  logo?: File;
 }
 
 export interface UpdateRestaurantInput {
   name: string;
   address?: string;
   phone?: string;
+  currency?: string;
+  logo?: File;
 }
 
 // Category API types

@@ -11,7 +11,7 @@ export const createCategoryFormSchema = z.object({
   sort_order: z
     .string()
     .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 0)),
+    .transform((val) => (val ? parseInt(val, 10) : 3)),
   image: z
     .instanceof(File)
     .optional()

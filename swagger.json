@@ -284,7 +284,7 @@
                     }
                 ],
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -295,13 +295,35 @@
                 "summary": "Create",
                 "parameters": [
                     {
-                        "description": "Restaurant input",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/validators.CreateRestaurantInput"
-                        }
+                        "type": "string",
+                        "description": "Restaurant name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant phone",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Currency code (3 chars, uppercase)",
+                        "name": "currency",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Restaurant logo (jpg, jpeg, png, webp, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -377,7 +399,7 @@
                     }
                 ],
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -395,13 +417,35 @@
                         "required": true
                     },
                     {
-                        "description": "Restaurant input",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/validators.UpdateRestaurantInput"
-                        }
+                        "type": "string",
+                        "description": "Restaurant name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant phone",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Currency code (3 chars, uppercase)",
+                        "name": "currency",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Restaurant logo (jpg, jpeg, png, webp, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -3404,6 +3448,10 @@
                     "type": "integer",
                     "example": 1
                 },
+                "logo": {
+                    "type": "string",
+                    "example": "https://example.com/logo.jpg"
+                },
                 "members": {
                     "type": "array",
                     "items": {
@@ -3487,6 +3535,15 @@
         "models.Table": {
             "type": "object",
             "properties": {
+                "active_booking": {
+                    "$ref": "#/definitions/models.Booking"
+                },
+                "active_orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Order"
+                    }
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2025-01-01T00:00:00Z"
@@ -3778,30 +3835,6 @@
                 }
             }
         },
-        "validators.CreateRestaurantInput": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Main St"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "USD"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "My Restaurant"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "09123456789"
-                }
-            }
-        },
         "validators.CreateTableInput": {
             "type": "object",
             "required": [
@@ -4073,30 +4106,6 @@
                 "table_id": {
                     "type": "integer",
                     "example": 1
-                }
-            }
-        },
-        "validators.UpdateRestaurantInput": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Main St"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "USD"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "My Restaurant"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "09123456789"
                 }
             }
         },

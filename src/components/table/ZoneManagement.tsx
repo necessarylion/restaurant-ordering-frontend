@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PencilEdit01Icon, Delete01Icon } from "@hugeicons/core-free-icons";
 import type { Zone } from "@/types";
 
 export const ZoneManagement = () => {
@@ -226,6 +228,7 @@ export const ZoneManagement = () => {
                       size="sm"
                       onClick={() => startEditZone(zone)}
                     >
+                      <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
                       Edit
                     </Button>
                     <Button
@@ -235,6 +238,7 @@ export const ZoneManagement = () => {
                       onClick={() => handleDeleteZone(zone)}
                       disabled={deleteZoneMutation.isPending}
                     >
+                      <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
                       Delete
                     </Button>
                   </div>

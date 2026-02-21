@@ -175,10 +175,10 @@ export const TableListPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">Tables</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-2">
             Manage tables and QR codes for {currentRestaurant.name}
           </p>
         </div>
@@ -229,7 +229,7 @@ export const TableListPage = () => {
 
       {/* View Tabs */}
       <Tabs defaultValue="floorplan">
-        <TabsList className="gap-2">
+        <TabsList className="gap-2 mb-3">
           <TabsTrigger value="floorplan">
             <HugeiconsIcon icon={FloorPlanIcon} strokeWidth={2} className="size-4" />
             Floor Plan

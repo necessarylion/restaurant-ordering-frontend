@@ -50,6 +50,7 @@ export interface Restaurant {
   address?: string;
   phone?: string;
   currency: string; // e.g., "USD", "MMK"
+  logo?: string; // URL to logo image
   created_at: string;
   updated_at: string;
   members?: RestaurantMember[];

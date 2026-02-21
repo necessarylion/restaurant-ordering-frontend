@@ -7,7 +7,7 @@ import type { Restaurant } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import { CheckmarkCircle02Icon, Store01Icon, Tick01Icon, PencilEdit01Icon, Delete01Icon } from "@hugeicons/core-free-icons";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -25,9 +25,16 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
   isSelected,
 }) => {
   return (
-    <Card className={isSelected ? "border-primary" : ""}>
+    <Card className={`flex flex-col ${isSelected ? "border-primary" : ""}`}>
       <CardHeader>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
+            {restaurant.logo ? (
+              <img src={restaurant.logo} alt={restaurant.name} className="size-full object-cover" />
+            ) : (
+              <HugeiconsIcon icon={Store01Icon} strokeWidth={1.5} className="size-6 text-muted-foreground" />
+            )}
+          </div>
           <div className="flex-1">
             <CardTitle className="flex items-center gap-2">
               {restaurant.name}
@@ -42,7 +49,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="mt-auto">
         <div className="space-y-4">
           {restaurant.phone && (
             <div className="text-sm">
@@ -64,8 +71,10 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 onClick={() => onSelect(restaurant)}
                 variant={isSelected ? "outline" : "default"}
                 size="sm"
-                className={isSelected ? "flex-1 cursor-not-allowed" : "flex-1 cursor-pointer"}
+                disabled={isSelected}
+                className="flex-1"
               >
+                <HugeiconsIcon icon={isSelected ? CheckmarkCircle02Icon : Tick01Icon} strokeWidth={2} className="size-4" />
                 {isSelected ? "Selected" : "Select"}
               </Button>
             )}
@@ -76,6 +85,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 variant="outline"
                 size="sm"
               >
+                <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4" />
                 Edit
               </Button>
             )}
@@ -86,6 +96,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 variant="outline"
                 size="sm"
               >
+                <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
                 Delete
               </Button>
             )}

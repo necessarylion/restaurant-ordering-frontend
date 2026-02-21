@@ -28,6 +28,11 @@ import {
   TaskDone02Icon,
   UserRemove02Icon,
   Calendar03Icon,
+  PencilEdit01Icon,
+  Delete01Icon,
+  DiningTableIcon,
+  CallIcon,
+  StickyNote01Icon,
 } from "@hugeicons/core-free-icons";
 import { BookingStatus, type Booking } from "@/types";
 import type {
@@ -37,12 +42,20 @@ import type {
 import { toRFC3339 } from "@/lib/utils";
 import { ErrorCard } from "@/components/ErrorCard";
 
-const statusVariants: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
-  [BookingStatus.PENDING]: "secondary",
-  [BookingStatus.CONFIRMED]: "default",
-  [BookingStatus.CANCELLED]: "destructive",
-  [BookingStatus.COMPLETED]: "outline",
-  [BookingStatus.NO_SHOW]: "destructive",
+const statusStyles: Record<BookingStatus, string> = {
+  [BookingStatus.PENDING]: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  [BookingStatus.CONFIRMED]: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  [BookingStatus.CANCELLED]: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  [BookingStatus.COMPLETED]: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  [BookingStatus.NO_SHOW]: "bg-muted text-muted-foreground",
+};
+
+const statusIcons: Record<BookingStatus, any> = {
+  [BookingStatus.PENDING]: Clock04Icon,
+  [BookingStatus.CONFIRMED]: CheckmarkCircle02Icon,
+  [BookingStatus.CANCELLED]: Cancel01Icon,
+  [BookingStatus.COMPLETED]: TaskDone02Icon,
+  [BookingStatus.NO_SHOW]: UserRemove02Icon,
 };
 
 const statusLabels: Record<BookingStatus, string> = {
@@ -207,10 +220,10 @@ export const BookingListPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">Bookings</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-2">
             Manage reservations for {currentRestaurant.name}
           </p>
         </div>
@@ -309,39 +322,38 @@ export const BookingListPage = () => {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {bookings.map((booking) => (
-            <Card key={booking.id}>
+            <Card key={booking.id} className="flex flex-col">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-base">
                     {booking.customer_name}
                   </CardTitle>
-                  <Badge variant={statusVariants[booking.status]}>
+                  <Badge className={statusStyles[booking.status]}>
+                    <HugeiconsIcon icon={statusIcons[booking.status]} strokeWidth={2} className="size-3.5" />
                     {statusLabels[booking.status]}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="text-sm text-muted-foreground">
-                  <p>
-                    <span className="font-medium text-foreground">Table:</span>{" "}
-                    {booking.table?.table_number || `#${booking.table_id}`}
-                  </p>
-                  <p>
-                    <span className="font-medium text-foreground">Date:</span>{" "}
-                    {formatDateTime(booking.booking_date_time)}
-                  </p>
+              <CardContent className="mt-auto space-y-3">
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <HugeiconsIcon icon={DiningTableIcon} strokeWidth={2} className="size-4 shrink-0" />
+                    <span>{booking.table?.table_number || `Table #${booking.table_id}`}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4 shrink-0" />
+                    <span>{formatDateTime(booking.booking_date_time)}</span>
+                  </div>
                   {booking.phone && (
-                    <p>
-                      <span className="font-medium text-foreground">Phone:</span>{" "}
-                      {booking.phone}
-                    </p>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <HugeiconsIcon icon={CallIcon} strokeWidth={2} className="size-4 shrink-0" />
+                      <a href={`tel:${booking.phone}`} className="hover:underline">{booking.phone}</a>
+                    </div>
                   )}
-                  {booking.notes && (
-                    <p>
-                      <span className="font-medium text-foreground">Notes:</span>{" "}
-                      {booking.notes}
-                    </p>
-                  )}
+                  <div className="flex items-start gap-2 text-muted-foreground">
+                    <HugeiconsIcon icon={StickyNote01Icon} strokeWidth={2} className="size-4 shrink-0 mt-0.5" />
+                    <span className="line-clamp-2">{booking.notes || "—"}</span>
+                  </div>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <Button
@@ -352,6 +364,7 @@ export const BookingListPage = () => {
                       setShowCreateForm(false);
                     }}
                   >
+                    <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
                     Edit
                   </Button>
                   <Button
@@ -360,6 +373,7 @@ export const BookingListPage = () => {
                     className="text-destructive hover:text-destructive"
                     onClick={() => handleDelete(booking)}
                   >
+                    <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
                     Delete
                   </Button>
                 </div>

@@ -34,6 +34,21 @@ export const useRestaurantById = (id: number | undefined) => {
 };
 
 /**
+ * Build FormData from restaurant input
+ */
+const buildRestaurantFormData = (
+  data: CreateRestaurantInput | UpdateRestaurantInput
+): FormData => {
+  const formData = new FormData();
+  formData.append("name", data.name);
+  if (data.address) formData.append("address", data.address);
+  if (data.phone) formData.append("phone", data.phone);
+  if (data.currency) formData.append("currency", data.currency);
+  if (data.logo) formData.append("logo", data.logo);
+  return formData;
+};
+
+/**
  * Create new restaurant
  */
 export const useCreateRestaurant = () => {
@@ -41,16 +56,11 @@ export const useCreateRestaurant = () => {
 
   return useMutation({
     mutationFn: (data: CreateRestaurantInput) =>
-      api.post<Restaurant>(endpoints.restaurants.create, data),
-    onSuccess: (newRestaurant) => {
-      // Invalidate restaurants list to refetch
+      api.post<Restaurant>(endpoints.restaurants.create, buildRestaurantFormData(data), {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants"] });
-
-      // Optimistically add to cache
-      queryClient.setQueryData<Restaurant[]>(["restaurants"], (old = []) => [
-        ...old,
-        newRestaurant,
-      ]);
     },
   });
 };
@@ -63,15 +73,14 @@ export const useUpdateRestaurant = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateRestaurantInput }) =>
-      api.put<Restaurant>(endpoints.restaurants.update(id), data),
+      api.put<Restaurant>(endpoints.restaurants.update(id), buildRestaurantFormData(data), {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
     onSuccess: (updatedRestaurant) => {
-      // Update in cache
       queryClient.setQueryData<Restaurant>(
         ["restaurant", updatedRestaurant.id],
         updatedRestaurant
       );
-
-      // Update in restaurants list
       queryClient.setQueryData<Restaurant[]>(["restaurants"], (old = []) =>
         old.map((r) => (r.id === updatedRestaurant.id ? updatedRestaurant : r))
       );
