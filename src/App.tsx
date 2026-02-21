@@ -5,7 +5,7 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AlertDialogRenderer } from "@/components/alert-dialog-renderer";
+import { AlertDialogRenderer } from "@/components/AlertDialogRenderer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { GuestLayout } from "@/layouts/GuestLayout";
