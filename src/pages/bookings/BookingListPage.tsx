@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import { useTables } from "@/hooks/useTables";
 import {
   useBookings,
@@ -28,16 +29,6 @@ import {
   UserRemove02Icon,
   Calendar03Icon,
 } from "@hugeicons/core-free-icons";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { BookingStatus, type Booking } from "@/types";
 import type {
   CreateBookingFormData,
@@ -83,11 +74,11 @@ export const BookingListPage = () => {
   const updateMutation = useUpdateBooking();
   const deleteMutation = useDeleteBooking();
 
+  const { confirm, alert: showAlert } = useAlertDialog();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
-  const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
   const [defaultTableId, setDefaultTableId] = useState<string | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Auto-open create form when tableId query param is present
   useEffect(() => {
@@ -118,7 +109,7 @@ export const BookingListPage = () => {
       setShowCreateForm(false);
       setDefaultTableId(undefined);
     } catch (error: any) {
-      setErrorMessage(error.message || "Failed to create booking");
+      await showAlert({ title: "Error", description: error.message || "Failed to create booking" });
     }
   };
 
@@ -139,21 +130,28 @@ export const BookingListPage = () => {
       });
       setEditingBooking(null);
     } catch (error: any) {
-      setErrorMessage(error.message || "Failed to update booking");
+      await showAlert({ title: "Error", description: error.message || "Failed to update booking" });
     }
   };
 
-  const handleDelete = async () => {
-    if (!currentRestaurant || !bookingToDelete) return;
+  const handleDelete = async (booking: Booking) => {
+    if (!currentRestaurant) return;
+
+    const confirmed = await confirm({
+      title: "Delete Booking?",
+      description: `Are you sure you want to delete the booking for "${booking.customer_name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
       await deleteMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        bookingId: bookingToDelete.id,
+        bookingId: booking.id,
       });
-      setBookingToDelete(null);
     } catch (error: any) {
-      setErrorMessage(error.message || "Failed to delete booking");
+      await showAlert({ title: "Error", description: error.message || "Failed to delete booking" });
     }
   };
 
@@ -360,7 +358,7 @@ export const BookingListPage = () => {
                     variant="outline"
                     size="sm"
                     className="text-destructive hover:text-destructive"
-                    onClick={() => setBookingToDelete(booking)}
+                    onClick={() => handleDelete(booking)}
                   >
                     Delete
                   </Button>
@@ -371,48 +369,6 @@ export const BookingListPage = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!bookingToDelete}
-        onOpenChange={(open) => !open && setBookingToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the booking for "
-              {bookingToDelete?.customer_name}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Error Dialog */}
-      <AlertDialog
-        open={!!errorMessage}
-        onOpenChange={(open) => !open && setErrorMessage(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorMessage(null)}>
-              OK
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

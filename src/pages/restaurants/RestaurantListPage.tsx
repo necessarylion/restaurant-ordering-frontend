@@ -6,11 +6,11 @@
 import { useState } from "react";
 import { useRestaurants, useCreateRestaurant, useDeleteRestaurant } from "@/hooks/useRestaurants";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import { RestaurantCard } from "@/components/restaurant/RestaurantCard";
 import { RestaurantForm } from "@/components/restaurant/RestaurantForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { Restaurant } from "@/types";
 import type { RestaurantFormData } from "@/schemas/restaurant_schema";
 import { ErrorCard } from "@/components/ErrorCard";
@@ -21,8 +21,9 @@ export const RestaurantListPage = () => {
   const createMutation = useCreateRestaurant();
   const deleteMutation = useDeleteRestaurant();
 
+  const { confirm } = useAlertDialog();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [restaurantToDelete, setRestaurantToDelete] = useState<Restaurant | null>(null);
 
   const handleCreate = async (data: RestaurantFormData) => {
     try {
@@ -38,18 +39,22 @@ export const RestaurantListPage = () => {
     setCurrentRestaurant(restaurant);
   };
 
-  const handleDelete = async () => {
-    if (!restaurantToDelete) return;
+  const handleDelete = async (restaurant: Restaurant) => {
+    const confirmed = await confirm({
+      title: "Delete Restaurant?",
+      description: `Are you sure you want to delete "${restaurant.name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
-      await deleteMutation.mutateAsync(restaurantToDelete.id);
+      await deleteMutation.mutateAsync(restaurant.id);
 
       // If deleted restaurant was selected, clear selection
-      if (currentRestaurant?.id === restaurantToDelete.id) {
+      if (currentRestaurant?.id === restaurant.id) {
         setCurrentRestaurant(null);
       }
-
-      setRestaurantToDelete(null);
     } catch (error: any) {
       alert(error.message || "Failed to delete restaurant");
     }
@@ -112,30 +117,13 @@ export const RestaurantListPage = () => {
                 key={restaurant.id}
                 restaurant={restaurant}
                 onSelect={handleSelect}
-                onDelete={(r) => setRestaurantToDelete(r)}
+                onDelete={handleDelete}
                 isSelected={currentRestaurant?.id === restaurant.id}
               />
             ))}
           </div>
         )}
 
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={!!restaurantToDelete} onOpenChange={(open) => !open && setRestaurantToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Restaurant?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "{restaurantToDelete?.name}"? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     </div>
   );

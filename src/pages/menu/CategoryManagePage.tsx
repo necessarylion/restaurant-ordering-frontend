@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import {
   useCategories,
   useCreateCategory,
@@ -15,16 +16,6 @@ import { CategoryCard } from "@/components/menu/CategoryCard";
 import { CategoryForm } from "@/components/menu/CategoryForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import type { Category } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
 
@@ -39,11 +30,10 @@ export const CategoryManagePage = () => {
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
 
+  const { confirm } = useAlertDialog();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
-    null
-  );
 
   const handleCreate = async (data: any) => {
     if (!currentRestaurant) return;
@@ -79,15 +69,22 @@ export const CategoryManagePage = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!currentRestaurant || !categoryToDelete) return;
+  const handleDelete = async (category: Category) => {
+    if (!currentRestaurant) return;
+
+    const confirmed = await confirm({
+      title: "Delete Category?",
+      description: `Are you sure you want to delete "${category.name}"? This action cannot be undone and may affect existing menu items.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
       await deleteMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        categoryId: categoryToDelete.id,
+        categoryId: category.id,
       });
-      setCategoryToDelete(null);
     } catch (error: any) {
       alert(error.message || "Failed to delete category");
     }
@@ -200,36 +197,12 @@ export const CategoryManagePage = () => {
                   setEditingCategory(c);
                   setShowCreateForm(false);
                 }}
-                onDelete={(c) => setCategoryToDelete(c)}
+                onDelete={handleDelete}
               />
             ))}
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!categoryToDelete}
-        onOpenChange={(open) => !open && setCategoryToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Category?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{categoryToDelete?.name}"? This
-              action cannot be undone and may affect existing menu items.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

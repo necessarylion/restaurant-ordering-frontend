@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { RestaurantProvider } from "@/contexts/RestaurantContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AlertDialogProvider } from "@/contexts/AlertDialogContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { GuestLayout } from "@/layouts/GuestLayout";
@@ -44,6 +45,7 @@ export function App() {
         <RestaurantProvider>
           <CartProvider>
             <TooltipProvider>
+            <AlertDialogProvider>
             <Routes>
               {renderRoutes(publicRoutes)}
 
@@ -66,6 +68,7 @@ export function App() {
                 {renderRoutes(dashboardRoutes)}
               </Route>
             </Routes>
+            </AlertDialogProvider>
             </TooltipProvider>
           </CartProvider>
         </RestaurantProvider>

@@ -41,15 +41,7 @@ import {
   ShoppingBasket03Icon,
   Calendar03Icon,
 } from "@hugeicons/core-free-icons";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import type { CreateBookingFormData } from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
 
@@ -69,7 +61,7 @@ export const FloorPlanCanvas = () => {
   const [activeZoneId, setActiveZoneId] = useState<number | null>(null);
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { alert: showAlert } = useAlertDialog();
   const [seatsInput, setSeatsInput] = useState("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [scale, setScale] = useState(1);
@@ -553,7 +545,7 @@ export const FloorPlanCanvas = () => {
                   });
                   setShowBookingModal(false);
                 } catch (err: any) {
-                  setErrorMessage(err.message || "Failed to create booking");
+                  showAlert({ title: "Error", description: err.message || "Failed to create booking" });
                 }
               }}
               onCancel={() => setShowBookingModal(false)}
@@ -562,23 +554,6 @@ export const FloorPlanCanvas = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Error Dialog */}
-        <AlertDialog
-          open={!!errorMessage}
-          onOpenChange={(open) => !open && setErrorMessage(null)}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Error</AlertDialogTitle>
-              <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction onClick={() => setErrorMessage(null)}>
-                OK
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
   );
 };

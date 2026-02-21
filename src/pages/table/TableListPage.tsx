@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import {
   useTables,
   useCreateTable,
@@ -21,16 +22,6 @@ import { ZoneManagement } from "@/components/table/ZoneManagement";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -53,9 +44,10 @@ export const TableListPage = () => {
   const deleteMutation = useDeleteTable();
   const generateTokenMutation = useGenerateTableToken();
 
+  const { confirm } = useAlertDialog();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
-  const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
   const [qrCodeData, setQrCodeData] = useState<{
     table: Table;
     token: string;
@@ -108,15 +100,22 @@ export const TableListPage = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!currentRestaurant || !tableToDelete) return;
+  const handleDelete = async (table: Table) => {
+    if (!currentRestaurant) return;
+
+    const confirmed = await confirm({
+      title: "Delete Table?",
+      description: `Are you sure you want to delete "${table.table_number}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
       await deleteMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        tableId: tableToDelete.id,
+        tableId: table.id,
       });
-      setTableToDelete(null);
     } catch (error: any) {
       alert(error.message || "Failed to delete table");
     }
@@ -264,7 +263,7 @@ export const TableListPage = () => {
                     setEditingTable(t);
                     setShowCreateForm(false);
                   }}
-                  onDelete={(t) => setTableToDelete(t)}
+                  onDelete={handleDelete}
                   onGenerateQR={handleGenerateQR}
                 />
               ))}
@@ -280,31 +279,6 @@ export const TableListPage = () => {
           <ZoneManagement />
         </TabsContent>
       </Tabs>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!tableToDelete}
-        onOpenChange={(open) => !open && setTableToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Table?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{tableToDelete?.table_number}"?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* QR Code Dialog */}
       <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>

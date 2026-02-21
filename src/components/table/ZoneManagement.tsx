@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import {
   useTables,
   useZones,
@@ -24,16 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import type { Zone } from "@/types";
 
 export const ZoneManagement = () => {
@@ -50,7 +41,7 @@ export const ZoneManagement = () => {
   const [editingZone, setEditingZone] = useState<Zone | null>(null);
   const [editZoneName, setEditZoneName] = useState("");
   const [editZoneColor, setEditZoneColor] = useState("");
-  const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null);
+  const { confirm } = useAlertDialog();
 
   const handleAddZone = async () => {
     const name = newZoneName.trim();
@@ -92,15 +83,22 @@ export const ZoneManagement = () => {
     }
   };
 
-  const handleDeleteZone = async () => {
-    if (!zoneToDelete || !currentRestaurant) return;
+  const handleDeleteZone = async (zone: Zone) => {
+    if (!currentRestaurant) return;
+
+    const confirmed = await confirm({
+      title: "Delete Zone?",
+      description: `Are you sure you want to delete "${zone.name}"? Tables in this zone will become unassigned.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
       await deleteZoneMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        zoneId: zoneToDelete.id,
+        zoneId: zone.id,
       });
-      setZoneToDelete(null);
     } catch {
       // error handled by mutation
     }
@@ -234,7 +232,7 @@ export const ZoneManagement = () => {
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => setZoneToDelete(zone)}
+                      onClick={() => handleDeleteZone(zone)}
                       disabled={deleteZoneMutation.isPending}
                     >
                       Delete
@@ -335,30 +333,6 @@ export const ZoneManagement = () => {
         )}
       </div>
 
-      {/* Delete zone confirmation */}
-      <AlertDialog
-        open={!!zoneToDelete}
-        onOpenChange={(open) => !open && setZoneToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Zone?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{zoneToDelete?.name}"? Tables in
-              this zone will become unassigned.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteZone}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

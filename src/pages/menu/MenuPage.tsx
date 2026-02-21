@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import { useCategories } from "@/hooks/useCategories";
 import {
   useMenuItems,
@@ -16,16 +17,6 @@ import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { MenuItemForm } from "@/components/menu/MenuItemForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Menu01Icon, GridViewIcon } from "@hugeicons/core-free-icons";
@@ -47,9 +38,10 @@ export const MenuPage = () => {
   const updateMutation = useUpdateMenuItem();
   const deleteMutation = useDeleteMenuItem();
 
+  const { confirm } = useAlertDialog();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Group menu items by category
@@ -113,15 +105,22 @@ export const MenuPage = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!currentRestaurant || !itemToDelete) return;
+  const handleDelete = async (item: MenuItem) => {
+    if (!currentRestaurant) return;
+
+    const confirmed = await confirm({
+      title: "Delete Menu Item?",
+      description: `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     try {
       await deleteMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        itemId: itemToDelete.id,
+        itemId: item.id,
       });
-      setItemToDelete(null);
     } catch (error: any) {
       alert(error.message || "Failed to delete menu item");
     }
@@ -259,7 +258,7 @@ export const MenuPage = () => {
                     setEditingItem(i);
                     setShowCreateForm(false);
                   }}
-                  onDelete={(i) => setItemToDelete(i)}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
@@ -267,30 +266,6 @@ export const MenuPage = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!itemToDelete}
-        onOpenChange={(open) => !open && setItemToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Menu Item?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{itemToDelete?.name}"? This
-              action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

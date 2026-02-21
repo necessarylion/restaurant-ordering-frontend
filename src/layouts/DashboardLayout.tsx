@@ -3,14 +3,14 @@
  * Main layout with sidebar navigation for authenticated users
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useRestaurants } from "@/hooks/useRestaurants";
 import { RestaurantSelector } from "@/components/restaurant/RestaurantSelector";
 import { useTheme } from "@/hooks/useTheme";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useAlertDialog } from "@/contexts/AlertDialogContext";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Store01Icon, Menu01Icon, Grid02Icon, Table01Icon, ShoppingBasket01Icon, Calendar03Icon, ShutDownIcon, Sun02Icon, Moon02Icon } from "@hugeicons/core-free-icons";
 
@@ -27,9 +27,15 @@ export const DashboardLayout = () => {
     }
   }, [restaurants, setRestaurants]);
 
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { confirm } = useAlertDialog();
 
   const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: "Are you sure you want to logout?",
+      description: "You will be redirected to the login page.",
+      confirmLabel: "Logout",
+    });
+    if (!confirmed) return;
     await logout();
   };
 
@@ -147,7 +153,7 @@ export const DashboardLayout = () => {
           <div className="border-t p-4 space-y-3">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setShowLogoutConfirm(true)}
+                onClick={handleLogout}
                 className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                 title="Logout"
               >
@@ -176,23 +182,6 @@ export const DashboardLayout = () => {
         </div>
       </main>
 
-      {/* Logout Confirmation */}
-      <AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You will be redirected to the login page.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>
-              Logout
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
