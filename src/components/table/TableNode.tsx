@@ -195,7 +195,7 @@ export const TableNode = ({
   const isCircle = seats <= 2;
   const w = isCircle ? CIRCLE_D : getWidth(seats);
   const h = isCircle ? CIRCLE_D : H;
-  const s = STATUS[status];
+  const s = STATUS[status] ?? STATUS.available;
   const stroke = isSelected ? "#a78bfa" : s.stroke;
   const sw = isSelected ? 2.5 : 1.5;
 

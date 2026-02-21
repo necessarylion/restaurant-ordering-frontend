@@ -11,16 +11,31 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { GuestLayout } from "@/layouts/GuestLayout";
-import { LoginPage } from "@/pages/auth/LoginPage";
-import { RegisterPage } from "@/pages/auth/RegisterPage";
-import { RestaurantListPage } from "@/pages/restaurants/RestaurantListPage";
-import { CategoryManagePage } from "@/pages/menu/CategoryManagePage";
-import { MenuPage } from "@/pages/menu/MenuPage";
-import { TableListPage } from "@/pages/table/TableListPage";
-import { GuestMenuPage } from "@/pages/guest/GuestMenuPage";
-import { OrderListPage } from "@/pages/orders/OrderListPage";
-import { StaffOrderCreatePage } from "@/pages/orders/StaffOrderCreatePage";
-import { BookingListPage } from "@/pages/bookings/BookingListPage";
+import {
+  publicRoutes,
+  guestRoutes,
+  dashboardRoutes,
+  dashboardIndex,
+  type RouteConfig,
+} from "@/routes";
+
+function renderRoutes(routes: RouteConfig[]) {
+  return routes.map((route) =>
+    "redirectTo" in route ? (
+      <Route
+        key={route.path}
+        path={route.path}
+        element={<Navigate to={route.redirectTo} replace />}
+      />
+    ) : (
+      <Route
+        key={route.path}
+        path={route.path}
+        element={<route.element />}
+      />
+    )
+  );
+}
 
 export function App() {
   return (
@@ -30,19 +45,12 @@ export function App() {
           <CartProvider>
             <TooltipProvider>
             <Routes>
-              {/* Redirect root to restaurants */}
-              <Route path="/" element={<Navigate to="/dashboard/restaurants" replace />} />
+              {renderRoutes(publicRoutes)}
 
-              {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-
-              {/* Guest ordering routes (no auth required) */}
               <Route path="/guest" element={<GuestLayout />}>
-                <Route path=":restaurantId/:token" element={<GuestMenuPage />} />
+                {renderRoutes(guestRoutes)}
               </Route>
 
-              {/* Protected routes with dashboard layout */}
               <Route
                 path="/dashboard"
                 element={
@@ -51,28 +59,12 @@ export function App() {
                   </ProtectedRoute>
                 }
               >
-                {/* Redirect /dashboard to /dashboard/restaurants */}
-                <Route index element={<Navigate to="/dashboard/restaurants" replace />} />
-
-                {/* Restaurant routes */}
-                <Route path="restaurants" element={<RestaurantListPage />} />
-                {/* Menu routes */}
-                <Route path="categories" element={<CategoryManagePage />} />
-                <Route path="menu" element={<MenuPage />} />
-
-                {/* Table routes */}
-                <Route path="tables" element={<TableListPage />} />
-
-                {/* Booking routes */}
-                <Route path="bookings" element={<BookingListPage />} />
-
-                {/* Order routes */}
-                <Route path="orders" element={<OrderListPage />} />
-                <Route path="orders/create" element={<StaffOrderCreatePage />} />
+                <Route
+                  index
+                  element={<Navigate to={dashboardIndex.redirectTo} replace />}
+                />
+                {renderRoutes(dashboardRoutes)}
               </Route>
-
-              {/* 404 fallback */}
-              <Route path="*" element={<Navigate to="/dashboard/restaurants" replace />} />
             </Routes>
             </TooltipProvider>
           </CartProvider>

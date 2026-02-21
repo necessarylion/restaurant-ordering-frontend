@@ -81,7 +81,7 @@ export const RestaurantListPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">My Restaurants</h1>
           <Button onClick={() => setShowCreateForm(!showCreateForm)}>
