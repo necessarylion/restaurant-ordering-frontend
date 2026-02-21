@@ -41,7 +41,7 @@ import {
   ShoppingBasket03Icon,
   Calendar03Icon,
 } from "@hugeicons/core-free-icons";
-import { useAlertDialog } from "@/contexts/AlertDialogContext";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
 import type { CreateBookingFormData } from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
 

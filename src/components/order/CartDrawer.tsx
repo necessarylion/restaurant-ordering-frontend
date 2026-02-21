@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/hooks/useCart";
 import { useCreateGuestOrder } from "@/hooks/useOrders";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { Button } from "@/components/ui/button";

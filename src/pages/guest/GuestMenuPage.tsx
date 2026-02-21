@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/hooks/useCart";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useMenuItems } from "@/hooks/useMenuItems";
 import { useCategories } from "@/hooks/useCategories";

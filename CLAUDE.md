@@ -19,6 +19,7 @@ Restaurant ordering frontend application built with React 19, TypeScript, and Vi
 - **Routing**: React Router v7
 - **Data Fetching**: TanStack Query (React Query)
 - **HTTP Client**: Axios with JWT interceptors
+- **State Management**: Zustand (client state) + TanStack Query (server state)
 - **Forms**: React Hook Form + Zod validation
 - **Styling**: Tailwind CSS v4 with CSS variables
 - **UI Components**: shadcn/ui (radix-lyra style)
@@ -34,7 +35,7 @@ Restaurant ordering frontend application built with React 19, TypeScript, and Vi
 - `src/lib/api/` - HTTP client, endpoints, upload utilities
 - `src/lib/` - Shared utilities and validation schemas
 - `src/hooks/` - Custom React hooks
-- `src/contexts/` - React Context providers (Auth, Restaurant, Cart)
+- `src/stores/` - Zustand stores (Auth, Restaurant, Cart, AlertDialog)
 - `src/types/` - TypeScript type definitions
 - `src/main.tsx` - Application entry point
 - `src/App.tsx` - Root application component with routing
@@ -77,7 +78,9 @@ The app supports dark mode via `.dark` class. CSS variables are defined in `src/
 ## State Management
 
 - **Server State**: React Query handles all server data (caching, refetching)
-- **Auth State**: AuthContext (`src/contexts/AuthContext.tsx`)
-- **Restaurant Selection**: RestaurantContext (to be implemented)
-- **Guest Cart**: CartContext (to be implemented)
-- **No global state library needed** - React Query + Context API is sufficient
+- **Client State**: Zustand stores (`src/stores/`)
+  - `authStore` - User authentication state and methods
+  - `restaurantStore` - Current restaurant selection with localStorage persistence
+  - `cartStore` - Guest ordering cart (session-only)
+  - `alertDialogStore` - Global confirm/alert dialog state
+- **Hooks**: `useAuth()`, `useRestaurant()`, `useCart()`, `useAlertDialog()` in `src/hooks/`

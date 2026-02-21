@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
-import { useAlertDialog } from "@/contexts/AlertDialogContext";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { useCategories } from "@/hooks/useCategories";
 import {
   useMenuItems,

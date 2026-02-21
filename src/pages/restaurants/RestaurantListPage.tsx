@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useRestaurants, useCreateRestaurant, useDeleteRestaurant } from "@/hooks/useRestaurants";
 import { useRestaurant } from "@/hooks/useRestaurant";
-import { useAlertDialog } from "@/contexts/AlertDialogContext";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { RestaurantCard } from "@/components/restaurant/RestaurantCard";
 import { RestaurantForm } from "@/components/restaurant/RestaurantForm";
 import { Button } from "@/components/ui/button";

@@ -10,7 +10,7 @@ import { useRestaurant } from "@/hooks/useRestaurant";
 import { useRestaurants } from "@/hooks/useRestaurants";
 import { RestaurantSelector } from "@/components/restaurant/RestaurantSelector";
 import { useTheme } from "@/hooks/useTheme";
-import { useAlertDialog } from "@/contexts/AlertDialogContext";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Store01Icon, Menu01Icon, Grid02Icon, Table01Icon, ShoppingBasket01Icon, Calendar03Icon, ShutDownIcon, Sun02Icon, Moon02Icon } from "@hugeicons/core-free-icons";
 

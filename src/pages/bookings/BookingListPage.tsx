@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useRestaurant } from "@/hooks/useRestaurant";
-import { useAlertDialog } from "@/contexts/AlertDialogContext";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { useTables } from "@/hooks/useTables";
 import {
   useBookings,

@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CartDrawer } from "./CartDrawer";
