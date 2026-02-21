@@ -5,7 +5,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { restaurantSchema, type RestaurantFormData } from "@/lib/schemas";
+import { restaurantSchema, type RestaurantFormData } from "@/schemas/restaurant_schema";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";

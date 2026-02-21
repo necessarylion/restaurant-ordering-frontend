@@ -5,7 +5,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { tableSchema } from "@/lib/schemas";
+import { tableSchema } from "@/schemas/table_schema";
 import type { Table, Zone } from "@/types";
 import { Button } from "@/components/ui/button";
 import {

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { Restaurant } from "@/types";
-import type { RestaurantFormData } from "@/lib/schemas";
+import type { RestaurantFormData } from "@/schemas/restaurant_schema";
 
 export const RestaurantListPage = () => {
   const { data: restaurants = [], isLoading, error } = useRestaurants();

@@ -10,7 +10,7 @@ import {
   updateBookingFormSchema,
   type CreateBookingFormData,
   type UpdateBookingFormData,
-} from "@/lib/schemas";
+} from "@/schemas/booking_schema";
 import { toDatetimeLocal } from "@/lib/utils";
 import { BookingStatus, type Booking, type Table } from "@/types";
 import { Button } from "@/components/ui/button";

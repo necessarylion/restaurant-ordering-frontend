@@ -6,7 +6,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { createCategoryFormSchema, updateCategoryFormSchema } from "@/lib/schemas";
+import { createCategoryFormSchema, updateCategoryFormSchema } from "@/schemas/category_schema";
 import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldContent, FieldError } from "@/components/ui/field";

@@ -9,7 +9,7 @@ import { useState } from "react";
 import {
   createMenuItemFormSchema,
   updateMenuItemFormSchema,
-} from "@/lib/schemas";
+} from "@/schemas/menu_item_schema";
 import type { MenuItem, Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import {

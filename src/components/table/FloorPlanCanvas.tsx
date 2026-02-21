@@ -50,7 +50,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { CreateBookingFormData } from "@/lib/schemas";
+import type { CreateBookingFormData } from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
 
 const MIN_SCALE = 0.3;

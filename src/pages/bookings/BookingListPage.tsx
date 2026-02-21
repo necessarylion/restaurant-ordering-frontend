@@ -42,7 +42,7 @@ import { BookingStatus, type Booking } from "@/types";
 import type {
   CreateBookingFormData,
   UpdateBookingFormData,
-} from "@/lib/schemas";
+} from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
 
 const statusVariants: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
