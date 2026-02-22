@@ -33,6 +33,7 @@ import {
   DiningTableIcon,
   CallIcon,
   StickyNote01Icon,
+  UserIcon,
 } from "@hugeicons/core-free-icons";
 import { BookingStatus, type Booking } from "@/types";
 import type {
@@ -325,7 +326,8 @@ export const BookingListPage = () => {
             <Card key={booking.id} className="flex flex-col">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-base">
+                  <CardTitle className="text-base flex items-center gap-1.5">
+                    <HugeiconsIcon icon={UserIcon} strokeWidth={2} className="size-4 shrink-0" />
                     {booking.customer_name}
                   </CardTitle>
                   <Badge className={statusStyles[booking.status]}>

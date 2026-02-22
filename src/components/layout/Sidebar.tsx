@@ -57,10 +57,10 @@ export const Sidebar = () => {
   return (
     <aside className="w-64 border-r bg-card">
       <div className="flex h-full flex-col">
-        <div className="border-b p-4">
-          <div className="flex items-center px-2">
-            <HugeiconsIcon icon={Restaurant01Icon} strokeWidth={2} className="size-8 mr-4" />
-            <p className="text-lg w-full">Dine Q</p>
+        <div className="border-b p-4 pr-10">
+          <div className="flex items-center justify-center">
+            <HugeiconsIcon icon={Restaurant01Icon} strokeWidth={2} className="size-8 mr-3" />
+            <p className="text-lg">Dine Q</p>
           </div>
         </div>
 

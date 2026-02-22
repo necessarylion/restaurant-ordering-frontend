@@ -233,7 +233,7 @@ export const FloorPlanCanvas = () => {
     <div className="flex gap-4">
       {/* Left: Zone color bar */}
       {zones.length > 0 && (
-        <div className="flex flex-col items-center gap-2 pt-2">
+        <div className="flex flex-col items-center gap-4 pt-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -278,7 +278,7 @@ export const FloorPlanCanvas = () => {
       <div className="flex-1 space-y-0">
         <div
           ref={containerRef}
-          className="relative rounded-lg border bg-card overflow-hidden"
+          className="relative rounded-lg border border-dashed bg-card overflow-hidden"
         >
             {filteredTables.length === 0 ? (
               <div
@@ -295,7 +295,7 @@ export const FloorPlanCanvas = () => {
               <Stage
                 ref={stageRef}
                 width={stageSize.width}
-                height={stageSize.height + 50}
+                height={stageSize.height + 80}
                 draggable
               >
                 <Layer>
