@@ -22,6 +22,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Menu01Icon, GridViewIcon } from "@hugeicons/core-free-icons";
 import type { MenuItem } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const MenuPage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -164,13 +165,7 @@ export const MenuPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">Menu Items</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage menu items for {currentRestaurant.name}
-          </p>
-        </div>
+      <PageHeader title="Menu Items" description={`Manage menu items for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
             setShowCreateForm(!showCreateForm);
@@ -179,7 +174,7 @@ export const MenuPage = () => {
         >
           {showCreateForm ? "Cancel" : "Create Menu Item"}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Create Form */}
       {showCreateForm && (

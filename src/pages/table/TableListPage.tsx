@@ -30,6 +30,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { FloorPlanIcon, ListViewIcon, Layers01Icon } from "@hugeicons/core-free-icons";
 import type { Table } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const TableListPage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -175,13 +176,7 @@ export const TableListPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">Tables</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage tables and QR codes for {currentRestaurant.name}
-          </p>
-        </div>
+      <PageHeader title="Tables" description={`Manage tables and QR codes for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
             setShowCreateForm(!showCreateForm);
@@ -190,7 +185,7 @@ export const TableListPage = () => {
         >
           {showCreateForm ? "Cancel" : "Create Table"}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Create Form */}
       {showCreateForm && (

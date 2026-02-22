@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Category } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const CategoryManagePage = () => {
   const { currentRestaurant } = useRestaurant();
@@ -126,13 +127,7 @@ export const CategoryManagePage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">Categories</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage categories for {currentRestaurant.name}
-          </p>
-        </div>
+      <PageHeader title="Categories" description={`Manage categories for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
             setShowCreateForm(!showCreateForm);
@@ -141,7 +136,7 @@ export const CategoryManagePage = () => {
         >
           {showCreateForm ? "Cancel" : "Create Category"}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Create Form */}
       {showCreateForm && (

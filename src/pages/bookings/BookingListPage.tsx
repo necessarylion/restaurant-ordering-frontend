@@ -42,6 +42,7 @@ import type {
 } from "@/schemas/booking_schema";
 import { toRFC3339 } from "@/lib/utils";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const statusStyles: Record<BookingStatus, string> = {
   [BookingStatus.PENDING]: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
@@ -221,13 +222,7 @@ export const BookingListPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">Bookings</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage reservations for {currentRestaurant.name}
-          </p>
-        </div>
+      <PageHeader title="Bookings" description={`Manage reservations for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
             setShowCreateForm(!showCreateForm);
@@ -236,7 +231,7 @@ export const BookingListPage = () => {
         >
           {showCreateForm ? "Cancel" : "Create Booking"}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Create Form */}
       {showCreateForm && (

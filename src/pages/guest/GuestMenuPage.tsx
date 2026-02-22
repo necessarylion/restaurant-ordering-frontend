@@ -17,6 +17,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import type { MenuItem } from "@/types";
 import { formatPrice } from "@/lib/utils";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const GuestMenuPage = () => {
   const { restaurantId: restaurantIdParam, token } = useParams<{
@@ -94,12 +95,7 @@ export const GuestMenuPage = () => {
 
   return (
     <div className="space-y-6 pb-24">
-      <div>
-        <h1 className="text-3xl font-bold">Menu</h1>
-        <p className="text-muted-foreground">
-          Browse our menu and add items to your cart
-        </p>
-      </div>
+      <PageHeader title="Menu" description="Browse our menu and add items to your cart" />
 
       {/* Category Tabs */}
       {activeCategories.length > 0 && (

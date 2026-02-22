@@ -50,6 +50,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderStatus, OrderType, type Order } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const columns = [
   {
@@ -290,12 +291,7 @@ export const OrderListPage = () => {
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex items-center gap-4 mb-4">
-        <h1 className="text-3xl font-bold">Orders</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage orders for {currentRestaurant.name}
-        </p>
-      </div>
+      <PageHeader title="Orders" description={`Manage orders for ${currentRestaurant.name}`} />
       {/* Kanban Board */}
       <DndContext
         sensors={sensors}

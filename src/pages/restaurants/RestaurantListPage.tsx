@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Restaurant } from "@/types";
 import type { RestaurantFormData } from "@/schemas/restaurant_schema";
 import { ErrorCard } from "@/components/ErrorCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const RestaurantListPage = () => {
   const { data: restaurants = [], isLoading, error } = useRestaurants();
@@ -109,12 +110,11 @@ export const RestaurantListPage = () => {
   return (
     <div className="min-h-screen">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">My Restaurants</h1>
+        <PageHeader title="My Restaurants">
           <Button onClick={() => setShowCreateForm(!showCreateForm)}>
             {showCreateForm ? "Cancel" : "Create Restaurant"}
           </Button>
-        </div>
+        </PageHeader>
 
         {showCreateForm && (
           <Card>
