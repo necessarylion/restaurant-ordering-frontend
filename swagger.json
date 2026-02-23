@@ -324,6 +324,18 @@
                         "description": "Restaurant logo (jpg, jpeg, png, webp, max 5MB)",
                         "name": "logo",
                         "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking window start hours (default 0)",
+                        "name": "booking_window_start_hours",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking window end hours (default 2)",
+                        "name": "booking_window_end_hours",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -445,6 +457,18 @@
                         "type": "file",
                         "description": "Restaurant logo (jpg, jpeg, png, webp, max 5MB)",
                         "name": "logo",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking window start hours (default 0)",
+                        "name": "booking_window_start_hours",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Booking window end hours (default 2)",
+                        "name": "booking_window_end_hours",
                         "in": "formData"
                     }
                 ],
@@ -2168,7 +2192,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a payment record for table orders. Updates order status to completed.",
+                "description": "Create a payment for all active unpaid orders on a table. Sub-total and total are auto-calculated. Discount is optional (accepts float, e.g. 10.50).",
                 "consumes": [
                     "application/json"
                 ],
@@ -3322,6 +3346,10 @@
                     "type": "integer",
                     "example": 1
                 },
+                "name": {
+                    "type": "string",
+                    "example": "Fried Rice"
+                },
                 "notes": {
                     "type": "string",
                     "example": "No spicy"
@@ -3436,6 +3464,14 @@
                     "type": "string",
                     "example": "123 Main St"
                 },
+                "booking_window_end_hours": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "booking_window_start_hours": {
+                    "type": "integer",
+                    "example": 0
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2025-01-01T00:00:00Z"
@@ -3535,8 +3571,11 @@
         "models.Table": {
             "type": "object",
             "properties": {
-                "active_booking": {
-                    "$ref": "#/definitions/models.Booking"
+                "active_bookings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Booking"
+                    }
                 },
                 "active_orders": {
                     "type": "array",
@@ -3789,51 +3828,7 @@
             }
         },
         "validators.CreatePaymentInput": {
-            "type": "object",
-            "required": [
-                "sub_total",
-                "table_id",
-                "tax",
-                "total"
-            ],
-            "properties": {
-                "discount": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 0
-                },
-                "order_ids": {
-                    "description": "If empty, all unpaid orders for table",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "example": [
-                        1,
-                        2,
-                        3
-                    ]
-                },
-                "sub_total": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 50000
-                },
-                "table_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "tax": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 5000
-                },
-                "total": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 55000
-                }
-            }
+            "type": "object"
         },
         "validators.CreateTableInput": {
             "type": "object",

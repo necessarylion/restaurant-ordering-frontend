@@ -134,7 +134,7 @@ export interface Table {
   restaurant?: Restaurant;
   zone?: Zone;
   active_orders?: Order[];
-  active_booking?: Booking;
+  active_bookings?: Booking[];
 }
 
 export interface OrderItem {

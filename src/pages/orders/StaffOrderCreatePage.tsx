@@ -128,7 +128,7 @@ export const StaffOrderCreatePage = () => {
           notes: item.notes || undefined,
         })),
       });
-      navigate("/dashboard/tables");
+      navigate(tableId ? `/dashboard/tables?tableId=${tableId}` : "/dashboard/tables");
     } catch (error: any) {
       alert(error.message || "Failed to create order");
     }
@@ -166,7 +166,7 @@ export const StaffOrderCreatePage = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/dashboard/tables")}
+          onClick={() => navigate(tableId ? `/dashboard/tables?tableId=${tableId}` : "/dashboard/tables")}
         >
           <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
         </Button>

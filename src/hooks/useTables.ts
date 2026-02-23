@@ -30,6 +30,7 @@ export const useTable = (
     queryFn: () =>
       api.get<Table>(endpoints.tables.get(restaurantId!, tableId!)),
     enabled: !!restaurantId && !!tableId,
+    staleTime: 0,
   });
 };
 

@@ -6,7 +6,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Stage, Layer } from "react-konva";
 import type Konva from "konva";
 import { useRestaurant } from "@/hooks/useRestaurant";
@@ -36,12 +36,12 @@ import {
   SearchAreaIcon,
   ShoppingBasket03Icon,
   Calendar03Icon,
-  CreditCardIcon,
+  DollarCircleIcon,
 } from "@hugeicons/core-free-icons";
 import type { Order } from "@/types";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import type { CreateBookingFormData } from "@/schemas/booking_schema";
-import { formatPrice, toRFC3339 } from "@/lib/utils";
+import { toRFC3339 } from "@/lib/utils";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 3;
@@ -54,6 +54,7 @@ interface FloorPlanCanvasProps {
 
 export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanCanvasProps) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { currentRestaurant } = useRestaurant();
   const { data: tables = [] } = useTables(currentRestaurant?.id);
   const { data: zones = [] } = useZones(currentRestaurant?.id);
@@ -62,8 +63,18 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
   const createPaymentMutation = useCreatePayment();
   const queryClient = useQueryClient();
 
-  const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
-  const { data: tableDetails } = useTable(currentRestaurant?.id, selectedTableId ?? undefined);
+  const selectedTableId = searchParams.get("tableId") ? Number(searchParams.get("tableId")) : null;
+  const setSelectedTableId = useCallback((id: number | null) => {
+    setSearchParams((prev) => {
+      if (id) {
+        prev.set("tableId", String(id));
+      } else {
+        prev.delete("tableId");
+      }
+      return prev;
+    }, { replace: true });
+  }, [setSearchParams]);
+  const { data: tableDetails, refetch: refetchTableDetails } = useTable(currentRestaurant?.id, selectedTableId ?? undefined);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const { alert: showAlert, confirm } = useAlertDialog();
@@ -150,19 +161,22 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
 
   const handleTableClick = useCallback(
     (tableId: number) => {
-      setSelectedTableId((prev) => (prev === tableId ? null : tableId));
+      if (selectedTableId === tableId) {
+        refetchTableDetails();
+      } else {
+        setSelectedTableId(tableId);
+      }
     },
-    []
+    [selectedTableId, refetchTableDetails]
   );
 
   const handleMakePayment = useCallback(async () => {
     if (!currentRestaurant || !selectedTableId || !tableDetails?.active_orders?.length) return;
     const orders = tableDetails.active_orders;
-    const subTotal = orders.reduce((sum, o) => sum + o.total, 0);
 
     const confirmed = await confirm({
       title: "Make Payment",
-      description: `Confirm payment for ${orders.length} order(s)? Total: ${formatPrice(subTotal, currentRestaurant.currency)}`,
+      description: `Confirm payment for ${orders.length} order(s) on this table?`,
       confirmLabel: "Pay",
     });
     if (!confirmed) return;
@@ -171,10 +185,6 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
       await createPaymentMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
         table_id: selectedTableId,
-        order_ids: orders.map((o) => o.id),
-        sub_total: subTotal,
-        tax: 0,
-        total: subTotal,
       });
       queryClient.invalidateQueries({
         queryKey: ["tables", currentRestaurant.id, selectedTableId],
@@ -326,50 +336,80 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
         <div className="w-64 shrink-0 space-y-4">
           {/* Selected Table Details */}
           {selectedTable ? (
-            <div className="rounded-lg border bg-card p-4 space-y-4">
-              <h3 className="text-sm font-semibold mb-1">{selectedTable.table_number}</h3>
+            <>
+              <div className="rounded-lg border bg-card p-4 space-y-4">
+                <h3 className="text-sm font-semibold mb-1">{selectedTable.table_number}</h3>
 
-              {/* Actions */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground">Actions</label>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => navigate(`/dashboard/orders/create?tableId=${selectedTable.id}`)}
-                >
-                  <HugeiconsIcon icon={ShoppingBasket03Icon} strokeWidth={2} className="size-4" />
-                  Create Order
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowBookingModal(true)}
-                >
-                  <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
-                  Create Booking
-                </Button>
-                {tableDetails?.active_orders && tableDetails.active_orders.length > 0 && (
+                {/* Actions */}
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">Actions</label>
                   <Button
                     size="sm"
-                    variant="outline"
                     className="w-full"
-                    onClick={handleMakePayment}
-                    disabled={createPaymentMutation.isPending}
+                    onClick={() => navigate(`/dashboard/orders/create?tableId=${selectedTable.id}`)}
                   >
-                    <HugeiconsIcon icon={CreditCardIcon} strokeWidth={2} className="size-4" />
-                    {createPaymentMutation.isPending ? "Processing..." : "Make Payment"}
+                    <HugeiconsIcon icon={ShoppingBasket03Icon} strokeWidth={2} className="size-4" />
+                    Create Order
                   </Button>
-                )}
+                  <Button
+                    size="sm"
+                    className="w-full bg-purple-700 text-white hover:bg-purple-800"
+                    onClick={() => setShowBookingModal(true)}
+                  >
+                    <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
+                    Create Booking
+                  </Button>
+                  {tableDetails?.active_orders && tableDetails.active_orders.length > 0 && (
+                    <Button
+                      size="sm"
+                      className="w-full bg-amber-600 text-white hover:bg-amber-700"
+                      onClick={handleMakePayment}
+                      disabled={createPaymentMutation.isPending}
+                    >
+                      <HugeiconsIcon icon={DollarCircleIcon} strokeWidth={2} className="size-4" />
+                      {createPaymentMutation.isPending ? "Processing..." : "Make Payment"}
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {/* Active Bookings */}
+              {tableDetails?.active_bookings && tableDetails.active_bookings.length > 0 && (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground ml-1">
+                    Bookings ({tableDetails.active_bookings.length})
+                  </label>
+                  <div className="space-y-2">
+                    {tableDetails.active_bookings.map((booking) => (
+                      <div key={booking.id} className="rounded-lg border bg-card p-3 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{booking.customer_name}</span>
+                          <span className="text-[10px] capitalize rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5">
+                            {booking.status}
+                          </span>
+                        </div>
+                        {booking.phone && (
+                          <p className="text-xs text-muted-foreground">{booking.phone}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(booking.booking_date_time).toLocaleString()}
+                        </p>
+                        {booking.notes && (
+                          <p className="text-xs text-muted-foreground italic">{booking.notes}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Active Orders */}
               {tableDetails?.active_orders && tableDetails.active_orders.length > 0 && (
-                <div className="pt-2 border-t">
+                <div className="space-y-1.5">
                   <label className="text-xs text-muted-foreground ml-1">
                     Active Orders ({tableDetails.active_orders.length})
                   </label>
-                  <div className="space-y-2 p-1">
+                  <div className="space-y-2">
                     {tableDetails.active_orders.map((order: Order) => (
                       <OrderCard
                         key={order.id}
@@ -380,7 +420,7 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
                   </div>
                 </div>
               )}
-            </div>
+            </>
           ) : (
             <div className="rounded-lg border border-dashed bg-card p-4">
               <p className="text-center text-xs text-muted-foreground">
@@ -414,6 +454,9 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
                     notes: formData.notes || undefined,
                   });
                   setShowBookingModal(false);
+                  queryClient.invalidateQueries({
+                    queryKey: ["tables", currentRestaurant.id],
+                  });
                 } catch (err: any) {
                   showAlert({ title: "Error", description: err.message || "Failed to create booking" });
                 }

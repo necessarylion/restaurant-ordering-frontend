@@ -159,11 +159,7 @@ export interface UpdateOrderInput {
 // Payment API types
 export interface CreatePaymentInput {
   table_id: number;
-  order_ids?: number[]; // if empty, all unpaid orders for table
-  sub_total: number;
-  tax: number;
   discount?: number;
-  total: number;
 }
 
 // Member API types

@@ -20,6 +20,7 @@ export const useOrders = (restaurantId: number | undefined) => {
       return api.get<Order[]>(endpoints.orders.list(restaurantId));
     },
     enabled: !!restaurantId,
+    refetchOnMount: "always",
     refetchInterval: 5000, // Poll every 5 seconds for real-time updates
   });
 };
