@@ -10,7 +10,13 @@ import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { RestaurantCard } from "@/components/restaurant/RestaurantCard";
 import { RestaurantForm } from "@/components/restaurant/RestaurantForm";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Restaurant } from "@/types";
 import type { RestaurantFormData } from "@/schemas/restaurant_schema";
 import { ErrorCard } from "@/components/ErrorCard";
@@ -111,41 +117,39 @@ export const RestaurantListPage = () => {
     <div className="min-h-screen">
       <div className="space-y-6">
         <PageHeader title="My Restaurants">
-          <Button onClick={() => setShowCreateForm(!showCreateForm)}>
-            {showCreateForm ? "Cancel" : "Create Restaurant"}
+          <Button onClick={() => setShowCreateForm(true)}>
+            Create Restaurant
           </Button>
         </PageHeader>
 
-        {showCreateForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Create New Restaurant</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RestaurantForm
-                onSubmit={handleCreate}
-                onCancel={() => setShowCreateForm(false)}
-                isSubmitting={createMutation.isPending}
-              />
-            </CardContent>
-          </Card>
-        )}
+        <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New Restaurant</DialogTitle>
+            </DialogHeader>
+            <RestaurantForm
+              onSubmit={handleCreate}
+              onCancel={() => setShowCreateForm(false)}
+              isSubmitting={createMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
 
-        {editingRestaurant && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Restaurant</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Dialog open={!!editingRestaurant} onOpenChange={(open) => !open && setEditingRestaurant(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Restaurant</DialogTitle>
+            </DialogHeader>
+            {editingRestaurant && (
               <RestaurantForm
                 restaurant={editingRestaurant}
                 onSubmit={handleUpdate}
                 onCancel={() => setEditingRestaurant(null)}
                 isSubmitting={updateMutation.isPending}
               />
-            </CardContent>
-          </Card>
-        )}
+            )}
+          </DialogContent>
+        </Dialog>
 
         {restaurants.length === 0 ? (
           <Card>
@@ -156,7 +160,7 @@ export const RestaurantListPage = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
             {restaurants.map((restaurant) => (
               <RestaurantCard
                 key={restaurant.id}

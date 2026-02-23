@@ -18,6 +18,12 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -225,42 +231,40 @@ export const BookingListPage = () => {
       <PageHeader title="Bookings" description={`Manage reservations for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
-            setShowCreateForm(!showCreateForm);
+            setShowCreateForm(true);
             setEditingBooking(null);
           }}
         >
-          {showCreateForm ? "Cancel" : "Create Booking"}
+          Create Booking
         </Button>
       </PageHeader>
 
-      {/* Create Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Booking</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <BookingForm
-              tables={tables}
-              defaultTableId={defaultTableId}
-              onSubmit={handleCreate}
-              onCancel={() => {
-                setShowCreateForm(false);
-                setDefaultTableId(undefined);
-              }}
-              isSubmitting={createMutation.isPending}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Create Form Dialog */}
+      <Dialog open={showCreateForm} onOpenChange={(open) => { if (!open) { setShowCreateForm(false); setDefaultTableId(undefined); } }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New Booking</DialogTitle>
+          </DialogHeader>
+          <BookingForm
+            tables={tables}
+            defaultTableId={defaultTableId}
+            onSubmit={handleCreate}
+            onCancel={() => {
+              setShowCreateForm(false);
+              setDefaultTableId(undefined);
+            }}
+            isSubmitting={createMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {/* Edit Form */}
-      {editingBooking && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Booking</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {/* Edit Form Dialog */}
+      <Dialog open={!!editingBooking} onOpenChange={(open) => !open && setEditingBooking(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Booking</DialogTitle>
+          </DialogHeader>
+          {editingBooking && (
             <BookingForm
               booking={editingBooking}
               tables={tables}
@@ -268,9 +272,9 @@ export const BookingListPage = () => {
               onCancel={() => setEditingBooking(null)}
               isSubmitting={updateMutation.isPending}
             />
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Status Filter */}
       <Tabs value={statusFilter} onValueChange={setStatusFilter}>

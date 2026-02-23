@@ -16,6 +16,12 @@ import { CategoryCard } from "@/components/menu/CategoryCard";
 import { CategoryForm } from "@/components/menu/CategoryForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Category } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -130,46 +136,44 @@ export const CategoryManagePage = () => {
       <PageHeader title="Categories" description={`Manage categories for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
-            setShowCreateForm(!showCreateForm);
+            setShowCreateForm(true);
             setEditingCategory(null);
           }}
         >
-          {showCreateForm ? "Cancel" : "Create Category"}
+          Create Category
         </Button>
       </PageHeader>
 
-      {/* Create Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CategoryForm
-              onSubmit={handleCreate}
-              onCancel={() => setShowCreateForm(false)}
-              isSubmitting={createMutation.isPending}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Create Form Dialog */}
+      <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Category</DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            onSubmit={handleCreate}
+            onCancel={() => setShowCreateForm(false)}
+            isSubmitting={createMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {/* Edit Form */}
-      {editingCategory && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Category</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {/* Edit Form Dialog */}
+      <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+          </DialogHeader>
+          {editingCategory && (
             <CategoryForm
               category={editingCategory}
               onSubmit={handleUpdate}
               onCancel={() => setEditingCategory(null)}
               isSubmitting={updateMutation.isPending}
             />
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Categories Grid */}
       {categories.length === 0 ? (

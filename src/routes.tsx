@@ -13,6 +13,9 @@ import { GuestMenuPage } from "@/pages/guest/GuestMenuPage";
 import { OrderListPage } from "@/pages/orders/OrderListPage";
 import { StaffOrderCreatePage } from "@/pages/orders/StaffOrderCreatePage";
 import { BookingListPage } from "@/pages/bookings/BookingListPage";
+import { DashboardPage } from "@/pages/dashboard/DashboardPage";
+import { MemberListPage } from "@/pages/members/MemberListPage";
+import { InvitationListPage } from "@/pages/invitations/InvitationListPage";
 
 interface PageRoute {
   path: string;
@@ -38,6 +41,7 @@ export const guestRoutes: PageRoute[] = [
 ];
 
 export const dashboardRoutes: RouteConfig[] = [
+  { path: "overview", element: DashboardPage },
   { path: "restaurants", element: RestaurantListPage },
   { path: "categories", element: CategoryManagePage },
   { path: "menu", element: MenuPage },
@@ -45,6 +49,8 @@ export const dashboardRoutes: RouteConfig[] = [
   { path: "bookings", element: BookingListPage },
   { path: "orders", element: OrderListPage },
   { path: "orders/create", element: StaffOrderCreatePage },
+  { path: "members", element: MemberListPage },
+  { path: "invitations", element: InvitationListPage },
 ];
 
 export const dashboardIndex: RedirectRoute = {

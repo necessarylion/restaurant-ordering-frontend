@@ -9,6 +9,7 @@ import { AlertDialogRenderer } from "@/components/AlertDialogRenderer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { GuestLayout } from "@/layouts/GuestLayout";
+import { AcceptInvitationPage } from "@/pages/invitations/AcceptInvitationPage";
 import {
   publicRoutes,
   guestRoutes,
@@ -41,6 +42,15 @@ export function App() {
       <TooltipProvider>
         <Routes>
           {renderRoutes(publicRoutes)}
+
+          <Route
+            path="/invitations/:token/accept"
+            element={
+              <ProtectedRoute>
+                <AcceptInvitationPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/guest" element={<GuestLayout />}>
             {renderRoutes(guestRoutes)}

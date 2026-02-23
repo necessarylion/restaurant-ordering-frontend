@@ -17,6 +17,12 @@ import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { MenuItemForm } from "@/components/menu/MenuItemForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -172,38 +178,36 @@ export const MenuPage = () => {
       <PageHeader title="Menu Items" description={`Manage menu items for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
-            setShowCreateForm(!showCreateForm);
+            setShowCreateForm(true);
             setEditingItem(null);
           }}
         >
-          {showCreateForm ? "Cancel" : "Create Menu Item"}
+          Create Menu Item
         </Button>
       </PageHeader>
 
-      {/* Create Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Menu Item</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MenuItemForm
-              categories={activeCategories}
-              onSubmit={handleCreate}
-              onCancel={() => setShowCreateForm(false)}
-              isSubmitting={createMutation.isPending}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Create Form Dialog */}
+      <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New Menu Item</DialogTitle>
+          </DialogHeader>
+          <MenuItemForm
+            categories={activeCategories}
+            onSubmit={handleCreate}
+            onCancel={() => setShowCreateForm(false)}
+            isSubmitting={createMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {/* Edit Form */}
-      {editingItem && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Menu Item</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {/* Edit Form Dialog */}
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Menu Item</DialogTitle>
+          </DialogHeader>
+          {editingItem && (
             <MenuItemForm
               menuItem={editingItem}
               categories={activeCategories}
@@ -211,9 +215,9 @@ export const MenuPage = () => {
               onCancel={() => setEditingItem(null)}
               isSubmitting={updateMutation.isPending}
             />
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Category Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>

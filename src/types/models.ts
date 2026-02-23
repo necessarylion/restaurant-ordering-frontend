@@ -66,6 +66,7 @@ export interface RestaurantMember {
   invited_by: number;
   invited_at: string;
   accepted_at: string | null;
+  invitation_token?: string;
   created_at: string;
   updated_at: string;
   restaurant?: Restaurant;
@@ -215,6 +216,57 @@ export interface Booking {
   updated_at: string;
   restaurant?: Restaurant;
   table?: Table;
+}
+
+// Dashboard types
+export interface DailyOrderStat {
+  date: string;
+  order_count: number;
+  revenue: number;
+}
+
+export interface PopularItem {
+  menu_item_id: number;
+  name: string;
+  order_count: number;
+  total_quantity: number;
+  total_revenue: number;
+}
+
+export interface BookingSummary {
+  total_count: number;
+  by_status: Record<string, number>;
+}
+
+export interface OrderSummary {
+  total_count: number;
+  by_status: Record<string, number>;
+  by_order_type: Record<string, number>;
+}
+
+export interface MemberSummary {
+  total: number;
+  by_role: Record<string, number>;
+}
+
+export interface RevenueSummary {
+  total_revenue: number;
+  net_revenue: number;
+  total_tax: number;
+  total_discount: number;
+  average_order_value: number;
+  payment_count: number;
+}
+
+export interface DashboardResponse {
+  date_from: string;
+  date_to: string;
+  orders: OrderSummary;
+  revenue: RevenueSummary;
+  bookings: BookingSummary;
+  members: MemberSummary;
+  popular_items: PopularItem[];
+  daily_orders: DailyOrderStat[];
 }
 
 // Frontend-specific types

@@ -296,6 +296,39 @@
                 }
             }
         },
+        "/invitations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant Members"
+                ],
+                "summary": "Get my pending invitations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.RestaurantMember"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invitations/:token/accept": {
             "post": {
                 "security": [
@@ -1233,6 +1266,75 @@
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurants/{restaurantId}/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns comprehensive dashboard data including order counts, revenue, popular items, member counts, booking stats, and daily trends",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get restaurant dashboard analytics",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "date_from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "date_to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/services.DashboardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -3824,6 +3926,146 @@
                 "updated_at": {
                     "type": "string",
                     "example": "2025-01-01T00:00:00Z"
+                }
+            }
+        },
+        "repositories.DailyOrderStat": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "order_count": {
+                    "type": "integer"
+                },
+                "revenue": {
+                    "type": "integer"
+                }
+            }
+        },
+        "repositories.PopularItem": {
+            "type": "object",
+            "properties": {
+                "menu_item_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_count": {
+                    "type": "integer"
+                },
+                "total_quantity": {
+                    "type": "integer"
+                },
+                "total_revenue": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.BookingSummary": {
+            "type": "object",
+            "properties": {
+                "by_status": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "total_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.DashboardResponse": {
+            "type": "object",
+            "properties": {
+                "bookings": {
+                    "$ref": "#/definitions/services.BookingSummary"
+                },
+                "daily_orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/repositories.DailyOrderStat"
+                    }
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "members": {
+                    "$ref": "#/definitions/services.MemberSummary"
+                },
+                "orders": {
+                    "$ref": "#/definitions/services.OrderSummary"
+                },
+                "popular_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/repositories.PopularItem"
+                    }
+                },
+                "revenue": {
+                    "$ref": "#/definitions/services.RevenueSummaryResponse"
+                }
+            }
+        },
+        "services.MemberSummary": {
+            "type": "object",
+            "properties": {
+                "by_role": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.OrderSummary": {
+            "type": "object",
+            "properties": {
+                "by_order_type": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "by_status": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "total_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.RevenueSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "average_order_value": {
+                    "type": "integer"
+                },
+                "net_revenue": {
+                    "type": "integer"
+                },
+                "payment_count": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                },
+                "total_revenue": {
+                    "type": "integer"
+                },
+                "total_tax": {
+                    "type": "integer"
                 }
             }
         },

@@ -5,7 +5,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   createMenuItemFormSchema,
   updateMenuItemFormSchema,
@@ -82,40 +82,67 @@ export const MenuItemForm = ({
         },
   });
 
-  const [imagePreviews, setImagePreviews] = useState<string[]>(
-    menuItem?.images?.map((img) => img.image) || []
-  );
+  // All images as File objects (existing converted from URL + newly added)
+  const [, setAllFiles] = useState<File[]>([]);
+  const [allPreviews, setAllPreviews] = useState<string[]>([]);
+  const existingConverted = useRef(false);
+
+  // Convert existing image URLs to File objects on mount (edit mode)
+  useEffect(() => {
+    if (!menuItem?.images?.length || existingConverted.current) return;
+    existingConverted.current = true;
+
+    const urls = menuItem.images.map((img) => img.image);
+    setAllPreviews(urls);
+
+    Promise.all(
+      urls.map(async (url, i) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const ext = blob.type.split("/")[1] || "jpg";
+        return new File([blob], `existing-${i}.${ext}`, { type: blob.type });
+      })
+    ).then((files) => {
+      setAllFiles(files);
+      setValue("images", files);
+    });
+  }, [menuItem, setValue]);
+
+  const imagePreviews = allPreviews;
 
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      setValue("images", files);
-
-      // Create previews for all selected files
+      // Create previews for new files
       const readers = files.map((file) => {
         return new Promise<string>((resolve) => {
           const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve(reader.result as string);
-          };
+          reader.onloadend = () => resolve(reader.result as string);
           reader.readAsDataURL(file);
         });
       });
 
       Promise.all(readers).then((previews) => {
-        setImagePreviews(previews);
+        setAllPreviews((prev) => [...prev, ...previews]);
+      });
+
+      setAllFiles((prev) => {
+        const updated = [...prev, ...files];
+        setValue("images", updated);
+        return updated;
       });
     }
+    // Reset input so same file can be selected again
+    e.target.value = "";
   };
 
   const handleRemoveImage = (index: number) => {
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setImagePreviews(newPreviews);
-
-    // Clear file input if no images left
-    if (newPreviews.length === 0) {
-      setValue("images", undefined);
-    }
+    setAllPreviews((prev) => prev.filter((_, i) => i !== index));
+    setAllFiles((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      setValue("images", updated.length > 0 ? updated : undefined);
+      return updated;
+    });
   };
 
   const isAvailable = watch("is_available");

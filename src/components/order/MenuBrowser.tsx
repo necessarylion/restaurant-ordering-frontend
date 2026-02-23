@@ -4,11 +4,18 @@
  * Includes search, category tabs, and menu item grid.
  */
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ShoppingCartAdd01Icon,
@@ -16,9 +23,65 @@ import {
   Menu01Icon,
   Search01Icon,
   Cancel01Icon,
+  ArrowLeft02Icon,
+  ArrowRight02Icon,
+  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import type { MenuItem, Category } from "@/types";
 import { formatPrice } from "@/lib/utils";
+
+const MenuItemImage = ({ item }: { item: MenuItem }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const sortedImages = item.images
+    ? [...item.images].sort((a, b) => a.sort_order - b.sort_order)
+    : [];
+
+  if (sortedImages.length === 0) {
+    return (
+      <div className="w-full h-48 bg-muted flex items-center justify-center">
+        <span className="text-muted-foreground">No image</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative group w-full h-48">
+      <img
+        src={sortedImages[currentIndex]?.image}
+        alt={item.name}
+        className="w-full h-full object-cover"
+      />
+      {sortedImages.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex((i) => (i - 1 + sortedImages.length) % sortedImages.length); }}
+            className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-opacity"
+          >
+            <HugeiconsIcon icon={ArrowLeft02Icon} strokeWidth={2} className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex((i) => (i + 1) % sortedImages.length); }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-opacity"
+          >
+            <HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} className="size-4" />
+          </button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {sortedImages.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
+                className={`size-1.5 rounded-full transition-colors ${i === currentIndex ? "bg-white" : "bg-white/50"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 interface MenuBrowserProps {
   menuItems: MenuItem[];
@@ -43,6 +106,7 @@ export const MenuBrowser = ({
   selectedCategory,
   onCategoryChange,
 }: MenuBrowserProps) => {
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const availableMenuItems = menuItems.filter((item) => item.is_available);
 
   const activeCategories = categories.length > 0
@@ -137,19 +201,9 @@ export const MenuBrowser = ({
           {filteredMenuItems.map((item) => {
             const quantity = getItemQuantity?.(item.id) ?? 0;
             return (
-              <Card key={item.id} className="flex flex-col overflow-hidden">
+              <Card key={item.id} className="flex flex-col overflow-hidden pt-0">
                 {/* Image */}
-                {item.images && item.images.length > 0 ? (
-                  <img
-                    src={item.images[0].image}
-                    alt={item.name}
-                    className="w-full h-48 object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground">No image</span>
-                  </div>
-                )}
+                <MenuItemImage item={item} />
 
                 <CardContent className="flex flex-col flex-1 p-4">
                   <div className="space-y-2 flex-1 mb-2">
@@ -176,17 +230,22 @@ export const MenuBrowser = ({
                   )}
 
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-lg font-bold">
+                    <span className="text-lg font-bold text-yellow-500">
                       {formatPrice(item.price, currency)}
                     </span>
-                    <Button size="sm" onClick={() => onAddItem(item)}>
-                      <HugeiconsIcon
-                        icon={ShoppingCartAdd01Icon}
-                        strokeWidth={2}
-                        className="size-4 mr-1"
-                      />
-                      Add
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button size="icon-sm" variant="outline" onClick={() => setDetailItem(item)}>
+                        <HugeiconsIcon icon={ViewIcon} strokeWidth={2} className="size-4" />
+                      </Button>
+                      <Button size="sm" onClick={() => onAddItem(item)}>
+                        <HugeiconsIcon
+                          icon={ShoppingCartAdd01Icon}
+                          strokeWidth={2}
+                          className="size-4 mr-1"
+                        />
+                        Add
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -194,6 +253,48 @@ export const MenuBrowser = ({
           })}
         </div>
       )}
+
+      {/* Menu Item Detail Dialog */}
+      <Dialog open={!!detailItem} onOpenChange={(open) => !open && setDetailItem(null)}>
+        <DialogContent className="sm:max-w-lg">
+          {detailItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{detailItem.name}</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <MenuItemImage item={detailItem} />
+
+                {detailItem.description && (
+                  <p className="text-sm text-muted-foreground">
+                    {detailItem.description}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-yellow-500">
+                      {formatPrice(detailItem.price, currency)}
+                    </span>
+                    {detailItem.category && (
+                      <Badge variant="secondary">{detailItem.category.name}</Badge>
+                    )}
+                  </div>
+                  <Button onClick={() => { onAddItem(detailItem); setDetailItem(null); }}>
+                    <HugeiconsIcon
+                      icon={ShoppingCartAdd01Icon}
+                      strokeWidth={2}
+                      className="size-4 mr-1"
+                    />
+                    Add to Order
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

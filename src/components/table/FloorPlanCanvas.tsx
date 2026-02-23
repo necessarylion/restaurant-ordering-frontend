@@ -197,7 +197,7 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
     const confirmed = await confirm({
       title: "Make Payment",
       description: `Confirm payment for ${orders.length} order(s) on this table?`,
-      confirmLabel: "Pay",
+      confirmLabel: "Confirm",
     });
     if (!confirmed) return;
 

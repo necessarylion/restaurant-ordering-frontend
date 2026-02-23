@@ -3,13 +3,14 @@
  * Displays menu item information in a card format
  */
 
+import { useState } from "react";
 import type { MenuItem } from "@/types";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit01Icon, Delete01Icon, Image01Icon } from "@hugeicons/core-free-icons";
+import { PencilEdit01Icon, Delete01Icon, Image01Icon, ArrowLeft02Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { formatPrice } from "@/lib/utils";
 
 interface MenuItemCardProps {
@@ -26,28 +27,51 @@ export const MenuItemCard = ({
   categoryName,
 }: MenuItemCardProps) => {
   const { currentRestaurant } = useRestaurant();
-  const primaryImage =
-    menuItem.images && menuItem.images.length > 0
-      ? menuItem.images.sort((a, b) => a.sort_order - b.sort_order)[0].image
-      : null;
+  const sortedImages = menuItem.images
+    ? [...menuItem.images].sort((a, b) => a.sort_order - b.sort_order)
+    : [];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const currency = currentRestaurant?.currency || "USD";
 
   return (
     <Card className="flex flex-col overflow-hidden hover:shadow-md transition-shadow pt-0">
       {/* Menu Item Image */}
-      <div className="relative">
-        {primaryImage ? (
+      <div className="relative group">
+        {sortedImages.length > 0 ? (
           <div className="aspect-video w-full overflow-hidden bg-muted">
             <img
-              src={primaryImage}
+              src={sortedImages[currentImageIndex]?.image}
               alt={menuItem.name}
               className="h-full w-full object-cover"
             />
-            {menuItem.images && menuItem.images.length > 1 && (
-              <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                +{menuItem.images.length - 1} more
-              </div>
+            {sortedImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((i) => (i - 1 + sortedImages.length) % sortedImages.length); }}
+                  className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-opacity"
+                >
+                  <HugeiconsIcon icon={ArrowLeft02Icon} strokeWidth={2} className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((i) => (i + 1) % sortedImages.length); }}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-opacity"
+                >
+                  <HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} className="size-4" />
+                </button>
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                  {sortedImages.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i); }}
+                      className={`size-1.5 rounded-full transition-colors ${i === currentImageIndex ? "bg-white" : "bg-white/50"}`}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         ) : (

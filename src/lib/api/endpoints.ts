@@ -21,6 +21,11 @@ export const endpoints = {
     guest: (id: number) => `/guest/restaurants/${id}`,
   },
 
+  invitations: {
+    list: "/invitations",
+    accept: (token: string) => `/invitations/${token}/accept`,
+  },
+
   members: {
     list: (restaurantId: number) => `/restaurants/${restaurantId}/members`,
     invite: (restaurantId: number) => `/restaurants/${restaurantId}/invitations`,
@@ -101,6 +106,10 @@ export const endpoints = {
       `/restaurants/${restaurantId}/orders/${orderId}`,
     delete: (restaurantId: number, orderId: number) =>
       `/restaurants/${restaurantId}/orders/${orderId}`,
+  },
+
+  dashboard: {
+    get: (restaurantId: number) => `/restaurants/${restaurantId}/dashboard`,
   },
 
   payments: {

@@ -12,7 +12,6 @@ import {
   PencilEdit01Icon,
   Delete01Icon,
   QrCodeIcon,
-  CheckmarkCircle02Icon,
   TableRoundIcon,
   SeatSelectorIcon,
 } from "@hugeicons/core-free-icons";

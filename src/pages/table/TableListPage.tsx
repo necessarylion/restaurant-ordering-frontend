@@ -25,6 +25,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { FloorPlanIcon, TableRoundIcon, CellsIcon, SeatSelectorIcon } from "@hugeicons/core-free-icons";
@@ -191,38 +193,36 @@ export const TableListPage = () => {
       <PageHeader title="Tables" description={`Manage tables and QR codes for ${currentRestaurant.name}`}>
         <Button
           onClick={() => {
-            setShowCreateForm(!showCreateForm);
+            setShowCreateForm(true);
             setEditingTable(null);
           }}
         >
-          {showCreateForm ? "Cancel" : "Create Table"}
+          Create Table
         </Button>
       </PageHeader>
 
-      {/* Create Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Table</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TableForm
-              zones={zones}
-              onSubmit={handleCreate}
-              onCancel={() => setShowCreateForm(false)}
-              isSubmitting={createMutation.isPending}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Create Form Dialog */}
+      <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Table</DialogTitle>
+          </DialogHeader>
+          <TableForm
+            zones={zones}
+            onSubmit={handleCreate}
+            onCancel={() => setShowCreateForm(false)}
+            isSubmitting={createMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {/* Edit Form */}
-      {editingTable && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Table</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {/* Edit Form Dialog */}
+      <Dialog open={!!editingTable} onOpenChange={(open) => !open && setEditingTable(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Table</DialogTitle>
+          </DialogHeader>
+          {editingTable && (
             <TableForm
               table={editingTable}
               zones={zones}
@@ -230,9 +230,9 @@ export const TableListPage = () => {
               onCancel={() => setEditingTable(null)}
               isSubmitting={updateMutation.isPending}
             />
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* View Tabs */}
       <Tabs defaultValue="floorplan">
