@@ -30,7 +30,7 @@ import {
   Calendar03Icon,
   PencilEdit01Icon,
   Delete01Icon,
-  DiningTableIcon,
+  TableRoundIcon,
   CallIcon,
   StickyNote01Icon,
   UserIcon,
@@ -311,7 +311,7 @@ export const BookingListPage = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No bookings found. Create your first booking to get started!
+              No bookings found.
             </p>
           </CardContent>
         </Card>
@@ -334,7 +334,7 @@ export const BookingListPage = () => {
               <CardContent className="mt-auto space-y-3">
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <HugeiconsIcon icon={DiningTableIcon} strokeWidth={2} className="size-4 shrink-0" />
+                    <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4 shrink-0" />
                     <span>{booking.table?.table_number || `Table #${booking.table_id}`}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">

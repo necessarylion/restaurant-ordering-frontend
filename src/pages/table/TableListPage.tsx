@@ -3,7 +3,7 @@
  * Display and manage all tables for a restaurant
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -27,7 +27,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { FloorPlanIcon, ListViewIcon, Layers01Icon } from "@hugeicons/core-free-icons";
+import { FloorPlanIcon, TableRoundIcon, CellsIcon, SeatSelectorIcon } from "@hugeicons/core-free-icons";
 import type { Table } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -46,6 +46,18 @@ export const TableListPage = () => {
   const generateTokenMutation = useGenerateTableToken();
 
   const { confirm } = useAlertDialog();
+
+  const [activeZoneId, setActiveZoneId] = useState<number | null>(null);
+
+  const filteredStats = useMemo(() => {
+    const filtered = activeZoneId === null ? tables : tables.filter((t) => t.zone_id === activeZoneId);
+    const result = { tables: filtered.length, seats: 0, available: 0, booked: 0, unavailable: 0 };
+    filtered.forEach((t) => {
+      result.seats += t.seats;
+      result[t.status]++;
+    });
+    return result;
+  }, [tables, activeZoneId]);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
@@ -224,20 +236,45 @@ export const TableListPage = () => {
 
       {/* View Tabs */}
       <Tabs defaultValue="floorplan">
-        <TabsList className="gap-2 mb-3">
-          <TabsTrigger value="floorplan">
-            <HugeiconsIcon icon={FloorPlanIcon} strokeWidth={2} className="size-4" />
-            Floor Plan
-          </TabsTrigger>
-          <TabsTrigger value="list">
-            <HugeiconsIcon icon={ListViewIcon} strokeWidth={2} className="size-4" />
-            Tables
-          </TabsTrigger>
-          <TabsTrigger value="zones">
-            <HugeiconsIcon icon={Layers01Icon} strokeWidth={2} className="size-4" />
-            Zones
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between mb-3">
+          <TabsList className="gap-2">
+            <TabsTrigger value="floorplan">
+              <HugeiconsIcon icon={FloorPlanIcon} strokeWidth={2} className="size-4" />
+              Floor Plan
+            </TabsTrigger>
+            <TabsTrigger value="list">
+              <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4" />
+              Tables
+            </TabsTrigger>
+            <TabsTrigger value="zones">
+              <HugeiconsIcon icon={CellsIcon} strokeWidth={2} className="size-4" />
+              Zones
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4" />
+              {filteredStats.tables}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <HugeiconsIcon icon={SeatSelectorIcon} strokeWidth={2} className="size-4" />
+              {filteredStats.seats}
+            </span>
+            <span className="h-4 w-px bg-border" />
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full bg-green-500" />
+              {filteredStats.available}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full bg-amber-500" />
+              {filteredStats.booked}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full bg-red-500" />
+              {filteredStats.unavailable}
+            </span>
+          </div>
+        </div>
 
         <TabsContent value="list">
           {tables.length === 0 ? (
@@ -267,7 +304,7 @@ export const TableListPage = () => {
         </TabsContent>
 
         <TabsContent value="floorplan">
-          <FloorPlanCanvas />
+          <FloorPlanCanvas activeZoneId={activeZoneId} onActiveZoneChange={setActiveZoneId} />
         </TabsContent>
 
         <TabsContent value="zones">

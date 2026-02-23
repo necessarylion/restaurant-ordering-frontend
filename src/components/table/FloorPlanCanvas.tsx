@@ -5,29 +5,25 @@
  */
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Stage, Layer } from "react-konva";
 import type Konva from "konva";
 import { useRestaurant } from "@/hooks/useRestaurant";
-import { useTables, useZones, useSaveFloorPlan, useUpdateTable } from "@/hooks/useTables";
+import { useTables, useTable, useZones, useSaveFloorPlan } from "@/hooks/useTables";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useCreatePayment } from "@/hooks/usePayments";
 import { BookingForm } from "@/components/booking/BookingForm";
+import { OrderCard } from "@/components/order/OrderCard";
+import { OrderDetailDialog } from "@/components/order/OrderDetailDialog";
 import { TableNode } from "./TableNode";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
@@ -40,34 +36,41 @@ import {
   SearchAreaIcon,
   ShoppingBasket03Icon,
   Calendar03Icon,
+  CreditCardIcon,
 } from "@hugeicons/core-free-icons";
+import type { Order } from "@/types";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import type { CreateBookingFormData } from "@/schemas/booking_schema";
-import { toRFC3339 } from "@/lib/utils";
+import { formatPrice, toRFC3339 } from "@/lib/utils";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 3;
 const SCALE_STEP = 0.15;
 
-export const FloorPlanCanvas = () => {
+interface FloorPlanCanvasProps {
+  activeZoneId: number | null;
+  onActiveZoneChange: (zoneId: number | null) => void;
+}
+
+export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanCanvasProps) => {
   const navigate = useNavigate();
   const { currentRestaurant } = useRestaurant();
   const { data: tables = [] } = useTables(currentRestaurant?.id);
   const { data: zones = [] } = useZones(currentRestaurant?.id);
   const saveFloorPlanMutation = useSaveFloorPlan();
-  const updateTableMutation = useUpdateTable();
   const createBookingMutation = useCreateBooking();
+  const createPaymentMutation = useCreatePayment();
+  const queryClient = useQueryClient();
 
-  const [activeZoneId, setActiveZoneId] = useState<number | null>(null);
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
+  const { data: tableDetails } = useTable(currentRestaurant?.id, selectedTableId ?? undefined);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const { alert: showAlert } = useAlertDialog();
-  const [seatsInput, setSeatsInput] = useState("");
-  const [selectedZoneId, setSelectedZoneId] = useState<string>("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const { alert: showAlert, confirm } = useAlertDialog();
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
-  const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
+  const [stageSize, setStageSize] = useState({ width: 700, height: 600 });
 
   // Responsive stage sizing
   useEffect(() => {
@@ -133,25 +136,6 @@ export const FloorPlanCanvas = () => {
     return tables.filter((table) => table.zone_id === activeZoneId);
   }, [tables, activeZoneId]);
 
-  // Stats for current view
-  const stats = useMemo(() => {
-    const result = { available: 0, unavailable: 0, booked: 0, totalSeats: 0 };
-    filteredTables.forEach((table) => {
-      result[table.status]++;
-      result.totalSeats += table.seats;
-    });
-    return result;
-  }, [filteredTables]);
-
-  // Global stats
-  const globalStats = useMemo(() => {
-    let totalSeats = 0;
-    tables.forEach((table) => {
-      totalSeats += table.seats;
-    });
-    return { totalTables: tables.length, totalSeats };
-  }, [tables]);
-
   // Save position to API immediately on drag end
   const handleDragEnd = useCallback(
     (tableId: number, x: number, y: number) => {
@@ -167,64 +151,40 @@ export const FloorPlanCanvas = () => {
   const handleTableClick = useCallback(
     (tableId: number) => {
       setSelectedTableId((prev) => (prev === tableId ? null : tableId));
-      const table = tables.find((t) => t.id === tableId);
-      if (table) {
-        setSeatsInput(String(table.seats));
-        setSelectedZoneId(table.zone_id ? String(table.zone_id) : "none");
-      }
     },
-    [tables]
+    []
   );
 
-  const handleSeatsSubmit = async () => {
-    if (selectedTableId === null || !currentRestaurant) return;
-    const table = tables.find((t) => t.id === selectedTableId);
-    if (!table) return;
-    const seats = parseInt(seatsInput, 10);
-    if (isNaN(seats) || seats < 1) return;
+  const handleMakePayment = useCallback(async () => {
+    if (!currentRestaurant || !selectedTableId || !tableDetails?.active_orders?.length) return;
+    const orders = tableDetails.active_orders;
+    const subTotal = orders.reduce((sum, o) => sum + o.total, 0);
+
+    const confirmed = await confirm({
+      title: "Make Payment",
+      description: `Confirm payment for ${orders.length} order(s)? Total: ${formatPrice(subTotal, currentRestaurant.currency)}`,
+      confirmLabel: "Pay",
+    });
+    if (!confirmed) return;
 
     try {
-      await updateTableMutation.mutateAsync({
+      await createPaymentMutation.mutateAsync({
         restaurantId: currentRestaurant.id,
-        tableId: table.id,
-        table_number: table.table_number,
-        is_active: table.is_active,
-        seats,
-        zone_id: table.zone_id,
-        position_x: table.position_x,
-        position_y: table.position_y,
+        table_id: selectedTableId,
+        order_ids: orders.map((o) => o.id),
+        sub_total: subTotal,
+        tax: 0,
+        total: subTotal,
       });
-    } catch {
-      // error handled by mutation
-    }
-  };
-
-  const handleZoneChange = async (zoneVal: string) => {
-    if (selectedTableId === null || !currentRestaurant) return;
-    const table = tables.find((t) => t.id === selectedTableId);
-    if (!table) return;
-
-    setSelectedZoneId(zoneVal);
-    const zoneId = zoneVal === "none" ? null : Number(zoneVal);
-
-    try {
-      await updateTableMutation.mutateAsync({
-        restaurantId: currentRestaurant.id,
-        tableId: table.id,
-        table_number: table.table_number,
-        is_active: table.is_active,
-        seats: table.seats,
-        zone_id: zoneId,
-        position_x: table.position_x,
-        position_y: table.position_y,
+      queryClient.invalidateQueries({
+        queryKey: ["tables", currentRestaurant.id, selectedTableId],
       });
-    } catch {
-      // error handled by mutation
+    } catch (err: any) {
+      showAlert({ title: "Error", description: err.message || "Failed to make payment" });
     }
-  };
+  }, [currentRestaurant, selectedTableId, tableDetails, confirm, createPaymentMutation, queryClient, showAlert]);
 
   const selectedTable = tables.find((t) => t.id === selectedTableId);
-  const selectedTableStatus = selectedTable?.status ?? null;
 
   const activeZone = zones.find((z) => z.id === activeZoneId);
   const zoomPercent = Math.round(scale * 100);
@@ -237,7 +197,7 @@ export const FloorPlanCanvas = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => setActiveZoneId(null)}
+                onClick={() => onActiveZoneChange(null)}
                 className={`size-5 rounded-full transition-transform ${
                   activeZoneId === null
                     ? "scale-110 ring-1 ring-primary ring-offset-1 ring-offset-background"
@@ -255,7 +215,7 @@ export const FloorPlanCanvas = () => {
             <Tooltip key={zone.id}>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => setActiveZoneId(zone.id)}
+                  onClick={() => onActiveZoneChange(zone.id)}
                   className={`size-5 rounded-full transition-transform ${
                     activeZoneId === zone.id
                       ? "scale-110 ring-1 ring-offset-1 ring-offset-background"
@@ -278,7 +238,11 @@ export const FloorPlanCanvas = () => {
       <div className="flex-1 space-y-0">
         <div
           ref={containerRef}
-          className="relative rounded-lg border border-dashed bg-card overflow-hidden"
+          className="relative rounded-lg border bg-card"
+          style={{
+            backgroundImage: "radial-gradient(circle, var(--color-border) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
         >
             {filteredTables.length === 0 ? (
               <div
@@ -360,137 +324,13 @@ export const FloorPlanCanvas = () => {
 
         {/* Right: Sidebar */}
         <div className="w-64 shrink-0 space-y-4">
-          {/* Statistics */}
-          <div className="rounded-lg border bg-card p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Statistics</h3>
-              {activeZone && (
-                <div className="flex items-center gap-1.5">
-                  {activeZone.color && (
-                    <span
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: activeZone.color }}
-                    />
-                  )}
-                  <span className="text-xs text-muted-foreground">{activeZone.name}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-green-500" />
-                  <span className="text-sm">Available</span>
-                </div>
-                <span className="text-sm font-medium">{stats.available}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-amber-500" />
-                  <span className="text-sm">Booked</span>
-                </div>
-                <span className="text-sm font-medium">{stats.booked}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-red-500" />
-                  <span className="text-sm">Unavailable</span>
-                </div>
-                <span className="text-sm font-medium">{stats.unavailable}</span>
-              </div>
-            </div>
-
-            <div className="border-t pt-3 space-y-1.5">
-              {activeZone && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{activeZone.name} Seats</span>
-                  <span className="font-medium">{stats.totalSeats}</span>
-                </div>
-              )}
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Total Tables</span>
-                <span className="font-medium">{globalStats.totalTables}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Total Seats</span>
-                <span className="font-medium">{globalStats.totalSeats}</span>
-              </div>
-            </div>
-          </div>
-
           {/* Selected Table Details */}
           {selectedTable ? (
             <div className="rounded-lg border bg-card p-4 space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold">{selectedTable.table_number}</h3>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <span
-                    className={`size-2 rounded-full ${
-                      selectedTableStatus === "available"
-                        ? "bg-green-500"
-                        : selectedTableStatus === "booked"
-                          ? "bg-amber-500"
-                          : "bg-red-500"
-                    }`}
-                  />
-                  <span className="text-xs capitalize text-muted-foreground">
-                    {selectedTableStatus}
-                  </span>
-                </div>
-              </div>
-
-              {/* Seats */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground">Seats</label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    min={1}
-                    value={seatsInput}
-                    onChange={(e) => setSeatsInput(e.target.value)}
-                    className="h-8"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleSeatsSubmit}
-                    disabled={updateTableMutation.isPending}
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-
-              {/* Zone */}
-              {zones.length > 0 && (
-                <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">Zone</label>
-                  <Select value={selectedZoneId} onValueChange={handleZoneChange}>
-                    <SelectTrigger className="h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No zone</SelectItem>
-                      {zones.map((z) => (
-                        <SelectItem key={z.id} value={String(z.id)}>
-                          <span className="flex items-center gap-2">
-                            {z.color && (
-                              <span
-                                className="size-2 rounded-full shrink-0"
-                                style={{ backgroundColor: z.color }}
-                              />
-                            )}
-                            {z.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <h3 className="text-sm font-semibold mb-1">{selectedTable.table_number}</h3>
 
               {/* Actions */}
-              <div className="space-y-1.5 pt-2 border-t">
+              <div className="space-y-1.5">
                 <label className="text-xs text-muted-foreground">Actions</label>
                 <Button
                   size="sm"
@@ -509,7 +349,37 @@ export const FloorPlanCanvas = () => {
                   <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
                   Create Booking
                 </Button>
+                {tableDetails?.active_orders && tableDetails.active_orders.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleMakePayment}
+                    disabled={createPaymentMutation.isPending}
+                  >
+                    <HugeiconsIcon icon={CreditCardIcon} strokeWidth={2} className="size-4" />
+                    {createPaymentMutation.isPending ? "Processing..." : "Make Payment"}
+                  </Button>
+                )}
               </div>
+
+              {/* Active Orders */}
+              {tableDetails?.active_orders && tableDetails.active_orders.length > 0 && (
+                <div className="pt-2 border-t">
+                  <label className="text-xs text-muted-foreground ml-1">
+                    Active Orders ({tableDetails.active_orders.length})
+                  </label>
+                  <div className="space-y-2 p-1">
+                    {tableDetails.active_orders.map((order: Order) => (
+                      <OrderCard
+                        key={order.id}
+                        order={order}
+                        onViewDetails={(o) => setSelectedOrder(o)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="rounded-lg border border-dashed bg-card p-4">
@@ -553,6 +423,19 @@ export const FloorPlanCanvas = () => {
             />
           </DialogContent>
         </Dialog>
+
+        {/* Order Details Dialog */}
+        <OrderDetailDialog
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onStatusUpdated={() => {
+            if (currentRestaurant && selectedTableId) {
+              queryClient.invalidateQueries({
+                queryKey: ["tables", currentRestaurant.id, selectedTableId],
+              });
+            }
+          }}
+        />
 
       </div>
   );

@@ -8,7 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit01Icon, Delete01Icon, QrCodeIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import {
+  PencilEdit01Icon,
+  Delete01Icon,
+  QrCodeIcon,
+  CheckmarkCircle02Icon,
+  TableRoundIcon,
+  SeatSelectorIcon,
+} from "@hugeicons/core-free-icons";
 
 interface TableCardProps {
   table: Table;
@@ -24,19 +31,35 @@ export const TableCard = ({
   onGenerateQR,
 }: TableCardProps) => {
   return (
-    <Card className="flex flex-col hover:shadow-md transition-shadow">
+    <Card
+      className="flex flex-col hover:shadow-md transition-shadow overflow-hidden"
+      style={{
+        borderLeftWidth: table.zone?.color ? "3px" : undefined,
+        borderLeftColor: table.zone?.color || undefined,
+      }}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg">{table.table_number}</CardTitle>
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
-              {table.is_active ? (
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} className="size-5 text-green-500" />
-              ) : (
-                <Badge variant="secondary">Inactive</Badge>
-              )}
-              <Badge variant="outline">{table.seats} seats</Badge>
-              {table.zone && (
+            <div className="flex items-center gap-2">
+              <HugeiconsIcon
+                icon={TableRoundIcon}
+                strokeWidth={2}
+                className="size-5 text-muted-foreground"
+              />
+              <CardTitle className="text-lg">{table.table_number}</CardTitle>
+              <Badge className={table.is_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}>
+                {table.is_active ? "Active" : "Inactive"}
+              </Badge>
+            </div>
+            <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <HugeiconsIcon icon={SeatSelectorIcon} strokeWidth={2} className="size-3.5" />
+                {table.seats} seats
+              </span>
+            </div>
+            {table.zone && (
+              <div className="mt-1.5">
                 <Badge
                   variant="outline"
                   style={
@@ -47,15 +70,14 @@ export const TableCard = ({
                 >
                   {table.zone.name}
                 </Badge>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="mt-auto">
         <div className="space-y-2">
-          {/* Generate QR Code Button */}
           {onGenerateQR && table.is_active && (
             <Button
               variant="outline"
@@ -72,7 +94,6 @@ export const TableCard = ({
             </Button>
           )}
 
-          {/* Edit/Delete Actions */}
           <div className="flex gap-2">
             {onEdit && (
               <Button

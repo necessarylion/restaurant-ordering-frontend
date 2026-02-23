@@ -133,18 +133,20 @@ export interface Table {
   updated_at: string;
   restaurant?: Restaurant;
   zone?: Zone;
+  active_orders?: Order[];
+  active_booking?: Booking;
 }
 
 export interface OrderItem {
   id: number;
   order_id: number;
   menu_item_id: number;
+  name: string;
   quantity: number;
   price: number; // price at time of order
   notes: string | null;
   created_at: string;
   updated_at: string;
-  menu_item?: MenuItem;
 }
 
 export interface Order {

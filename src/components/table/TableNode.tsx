@@ -21,13 +21,13 @@ interface TableNodeProps {
   onClick: (id: number) => void;
 }
 
-const BASE_W = 90;
-const PER_SEAT = 12;
-const MIN_W = 90;
-const MAX_W = 200;
-const H = 110;
-const R = 12;
-const CIRCLE_D = 100; // diameter for small (≤2 seat) tables
+const BASE_W = 72;
+const PER_SEAT = 10;
+const MIN_W = 72;
+const MAX_W = 160;
+const H = 88;
+const R = 10;
+const CIRCLE_D = 80; // diameter for small (≤2 seat) tables
 
 function getWidth(seats: number) {
   return Math.min(MAX_W, Math.max(MIN_W, BASE_W + seats * PER_SEAT));
@@ -204,10 +204,10 @@ export const TableNode = ({
   };
 
   // Label dimensions
-  const labelPadX = 10;
-  const fontSize = 11;
-  const labelW = Math.max(tableNumber.length * 7 + labelPadX * 2, 60);
-  const labelH = 20;
+  const labelPadX = 8;
+  const fontSize = 10;
+  const labelW = Math.max(tableNumber.length * 6.5 + labelPadX * 2, 52);
+  const labelH = 18;
   const labelX = (w - labelW) / 2;
   const labelY = h - labelH / 2;
 
@@ -244,7 +244,7 @@ export const TableNode = ({
       {/* Top-down table + chairs icon */}
       <TableIcon
         cx={w / 2}
-        cy={isCircle ? 30 : 32}
+        cy={isCircle ? 24 : 26}
         color={s.text}
         seats={seats}
         tableW={w}
@@ -254,9 +254,9 @@ export const TableNode = ({
       <Text
         text={`${seats} Seats`}
         width={w}
-        y={isCircle ? 52 : 60}
+        y={isCircle ? 42 : 48}
         align="center"
-        fontSize={13}
+        fontSize={11}
         fontFamily="system-ui, sans-serif"
         fill={s.text}
       />

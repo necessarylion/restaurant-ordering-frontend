@@ -17,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -26,7 +25,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit01Icon, Delete01Icon } from "@hugeicons/core-free-icons";
+import {
+  PencilEdit01Icon,
+  Delete01Icon,
+  SeatSelectorIcon,
+  TableRoundIcon,
+  Add01Icon,
+  ArrowMoveDownLeftIcon,
+  CellsIcon,
+} from "@hugeicons/core-free-icons";
 import type { Zone } from "@/types";
 
 export const ZoneManagement = () => {
@@ -140,12 +147,56 @@ export const ZoneManagement = () => {
   // Unassigned tables (no zone_id)
   const unassignedTables = tables.filter((table) => !table.zone_id);
 
+  const TableItem = ({
+    table,
+    zoneId,
+  }: {
+    table: (typeof tables)[0];
+    zoneId: string;
+  }) => (
+    <div className="flex items-center gap-3 rounded-lg border bg-card px-3 py-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <HugeiconsIcon
+          icon={TableRoundIcon}
+          strokeWidth={2}
+          className="size-4 text-muted-foreground shrink-0"
+        />
+        <span className="text-sm font-medium truncate">
+          {table.table_number}
+        </span>
+      </div>
+      <div className="flex items-center gap-1 text-muted-foreground shrink-0">
+        <HugeiconsIcon icon={SeatSelectorIcon} strokeWidth={2} className="size-3.5" />
+        <span className="text-xs">{table.seats}</span>
+      </div>
+      <Select
+        value={zoneId}
+        onValueChange={(newZone) => handleTableZoneChange(table.id, newZone)}
+      >
+        <SelectTrigger className="h-6 w-28 text-xs shrink-0">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">No zone</SelectItem>
+          {zones.map((z) => (
+            <SelectItem key={z.id} value={String(z.id)}>
+              {z.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Add zone */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Add New Zone</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className="size-4" />
+            Add New Zone
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
@@ -159,7 +210,7 @@ export const ZoneManagement = () => {
               type="color"
               value={newZoneColor}
               onChange={(e) => setNewZoneColor(e.target.value)}
-              className="w-12 p-1 h-10"
+              className="w-12 p-1 h-8!"
             />
             <Button
               onClick={handleAddZone}
@@ -174,7 +225,14 @@ export const ZoneManagement = () => {
       {/* Zone list */}
       <div className="space-y-4">
         {tablesByZone.map(({ zone, tables: zoneTables, totalSeats }) => (
-          <Card key={zone.id}>
+          <Card
+            key={zone.id}
+            className="overflow-hidden"
+            style={{
+              borderLeftWidth: "3px",
+              borderLeftColor: zone.color || undefined,
+            }}
+          >
             <CardHeader>
               {editingZone?.id === zone.id ? (
                 <div className="flex items-center gap-3">
@@ -208,38 +266,35 @@ export const ZoneManagement = () => {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {zone.color && (
-                      <span
-                        className="size-3 rounded-full"
-                        style={{ backgroundColor: zone.color }}
-                      />
-                    )}
                     <CardTitle className="text-base">{zone.name}</CardTitle>
-                    <Badge variant="secondary">
-                      {zoneTables.length} tables
-                    </Badge>
-                    <Badge variant="outline">
-                      {totalSeats} seats
-                    </Badge>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-3.5" />
+                        {zoneTables.length}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <HugeiconsIcon icon={SeatSelectorIcon} strokeWidth={2} className="size-3.5" />
+                        {totalSeats}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="icon"
+                      className="size-8"
                       onClick={() => startEditZone(zone)}
                     >
-                      <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
-                      Edit
+                      <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
+                      size="icon"
+                      className="size-8 text-destructive hover:text-destructive"
                       onClick={() => handleDeleteZone(zone)}
                       disabled={deleteZoneMutation.isPending}
                     >
-                      <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
-                      Delete
+                      <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
                     </Button>
                   </div>
                 </div>
@@ -247,42 +302,17 @@ export const ZoneManagement = () => {
             </CardHeader>
             <CardContent>
               {zoneTables.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No tables assigned to this zone.
+                <p className="text-sm text-muted-foreground italic">
+                  No tables assigned to this zone yet.
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-2">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {zoneTables.map((table) => (
-                    <div
+                    <TableItem
                       key={table.id}
-                      className="flex items-center gap-2 rounded-md border px-3 py-1.5"
-                    >
-                      <span className="text-sm font-medium">
-                        {table.table_number}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {table.seats} seats
-                      </span>
-                      {/* Move to another zone */}
-                      <Select
-                        value={String(zone.id)}
-                        onValueChange={(newZone) =>
-                          handleTableZoneChange(table.id, newZone)
-                        }
-                      >
-                        <SelectTrigger className="h-6 w-28 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No zone</SelectItem>
-                          {zones.map((z) => (
-                            <SelectItem key={z.id} value={String(z.id)}>
-                              {z.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                      table={table}
+                      zoneId={String(zone.id)}
+                    />
                   ))}
                 </div>
               )}
@@ -292,44 +322,27 @@ export const ZoneManagement = () => {
 
         {/* Unassigned tables */}
         {unassignedTables.length > 0 && (
-          <Card>
+          <Card className="border-dashed">
             <CardHeader>
-              <CardTitle className="text-base text-muted-foreground">
-                Unassigned Tables
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base text-muted-foreground flex items-center gap-2">
+                  <HugeiconsIcon icon={CellsIcon} strokeWidth={2} className="size-4" />
+                  Unassigned Tables
+                </CardTitle>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <HugeiconsIcon icon={ArrowMoveDownLeftIcon} strokeWidth={2} className="size-3.5" />
+                  Drag to a zone or use the dropdown
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {unassignedTables.map((table) => (
-                  <div
+                  <TableItem
                     key={table.id}
-                    className="flex items-center gap-2 rounded-md border px-3 py-1.5"
-                  >
-                    <span className="text-sm font-medium">
-                      {table.table_number}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {table.seats} seats
-                    </span>
-                    <Select
-                      value="none"
-                      onValueChange={(newZone) =>
-                        handleTableZoneChange(table.id, newZone)
-                      }
-                    >
-                      <SelectTrigger className="h-6 w-28 text-xs">
-                        <SelectValue placeholder="Assign" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No zone</SelectItem>
-                        {zones.map((z) => (
-                          <SelectItem key={z.id} value={String(z.id)}>
-                            {z.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    table={table}
+                    zoneId="none"
+                  />
                 ))}
               </div>
             </CardContent>

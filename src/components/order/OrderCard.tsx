@@ -11,7 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowRight01Icon,
   Calendar03Icon,
-  DiningTableIcon,
+  TableRoundIcon,
   Restaurant01Icon,
   ShoppingBag02Icon,
 } from "@hugeicons/core-free-icons";
@@ -66,7 +66,7 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
             </div>
             {order.table && (
               <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={DiningTableIcon} strokeWidth={2} className="size-3.5 shrink-0" />
+                <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-3.5 shrink-0" />
                 <span className="text-xs">{order.table.table_number}</span>
               </div>
             )}
@@ -84,10 +84,10 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
                     className="pb-1.5 border-b last:border-0 last:pb-0"
                   >
                     <p className="text-xs font-medium">
-                      {item.quantity}x {item.menu_item?.name || "Item"}
+                      {item.quantity}x {item?.name || "Item"}
                     </p>
                     {item.notes && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-amber-600 dark:text-amber-400 italic">
                         {item.notes}
                       </p>
                     )}
