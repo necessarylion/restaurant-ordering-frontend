@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -41,10 +42,12 @@ import {
   Cancel01Icon,
   Clock04Icon,
   CheckmarkCircle02Icon,
+  Logout03Icon,
 } from "@hugeicons/core-free-icons";
 import { Role, MemberStatus, type RestaurantMember } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 interface InviteRow {
   email: string;
@@ -90,7 +93,9 @@ const statusConfig: Record<MemberStatus, { label: string; icon: typeof Checkmark
 const emptyInviteRow = (): InviteRow => ({ email: "", role: Role.STAFF });
 
 export const MemberListPage = () => {
-  const { currentRestaurant } = useRestaurant();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { currentRestaurant, setCurrentRestaurant } = useRestaurant();
   const { confirm } = useAlertDialog();
   const restaurantId = currentRestaurant?.id;
 
@@ -190,14 +195,27 @@ export const MemberListPage = () => {
   };
 
   const handleRemoveMember = async (member: RestaurantMember) => {
+    const isSelf = member.user_id === user?.id;
     const name = member.user?.name || member.invitation_email;
     const confirmed = await confirm({
-      title: `Remove ${name}?`,
-      description: "This member will lose access to this restaurant.",
-      confirmLabel: "Remove",
+      title: isSelf ? "Leave this restaurant?" : `Remove ${name}?`,
+      description: isSelf
+        ? "You will lose access to this restaurant."
+        : "This member will lose access to this restaurant.",
+      confirmLabel: isSelf ? "Leave" : "Remove",
     });
     if (!confirmed) return;
-    removeMember.mutate({ restaurantId, memberId: member.id });
+    removeMember.mutate(
+      { restaurantId, memberId: member.id },
+      {
+        onSuccess: () => {
+          if (isSelf) {
+            setCurrentRestaurant(null);
+            navigate("/dashboard/restaurants");
+          }
+        },
+      }
+    );
   };
 
   const handleRoleChange = (member: RestaurantMember, newRole: Role) => {
@@ -257,6 +275,7 @@ export const MemberListPage = () => {
                 const role = roleConfig[member.role];
                 const status = statusConfig[member.status];
                 const isOwner = member.role === Role.OWNER;
+                const isSelf = member.user_id === user?.id;
 
                 return (
                   <tr key={member.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
@@ -271,8 +290,8 @@ export const MemberListPage = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {isOwner ? (
-                        <Badge className={role.className}>
+                      {isOwner || isSelf ? (
+                        <Badge className={isOwner ? role.className : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"}>
                           <HugeiconsIcon icon={role.icon} strokeWidth={2} data-icon="inline-start" />
                           {role.label}
                         </Badge>
@@ -308,14 +327,27 @@ export const MemberListPage = () => {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {!isOwner && (
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleRemoveMember(member)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} />
-                        </Button>
+                        member.user_id === user?.id ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveMember(member)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <HugeiconsIcon icon={Logout03Icon} strokeWidth={2} data-icon="inline-start" />
+                            Leave
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveMember(member)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} data-icon="inline-start" />
+                            Remove
+                          </Button>
+                        )
                       )}
                     </td>
                   </tr>
