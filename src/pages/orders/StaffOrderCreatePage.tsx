@@ -3,7 +3,7 @@
  * Staff can browse menu items, build an order, and submit it for a specific table
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useMenuItems } from "@/hooks/useMenuItems";
@@ -11,17 +11,20 @@ import { useCategories } from "@/hooks/useCategories";
 import { useTables } from "@/hooks/useTables";
 import { useCreateOrder } from "@/hooks/useOrders";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { MenuBrowser } from "@/components/order/MenuBrowser";
+import { OrderItemsList } from "@/components/order/OrderItemsList";
+import type { OrderItemEntry } from "@/components/order/OrderItemsList";
 import {
-  Add01Icon,
-  Remove01Icon,
-  Delete02Icon,
-  ArrowLeft01Icon,
-} from "@hugeicons/core-free-icons";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon, ShoppingCart01Icon, TableRoundIcon } from "@hugeicons/core-free-icons";
 import { OrderType, type MenuItem } from "@/types";
 import { formatPrice } from "@/lib/utils";
 
@@ -40,27 +43,36 @@ export const StaffOrderCreatePage = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(
     currentRestaurant?.id
   );
+
+  const [searchInput, setSearchInput] = useState("");
+  const deferredKeyword = useDeferredValue(searchInput);
+
   const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(
-    currentRestaurant?.id
+    currentRestaurant?.id,
+    deferredKeyword || undefined
   );
   const { data: tables = [] } = useTables(currentRestaurant?.id);
   const createOrderMutation = useCreateOrder();
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const table = tableId ? tables.find((t) => t.id === Number(tableId)) : null;
   const currency = currentRestaurant?.currency || "USD";
 
-  const activeCategories = categories.filter((cat) => cat.is_active);
-  const availableMenuItems = menuItems.filter((item) => item.is_available);
-
-  const filteredMenuItems =
-    selectedCategory === "all"
-      ? availableMenuItems
-      : availableMenuItems.filter(
-          (item) => item.category_id === Number(selectedCategory)
-        );
+  const orderItemEntries: OrderItemEntry[] = useMemo(
+    () =>
+      orderItems.map((item) => ({
+        id: item.menuItem.id,
+        name: item.menuItem.name,
+        price: item.menuItem.price,
+        quantity: item.quantity,
+        notes: item.notes,
+        image: item.menuItem.images?.[0]?.image,
+      })),
+    [orderItems]
+  );
 
   const total = useMemo(
     () =>
@@ -88,6 +100,10 @@ export const StaffOrderCreatePage = () => {
       }
       return [...prev, { menuItem, quantity: 1, notes: "" }];
     });
+  };
+
+  const getItemQuantity = (menuItemId: number) => {
+    return orderItems.find((i) => i.menuItem.id === menuItemId)?.quantity ?? 0;
   };
 
   const updateQuantity = (menuItemId: number, quantity: number) => {
@@ -160,233 +176,102 @@ export const StaffOrderCreatePage = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => navigate(tableId ? `/dashboard/tables?tableId=${tableId}` : "/dashboard/tables")}
         >
           <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">New Order</h1>
-          <p className="text-sm text-muted-foreground">
-            {table ? `Table ${table.table_number}` : "No table selected"}
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold">New Order</h1>
+        {table && (
+          <Badge variant="outline" className="text-sm gap-1 ml-auto mt-1 p-3">
+            <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4" />
+            {table.table_number}
+          </Badge>
+        )}
       </div>
 
-      <div className="flex gap-6">
-        {/* Left: Menu Browser */}
-        <div className="flex-1 space-y-4">
-          {/* Category Tabs */}
-          {activeCategories.length > 0 && (
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-              <TabsList className="gap-2">
-                <TabsTrigger value="all">All</TabsTrigger>
-                {activeCategories
-                  .sort((a, b) => a.sort_order - b.sort_order)
-                  .map((cat) => (
-                    <TabsTrigger key={cat.id} value={cat.id.toString()}>
-                      {cat.name}
-                    </TabsTrigger>
-                  ))}
-              </TabsList>
-            </Tabs>
-          )}
+      {/* Menu Browser */}
+      <MenuBrowser
+        menuItems={menuItems}
+        categories={categories}
+        currency={currency}
+        onAddItem={addItem}
+        getItemQuantity={getItemQuantity}
+        searchInput={searchInput}
+        onSearchChange={setSearchInput}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
-          {/* Menu Items Grid */}
-          {filteredMenuItems.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">No menu items available.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredMenuItems.map((item) => {
-                const inOrder = orderItems.find(
-                  (o) => o.menuItem.id === item.id
-                );
-                return (
-                  <Card
-                    key={item.id}
-                    className="cursor-pointer hover:border-primary/50 transition-colors"
-                    onClick={() => addItem(item)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex gap-3">
-                        {item.images && item.images.length > 0 ? (
-                          <img
-                            src={item.images[0].image}
-                            alt={item.name}
-                            className="size-16 object-cover rounded-md shrink-0"
-                          />
-                        ) : (
-                          <div className="size-16 bg-muted rounded-md flex items-center justify-center shrink-0">
-                            <span className="text-[10px] text-muted-foreground">
-                              No img
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-1">
-                            <h4 className="text-sm font-medium truncate">
-                              {item.name}
-                            </h4>
-                            {inOrder && (
-                              <Badge variant="default" className="shrink-0 text-xs">
-                                {inOrder.quantity}
-                              </Badge>
-                            )}
-                          </div>
-                          {item.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                              {item.description}
-                            </p>
-                          )}
-                          <p className="text-sm font-semibold mt-1">
-                            {formatPrice(item.price, currency)}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Right: Order Summary */}
-        <div className="w-80 shrink-0">
-          <div className="sticky top-4 space-y-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">
-                  Order Summary
-                  {itemCount > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {itemCount} items
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {orderItems.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    Click menu items to add them to the order.
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {orderItems.map((item) => (
-                      <div
-                        key={item.menuItem.id}
-                        className="space-y-2 pb-3 border-b last:border-0 last:pb-0"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {item.menuItem.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatPrice(
-                                item.menuItem.price * item.quantity,
-                                currency
-                              )}
-                            </p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeItem(item.menuItem.id)}
-                            className="h-6 w-6 p-0 text-destructive shrink-0"
-                          >
-                            <HugeiconsIcon
-                              icon={Delete02Icon}
-                              strokeWidth={2}
-                              className="size-3.5"
-                            />
-                          </Button>
-                        </div>
-
-                        {/* Quantity Controls */}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              updateQuantity(
-                                item.menuItem.id,
-                                item.quantity - 1
-                              )
-                            }
-                            className="h-7 w-7 p-0"
-                          >
-                            <HugeiconsIcon
-                              icon={Remove01Icon}
-                              strokeWidth={2}
-                              className="size-3.5"
-                            />
-                          </Button>
-                          <span className="w-6 text-center text-sm">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              updateQuantity(
-                                item.menuItem.id,
-                                item.quantity + 1
-                              )
-                            }
-                            className="h-7 w-7 p-0"
-                          >
-                            <HugeiconsIcon
-                              icon={Add01Icon}
-                              strokeWidth={2}
-                              className="size-3.5"
-                            />
-                          </Button>
-                        </div>
-
-                        {/* Notes */}
-                        <Input
-                          placeholder="Notes (optional)"
-                          value={item.notes}
-                          onChange={(e) =>
-                            updateNotes(item.menuItem.id, e.target.value)
-                          }
-                          className="h-7 text-xs"
-                        />
-                      </div>
-                    ))}
-
-                    {/* Total */}
-                    <div className="flex justify-between items-center pt-3 border-t font-semibold">
-                      <span>Total</span>
-                      <span>{formatPrice(total, currency)}</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Submit Button */}
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleSubmit}
-              disabled={orderItems.length === 0 || createOrderMutation.isPending}
+      {/* Floating Cart Button */}
+      {itemCount > 0 && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            size="lg"
+            className="h-14 w-14 rounded-full shadow-lg relative"
+            onClick={() => setIsDrawerOpen(true)}
+          >
+            <HugeiconsIcon
+              icon={ShoppingCart01Icon}
+              strokeWidth={2}
+              className="size-6"
+            />
+            <Badge
+              variant="destructive"
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center"
             >
-              {createOrderMutation.isPending ? "Placing Order..." : "Place Order"}
-            </Button>
-          </div>
+              {itemCount}
+            </Badge>
+          </Button>
         </div>
-      </div>
+      )}
+
+      {/* Order Drawer */}
+      <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
+          <SheetHeader>
+            <SheetTitle>Your Order</SheetTitle>
+          </SheetHeader>
+
+          {orderItems.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-muted-foreground">No items added yet</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto py-4 px-4">
+                <OrderItemsList
+                  items={orderItemEntries}
+                  currency={currency}
+                  onUpdateQuantity={updateQuantity}
+                  onUpdateNotes={updateNotes}
+                  onRemoveItem={removeItem}
+                />
+              </div>
+
+              <SheetFooter className="border-t pt-4 flex-col gap-3">
+                <div className="flex justify-between items-center text-lg font-semibold">
+                  <span>Total:</span>
+                  <span>{formatPrice(total, currency)}</span>
+                </div>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={orderItems.length === 0 || createOrderMutation.isPending}
+                  className="w-full"
+                  size="lg"
+                >
+                  {createOrderMutation.isPending ? "Placing Order..." : "Place Order"}
+                </Button>
+              </SheetFooter>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

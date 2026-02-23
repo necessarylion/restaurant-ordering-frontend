@@ -18,6 +18,7 @@ export const endpoints = {
     get: (id: number) => `/restaurants/${id}`,
     update: (id: number) => `/restaurants/${id}`,
     delete: (id: number) => `/restaurants/${id}`,
+    guest: (id: number) => `/guest/restaurants/${id}`,
   },
 
   members: {
@@ -43,6 +44,7 @@ export const endpoints = {
 
   menuItems: {
     list: (restaurantId: number) => `/restaurants/${restaurantId}/menu-items`,
+    guestList: (restaurantId: number) => `/guest/restaurants/${restaurantId}/menu-items`,
     create: (restaurantId: number) => `/restaurants/${restaurantId}/menu-items`,
     get: (restaurantId: number, itemId: number) =>
       `/restaurants/${restaurantId}/menu-items/${itemId}`,
@@ -92,7 +94,7 @@ export const endpoints = {
   orders: {
     list: (restaurantId: number) => `/restaurants/${restaurantId}/orders`,
     create: (restaurantId: number) => `/restaurants/${restaurantId}/orders`,
-    createGuest: (restaurantId: number) => `/restaurants/${restaurantId}/orders/guest`, // Guest order creation without auth
+    createGuest: (restaurantId: number) => `/guest/restaurants/${restaurantId}/orders`,
     get: (restaurantId: number, orderId: number) =>
       `/restaurants/${restaurantId}/orders/${orderId}`,
     update: (restaurantId: number, orderId: number) =>

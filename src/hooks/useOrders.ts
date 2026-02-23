@@ -82,9 +82,9 @@ export const useCreateGuestOrder = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "X-Order-Token": token,
           },
           body: JSON.stringify({
-            token: token,
             order_type: order_type,
             items: items,
           }),

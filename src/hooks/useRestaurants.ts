@@ -34,6 +34,34 @@ export const useRestaurantById = (id: number | undefined) => {
 };
 
 /**
+ * Fetch restaurant details for guest (no auth, uses X-Order-Token)
+ */
+export const useGuestRestaurant = (
+  restaurantId: number | undefined,
+  token: string | undefined
+) => {
+  return useQuery({
+    queryKey: ["guestRestaurant", restaurantId, token],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}${endpoints.restaurants.guest(restaurantId!)}`,
+        {
+          headers: {
+            "X-Order-Token": token!,
+          },
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch restaurant");
+      }
+      return response.json() as Promise<Restaurant>;
+    },
+    enabled: !!restaurantId && !!token,
+  });
+};
+
+/**
  * Build FormData from restaurant input
  */
 const buildRestaurantFormData = (

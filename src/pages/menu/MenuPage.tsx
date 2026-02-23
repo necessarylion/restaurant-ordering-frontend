@@ -3,7 +3,7 @@
  * Display and manage all menu items organized by category
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { useCategories } from "@/hooks/useCategories";
@@ -17,9 +17,10 @@ import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { MenuItemForm } from "@/components/menu/MenuItemForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, GridViewIcon } from "@hugeicons/core-free-icons";
+import { Menu01Icon, GridViewIcon, Search01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import type { MenuItem } from "@/types";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -30,11 +31,14 @@ export const MenuPage = () => {
     data: categories = [],
     isLoading: categoriesLoading,
   } = useCategories(currentRestaurant?.id);
+  const [searchInput, setSearchInput] = useState("");
+  const deferredKeyword = useDeferredValue(searchInput);
+
   const {
     data: menuItems = [],
     isLoading: itemsLoading,
     error,
-  } = useMenuItems(currentRestaurant?.id);
+  } = useMenuItems(currentRestaurant?.id, deferredKeyword || undefined);
   const createMutation = useCreateMenuItem();
   const updateMutation = useUpdateMenuItem();
   const deleteMutation = useDeleteMenuItem();
@@ -213,7 +217,8 @@ export const MenuPage = () => {
 
       {/* Category Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="gap-2">
+        <div className="flex items-center justify-between gap-4">
+          <TabsList className="gap-2">
           <TabsTrigger value="all">
             <HugeiconsIcon icon={GridViewIcon} strokeWidth={2} className="size-4" />
             All Items ({menuItems.length})
@@ -230,6 +235,26 @@ export const MenuPage = () => {
               </TabsTrigger>
             ))}
         </TabsList>
+
+          <div className="relative w-64">
+            <HugeiconsIcon icon={Search01Icon} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search menu items..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="pl-9 pr-9"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => setSearchInput("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} className="size-4" />
+              </button>
+            )}
+          </div>
+        </div>
 
         <TabsContent value={selectedCategory} className="mt-3">
           {filteredItems.length === 0 ? (

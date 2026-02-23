@@ -10,12 +10,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Stage, Layer } from "react-konva";
 import type Konva from "konva";
 import { useRestaurant } from "@/hooks/useRestaurant";
-import { useTables, useTable, useZones, useSaveFloorPlan } from "@/hooks/useTables";
+import { useTables, useTable, useZones, useSaveFloorPlan, useGenerateTableToken } from "@/hooks/useTables";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { useCreatePayment } from "@/hooks/usePayments";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { OrderCard } from "@/components/order/OrderCard";
 import { OrderDetailDialog } from "@/components/order/OrderDetailDialog";
+import { TableQRCode } from "./TableQRCode";
 import { TableNode } from "./TableNode";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +38,7 @@ import {
   ShoppingBasket03Icon,
   Calendar03Icon,
   DollarCircleIcon,
+  QrCodeIcon,
 } from "@hugeicons/core-free-icons";
 import type { Order } from "@/types";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
@@ -77,6 +79,11 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
   const { data: tableDetails, refetch: refetchTableDetails } = useTable(currentRestaurant?.id, selectedTableId ?? undefined);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const generateTokenMutation = useGenerateTableToken();
+  const [qrCodeData, setQrCodeData] = useState<{
+    token: string;
+    expiresAt: string;
+  } | null>(null);
   const { alert: showAlert, confirm } = useAlertDialog();
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -169,6 +176,19 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
     },
     [selectedTableId, refetchTableDetails]
   );
+
+  const handleGenerateQR = useCallback(async () => {
+    if (!currentRestaurant || !selectedTableId) return;
+    try {
+      const result = await generateTokenMutation.mutateAsync({
+        restaurantId: currentRestaurant.id,
+        tableId: selectedTableId,
+      });
+      setQrCodeData({ token: result.token, expiresAt: result.expires_at });
+    } catch (err: any) {
+      showAlert({ title: "Error", description: err.message || "Failed to generate QR code" });
+    }
+  }, [currentRestaurant, selectedTableId, generateTokenMutation, showAlert]);
 
   const handleMakePayment = useCallback(async () => {
     if (!currentRestaurant || !selectedTableId || !tableDetails?.active_orders?.length) return;
@@ -345,6 +365,16 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
                   <label className="text-xs text-muted-foreground">Actions</label>
                   <Button
                     size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGenerateQR}
+                    disabled={generateTokenMutation.isPending}
+                  >
+                    <HugeiconsIcon icon={QrCodeIcon} strokeWidth={2} className="size-4" />
+                    {generateTokenMutation.isPending ? "Generating..." : "Generate QR Code"}
+                  </Button>
+                  <Button
+                    size="sm"
                     className="w-full"
                     onClick={() => navigate(`/dashboard/orders/create?tableId=${selectedTable.id}`)}
                   >
@@ -479,6 +509,21 @@ export const FloorPlanCanvas = ({ activeZoneId, onActiveZoneChange }: FloorPlanC
             }
           }}
         />
+
+        {/* QR Code Dialog */}
+        <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>
+          <DialogContent className="sm:max-w-md">
+            {qrCodeData && currentRestaurant && selectedTable && (
+              <TableQRCode
+                tableName={selectedTable.table_number}
+                restaurantId={currentRestaurant.id}
+                token={qrCodeData.token}
+                expiresAt={qrCodeData.expiresAt}
+                onClose={() => setQrCodeData(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
       </div>
   );

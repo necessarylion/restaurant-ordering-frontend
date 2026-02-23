@@ -3,30 +3,25 @@
  * Display restaurant menu for guest ordering via QR code
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useDeferredValue } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
-import { useRestaurant } from "@/hooks/useRestaurant";
-import { useMenuItems } from "@/hooks/useMenuItems";
-import { useCategories } from "@/hooks/useCategories";
-import { Button } from "@/components/ui/button";
+import { useGuestMenuItems } from "@/hooks/useMenuItems";
+import { useGuestRestaurant } from "@/hooks/useRestaurants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import { MenuBrowser } from "@/components/order/MenuBrowser";
 import type { MenuItem } from "@/types";
-import { formatPrice } from "@/lib/utils";
-import { PageHeader } from "@/components/layout/PageHeader";
+
 
 export const GuestMenuPage = () => {
   const { restaurantId: restaurantIdParam, token } = useParams<{
     restaurantId: string;
     token: string;
   }>();
-  const { setTableToken, addItem } = useCart();
-  const { currentRestaurant, setCurrentRestaurant } = useRestaurant();
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const { setTableToken, addItem, items } = useCart();
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchInput, setSearchInput] = useState("");
+  const deferredKeyword = useDeferredValue(searchInput);
 
   const restaurantId = restaurantIdParam ? Number(restaurantIdParam) : null;
 
@@ -38,35 +33,20 @@ export const GuestMenuPage = () => {
   }, [token, restaurantId, setTableToken]);
 
   const {
-    data: categories = [],
-    isLoading: categoriesLoading,
-  } = useCategories(restaurantId || undefined);
+    data: restaurant,
+    isLoading: restaurantLoading,
+  } = useGuestRestaurant(restaurantId || undefined, token);
 
   const {
     data: menuItems = [],
     isLoading: menuItemsLoading,
-  } = useMenuItems(restaurantId || undefined);
+  } = useGuestMenuItems(restaurantId || undefined, token, deferredKeyword || undefined);
 
-  // Set restaurant in context when data loads
-  useEffect(() => {
-    const restaurant = menuItems[0]?.restaurant || categories[0]?.restaurant;
-    if (restaurant) {
-      setCurrentRestaurant(restaurant);
-    }
-  }, [menuItems, categories, setCurrentRestaurant]);
-
-  const currency = currentRestaurant?.currency || "USD";
+  const currency = restaurant?.currency || "USD";
 
   const handleAddToCart = (menuItem: MenuItem) => {
     addItem(menuItem, 1);
   };
-
-  const activeCategories = categories.filter((cat) => cat.is_active);
-  const availableMenuItems = menuItems.filter((item) => item.is_available);
-
-  const filteredMenuItems = selectedCategory
-    ? availableMenuItems.filter((item) => item.category_id === selectedCategory)
-    : availableMenuItems;
 
   if (!token) {
     return (
@@ -85,7 +65,7 @@ export const GuestMenuPage = () => {
     );
   }
 
-  if (categoriesLoading || menuItemsLoading) {
+  if (restaurantLoading || menuItemsLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -94,93 +74,18 @@ export const GuestMenuPage = () => {
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      <PageHeader title="Menu" description="Browse our menu and add items to your cart" />
-
-      {/* Category Tabs */}
-      {activeCategories.length > 0 && (
-        <Tabs
-          value={selectedCategory?.toString() || "all"}
-          onValueChange={(value) =>
-            setSelectedCategory(value === "all" ? null : Number(value))
-          }
-        >
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value="all">All</TabsTrigger>
-            {activeCategories.map((category) => (
-              <TabsTrigger key={category.id} value={category.id.toString()}>
-                {category.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      )}
-
-      {/* Menu Items Grid */}
-      {filteredMenuItems.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              No menu items available at the moment.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredMenuItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              {/* Image */}
-              {item.images && item.images.length > 0 ? (
-                <img
-                  src={item.images[0].image}
-                  alt={item.name}
-                  className="w-full h-48 object-cover"
-                />
-              ) : (
-                <div className="w-full h-48 bg-muted flex items-center justify-center">
-                  <span className="text-muted-foreground">No image</span>
-                </div>
-              )}
-
-              <CardContent className="p-4">
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    {item.category && (
-                      <Badge variant="secondary" className="text-xs">
-                        {item.category.name}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-lg font-bold">
-                      {formatPrice(item.price, currency)}
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => handleAddToCart(item)}
-                    >
-                      <HugeiconsIcon
-                        icon={Add01Icon}
-                        strokeWidth={2}
-                        className="size-4 mr-1"
-                      />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+    <div className="pb-24">
+      <MenuBrowser
+        menuItems={menuItems}
+        categories={[]}
+        currency={currency}
+        onAddItem={handleAddToCart}
+        getItemQuantity={(id) => items.find((i) => i.menu_item.id === id)?.quantity ?? 0}
+        searchInput={searchInput}
+        onSearchChange={setSearchInput}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
     </div>
   );
 };

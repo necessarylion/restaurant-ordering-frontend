@@ -3,7 +3,7 @@
  * React Query hooks for menu item CRUD operations
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type { MenuItem } from "@/types";
@@ -15,12 +15,48 @@ import type { MenuItem } from "@/types";
 /**
  * Fetch all menu items for a restaurant
  */
-export const useMenuItems = (restaurantId: number | undefined) => {
+export const useMenuItems = (restaurantId: number | undefined, keyword?: string) => {
   return useQuery({
-    queryKey: ["menuItems", restaurantId],
+    queryKey: ["menuItems", restaurantId, keyword],
     queryFn: () =>
-      api.get<MenuItem[]>(endpoints.menuItems.list(restaurantId!)),
+      api.get<MenuItem[]>(endpoints.menuItems.list(restaurantId!), {
+        params: keyword ? { keyword } : undefined,
+      }),
+    placeholderData: keepPreviousData,
     enabled: !!restaurantId,
+  });
+};
+
+/**
+ * Fetch menu items for guest ordering (no auth, uses X-Order-Token)
+ */
+export const useGuestMenuItems = (
+  restaurantId: number | undefined,
+  token: string | undefined,
+  keyword?: string
+) => {
+  return useQuery({
+    queryKey: ["guestMenuItems", restaurantId, token, keyword],
+    queryFn: async () => {
+      const url = new URL(
+        `${import.meta.env.VITE_API_BASE_URL}${endpoints.menuItems.guestList(restaurantId!)}`
+      );
+      if (keyword) {
+        url.searchParams.set("keyword", keyword);
+      }
+      const response = await fetch(url.toString(), {
+        headers: {
+          "X-Order-Token": token!,
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch menu items");
+      }
+      return response.json() as Promise<MenuItem[]>;
+    },
+    placeholderData: keepPreviousData,
+    enabled: !!restaurantId && !!token,
   });
 };
 
