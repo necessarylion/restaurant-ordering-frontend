@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,7 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 export const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string>("");
@@ -34,7 +36,7 @@ export const LoginPage = () => {
       await login(data);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Login failed. Please try again.");
+      setError(err.message || t("auth.loginFailed"));
     }
   };
 
@@ -42,9 +44,9 @@ export const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-muted/50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Restaurant Ordering</CardTitle>
+          <CardTitle className="text-2xl text-center">{t("auth.restaurantOrdering")}</CardTitle>
           <p className="text-center text-sm text-muted-foreground">
-            Sign in to manage your restaurant
+            {t("auth.signInSubtitle")}
           </p>
         </CardHeader>
 
@@ -57,11 +59,11 @@ export const LoginPage = () => {
             )}
 
             <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor="email">{t("auth.email")}</FieldLabel>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 {...register("email")}
                 disabled={isSubmitting}
               />
@@ -69,7 +71,7 @@ export const LoginPage = () => {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
               <Input
                 id="password"
                 type="password"
@@ -81,16 +83,16 @@ export const LoginPage = () => {
             </Field>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? t("auth.signingIn") : t("auth.signIn")}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            {t("auth.noAccount")}{" "}
             <Link to="/register" className="text-primary hover:underline">
-              Sign up
+              {t("auth.signUp")}
             </Link>
           </p>
         </CardFooter>

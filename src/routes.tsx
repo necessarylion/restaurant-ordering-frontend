@@ -16,6 +16,7 @@ import { BookingListPage } from "@/pages/bookings/BookingListPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 import { MemberListPage } from "@/pages/members/MemberListPage";
 import { InvitationListPage } from "@/pages/invitations/InvitationListPage";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
 
 interface PageRoute {
   path: string;
@@ -51,6 +52,7 @@ export const dashboardRoutes: RouteConfig[] = [
   { path: "orders/create", element: StaffOrderCreatePage },
   { path: "members", element: MemberListPage },
   { path: "invitations", element: InvitationListPage },
+  { path: "settings", element: SettingsPage },
 ];
 
 export const dashboardIndex: RedirectRoute = {

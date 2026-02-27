@@ -3,6 +3,7 @@
  * Displays category information in a card format
  */
 
+import { useTranslation } from "react-i18next";
 import type { Category } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export const CategoryCard = ({
   onEdit,
   onDelete,
 }: CategoryCardProps) => {
+  const { t } = useTranslation();
   return (
     <Card className="flex flex-col overflow-hidden hover:shadow-md transition-shadow pt-0">
       {/* Category Image */}
@@ -43,7 +45,7 @@ export const CategoryCard = ({
           variant={category.is_active ? "default" : "secondary"}
           className="absolute top-2 right-2"
         >
-          {category.is_active ? "Active" : "Inactive"}
+          {category.is_active ? t("common.active") : t("common.inactive")}
         </Badge>
       </div>
 
@@ -70,7 +72,7 @@ export const CategoryCard = ({
               className="flex-1"
             >
               <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
-              Edit
+              {t("common.edit")}
             </Button>
           )}
           {onDelete && (
@@ -81,7 +83,7 @@ export const CategoryCard = ({
               className="flex-1 text-destructive hover:text-destructive"
             >
               <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
-              Delete
+              {t("common.delete")}
             </Button>
           )}
         </div>

@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo, useDeferredValue } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useMenuItems } from "@/hooks/useMenuItems";
@@ -35,6 +36,7 @@ interface OrderItem {
 }
 
 export const StaffOrderCreatePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tableId = searchParams.get("tableId");
@@ -146,7 +148,7 @@ export const StaffOrderCreatePage = () => {
       });
       navigate(tableId ? `/dashboard/tables?tableId=${tableId}` : "/dashboard/tables");
     } catch (error: any) {
-      alert(error.message || "Failed to create order");
+      alert(error.message || t("order.failedToCreate"));
     }
   };
 
@@ -155,11 +157,11 @@ export const StaffOrderCreatePage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant first.
+              {t("common.selectRestaurantFirst")}
             </p>
           </CardContent>
         </Card>
@@ -186,7 +188,7 @@ export const StaffOrderCreatePage = () => {
         >
           <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
         </Button>
-        <h1 className="text-2xl font-bold">New Order</h1>
+        <h1 className="text-2xl font-bold">{t("order.newOrder")}</h1>
         {table && (
           <Badge variant="outline" className="text-sm gap-1 ml-auto mt-1 p-3">
             <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4" />
@@ -235,12 +237,12 @@ export const StaffOrderCreatePage = () => {
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
           <SheetHeader>
-            <SheetTitle>Your Order</SheetTitle>
+            <SheetTitle>{t("order.yourOrder")}</SheetTitle>
           </SheetHeader>
 
           {orderItems.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-muted-foreground">No items added yet</p>
+              <p className="text-muted-foreground">{t("order.noItemsAdded")}</p>
             </div>
           ) : (
             <>
@@ -256,7 +258,7 @@ export const StaffOrderCreatePage = () => {
 
               <SheetFooter className="border-t pt-4 flex-col gap-3">
                 <div className="flex justify-between items-center text-lg font-semibold">
-                  <span>Total:</span>
+                  <span>{t("common.total")}</span>
                   <span>{formatPrice(total, currency)}</span>
                 </div>
                 <Button
@@ -265,7 +267,7 @@ export const StaffOrderCreatePage = () => {
                   className="w-full"
                   size="lg"
                 >
-                  {createOrderMutation.isPending ? "Placing Order..." : "Place Order"}
+                  {createOrderMutation.isPending ? t("order.placingOrder") : t("order.placeOrder")}
                 </Button>
               </SheetFooter>
             </>

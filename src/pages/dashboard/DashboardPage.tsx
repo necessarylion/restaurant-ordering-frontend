@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import {
@@ -46,11 +47,11 @@ import {
 import { formatPrice } from "@/lib/utils";
 
 const PRESET_RANGES = [
-  { label: "Today", getDates: () => ({ from: new Date(), to: new Date() }) },
-  { label: "Last 7 days", getDates: () => ({ from: subDays(new Date(), 6), to: new Date() }) },
-  { label: "Last 30 days", getDates: () => ({ from: subDays(new Date(), 29), to: new Date() }) },
-  { label: "This Month", getDates: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
-  { label: "Last Month", getDates: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+  { label: "common.today", getDates: () => ({ from: new Date(), to: new Date() }) },
+  { label: "dashboard.last7days", getDates: () => ({ from: subDays(new Date(), 6), to: new Date() }) },
+  { label: "dashboard.last30days", getDates: () => ({ from: subDays(new Date(), 29), to: new Date() }) },
+  { label: "dashboard.thisMonth", getDates: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
+  { label: "dashboard.lastMonth", getDates: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -70,6 +71,7 @@ const ORDER_TYPE_COLORS: Record<string, string> = {
 };
 
 export const DashboardPage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const [activePreset, setActivePreset] = useState(2); // Last 30 days default
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -105,7 +107,7 @@ export const DashboardPage = () => {
     ? dateRange.to
       ? `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`
       : format(dateRange.from, "MMM dd, yyyy")
-    : "Pick a date range";
+    : t("dashboard.pickDateRange");
 
   // Chart data
   const dailyChartData = useMemo(() => {
@@ -151,12 +153,12 @@ export const DashboardPage = () => {
   }, [data?.bookings?.by_status]);
 
   if (!currentRestaurant) {
-    return <ErrorCard title="No Restaurant" message="Please select a restaurant first." />;
+    return <ErrorCard title={t("common.noRestaurant")} message={t("common.selectRestaurantFirst")} />;
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" />
+      <PageHeader title={t("dashboard.title")} />
 
       {/* Date Range Selector */}
       <div className="flex flex-wrap items-center gap-2">
@@ -167,7 +169,7 @@ export const DashboardPage = () => {
             size="sm"
             onClick={() => handlePreset(i)}
           >
-            {preset.label}
+            {t(preset.label)}
           </Button>
         ))}
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -194,34 +196,34 @@ export const DashboardPage = () => {
           <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className="size-8 animate-spin text-muted-foreground" />
         </div>
       ) : error ? (
-        <ErrorCard title="Failed to load dashboard" message={(error as Error).message} />
+        <ErrorCard title={t("dashboard.failedToLoad")} message={(error as Error).message} />
       ) : data ? (
         <>
           {/* KPI Cards */}
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <KpiCard
-              title="Total Orders"
+              title={t("dashboard.totalOrders")}
               value={data.orders.total_count.toString()}
               icon={ShoppingBasket01Icon}
               color="text-indigo-500"
               bgColor="bg-indigo-500/10"
             />
             <KpiCard
-              title="Revenue"
+              title={t("dashboard.revenue")}
               value={formatPrice(data.revenue.total_revenue, currency)}
               icon={Money01Icon}
               color="text-emerald-500"
               bgColor="bg-emerald-500/10"
             />
             <KpiCard
-              title="Avg Order Value"
+              title={t("dashboard.avgOrderValue")}
               value={formatPrice(data.revenue.average_order_value, currency)}
               icon={Chart02Icon}
               color="text-amber-500"
               bgColor="bg-amber-500/10"
             />
             <KpiCard
-              title="Bookings"
+              title={t("dashboard.bookings")}
               value={data.bookings.total_count.toString()}
               icon={Calendar03Icon}
               color="text-cyan-500"
@@ -232,28 +234,28 @@ export const DashboardPage = () => {
           {/* Revenue Detail Cards */}
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <KpiCard
-              title="Net Revenue"
+              title={t("dashboard.netRevenue")}
               value={formatPrice(data.revenue.net_revenue, currency)}
               icon={Wallet01Icon}
               color="text-green-500"
               bgColor="bg-green-500/10"
             />
             <KpiCard
-              title="Total Tax"
+              title={t("dashboard.totalTax")}
               value={formatPrice(data.revenue.total_tax, currency)}
               icon={TaxesIcon}
               color="text-orange-500"
               bgColor="bg-orange-500/10"
             />
             <KpiCard
-              title="Total Discount"
+              title={t("dashboard.totalDiscount")}
               value={formatPrice(data.revenue.total_discount, currency)}
               icon={Discount01Icon}
               color="text-pink-500"
               bgColor="bg-pink-500/10"
             />
             <KpiCard
-              title="Payments"
+              title={t("dashboard.payments")}
               value={data.revenue.payment_count.toString()}
               icon={CreditCardIcon}
               color="text-violet-500"
@@ -268,7 +270,7 @@ export const DashboardPage = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <HugeiconsIcon icon={BarChartIcon} strokeWidth={2} className="size-4" />
-                  Daily Trends
+                  {t("dashboard.dailyTrends")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -287,13 +289,13 @@ export const DashboardPage = () => {
                           color: "hsl(var(--foreground))",
                         }}
                       />
-                      <Bar yAxisId="left" dataKey="orders" name="Orders" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                      <Line yAxisId="right" type="monotone" dataKey="revenue" name="Revenue" stroke="#22c55e" strokeWidth={2} dot={false} />
+                      <Bar yAxisId="left" dataKey="orders" name={t("dashboard.orders")} fill="#6366f1" radius={[4, 4, 0, 0]} />
+                      <Line yAxisId="right" type="monotone" dataKey="revenue" name={t("dashboard.revenue")} stroke="#22c55e" strokeWidth={2} dot={false} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex items-center justify-center h-[280px] text-muted-foreground">
-                    No data for selected period
+                    {t("dashboard.noDataForPeriod")}
                   </div>
                 )}
               </CardContent>
@@ -302,7 +304,7 @@ export const DashboardPage = () => {
             {/* Order Status Breakdown */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Order Status</CardTitle>
+                <CardTitle className="text-base">{t("dashboard.orderStatus")}</CardTitle>
               </CardHeader>
               <CardContent>
                 {orderStatusData.length > 0 ? (
@@ -334,7 +336,7 @@ export const DashboardPage = () => {
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex items-center justify-center h-[280px] text-muted-foreground">
-                    No order data
+                    {t("dashboard.noOrderData")}
                   </div>
                 )}
               </CardContent>
@@ -346,7 +348,7 @@ export const DashboardPage = () => {
             {/* Popular Items */}
             <Card className="lg:col-span-2">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Popular Items</CardTitle>
+                <CardTitle className="text-base">{t("dashboard.popularItems")}</CardTitle>
               </CardHeader>
               <CardContent>
                 {data.popular_items && data.popular_items.length > 0 ? (
@@ -364,7 +366,7 @@ export const DashboardPage = () => {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{item.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {item.total_quantity} sold across {item.order_count} orders
+                            {t("dashboard.soldAcrossOrders", { quantity: item.total_quantity, count: item.order_count })}
                           </p>
                         </div>
                         <span className="font-semibold text-yellow-500">
@@ -375,7 +377,7 @@ export const DashboardPage = () => {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-[200px] text-muted-foreground">
-                    No popular items data
+                    {t("dashboard.noPopularItems")}
                   </div>
                 )}
               </CardContent>
@@ -386,7 +388,7 @@ export const DashboardPage = () => {
               {/* Order Types */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Order Types</CardTitle>
+                  <CardTitle className="text-base">{t("dashboard.orderTypes")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {orderTypeData.length > 0 ? (
@@ -411,7 +413,7 @@ export const DashboardPage = () => {
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">No data</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{t("common.noData")}</p>
                   )}
                 </CardContent>
               </Card>
@@ -419,7 +421,7 @@ export const DashboardPage = () => {
               {/* Booking Status */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Bookings</CardTitle>
+                  <CardTitle className="text-base">{t("dashboard.bookings")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {bookingStatusData.length > 0 ? (
@@ -431,7 +433,7 @@ export const DashboardPage = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">No booking data</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{t("dashboard.noBookingData")}</p>
                   )}
                 </CardContent>
               </Card>
@@ -441,13 +443,13 @@ export const DashboardPage = () => {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <HugeiconsIcon icon={UserMultiple02Icon} strokeWidth={2} className="size-4" />
-                    Team
+                    {t("dashboard.team")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-2xl font-bold">{data.members.total}</span>
-                    <span className="text-sm text-muted-foreground">members</span>
+                    <span className="text-sm text-muted-foreground">{t("dashboard.members")}</span>
                   </div>
                   {data.members.by_role && Object.keys(data.members.by_role).length > 0 && (
                     <div className="flex flex-wrap gap-2">

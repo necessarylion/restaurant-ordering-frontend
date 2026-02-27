@@ -3,6 +3,7 @@
  * Displays table information in a card format with seats and zone info
  */
 
+import { useTranslation } from "react-i18next";
 import type { Table } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export const TableCard = ({
   onDelete,
   onGenerateQR,
 }: TableCardProps) => {
+  const { t } = useTranslation();
   return (
     <Card
       className="flex flex-col hover:shadow-md transition-shadow overflow-hidden"
@@ -48,13 +50,13 @@ export const TableCard = ({
               />
               <CardTitle className="text-lg">{table.table_number}</CardTitle>
               <Badge className={table.is_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}>
-                {table.is_active ? "Active" : "Inactive"}
+                {table.is_active ? t("common.active") : t("common.inactive")}
               </Badge>
             </div>
             <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <HugeiconsIcon icon={SeatSelectorIcon} strokeWidth={2} className="size-3.5" />
-                {table.seats} seats
+                {t("table.seats_count", { count: table.seats })}
               </span>
             </div>
             {table.zone && (
@@ -89,7 +91,7 @@ export const TableCard = ({
                 strokeWidth={2}
                 className="size-4 mr-1"
               />
-              Generate QR Code
+              {t("table.generateQRCode")}
             </Button>
           )}
 
@@ -106,7 +108,7 @@ export const TableCard = ({
                   strokeWidth={2}
                   className="size-4 mr-1"
                 />
-                Edit
+                {t("common.edit")}
               </Button>
             )}
             {onDelete && (
@@ -121,7 +123,7 @@ export const TableCard = ({
                   strokeWidth={2}
                   className="size-4 mr-1"
                 />
-                Delete
+                {t("common.delete")}
               </Button>
             )}
           </div>

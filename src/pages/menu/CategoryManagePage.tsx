@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -27,6 +28,7 @@ import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const CategoryManagePage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const {
     data: categories = [],
@@ -54,7 +56,7 @@ export const CategoryManagePage = () => {
       });
       setShowCreateForm(false);
     } catch (error: any) {
-      alert(error.message || "Failed to create category");
+      alert(error.message || t("category.failedToCreate"));
     }
   };
 
@@ -72,7 +74,7 @@ export const CategoryManagePage = () => {
       });
       setEditingCategory(null);
     } catch (error: any) {
-      alert(error.message || "Failed to update category");
+      alert(error.message || t("category.failedToUpdate"));
     }
   };
 
@@ -80,9 +82,9 @@ export const CategoryManagePage = () => {
     if (!currentRestaurant) return;
 
     const confirmed = await confirm({
-      title: "Delete Category?",
-      description: `Are you sure you want to delete "${category.name}"? This action cannot be undone and may affect existing menu items.`,
-      confirmLabel: "Delete",
+      title: t("category.deleteCategory"),
+      description: t("category.deleteConfirm", { name: category.name }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -93,7 +95,7 @@ export const CategoryManagePage = () => {
         categoryId: category.id,
       });
     } catch (error: any) {
-      alert(error.message || "Failed to delete category");
+      alert(error.message || t("category.failedToDelete"));
     }
   };
 
@@ -102,11 +104,11 @@ export const CategoryManagePage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant to manage categories.
+              {t("category.selectRestaurant")}
             </p>
           </CardContent>
         </Card>
@@ -125,22 +127,22 @@ export const CategoryManagePage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Categories"
-        message={(error as any).message || "Failed to load categories"}
+        title={t("category.errorLoading")}
+        message={(error as any).message || t("category.failedToLoad")}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Categories" description={`Manage categories for ${currentRestaurant.name}`}>
+      <PageHeader title={t("category.title")} description={t("category.description", { name: currentRestaurant.name })}>
         <Button
           onClick={() => {
             setShowCreateForm(true);
             setEditingCategory(null);
           }}
         >
-          Create Category
+          {t("category.createCategory")}
         </Button>
       </PageHeader>
 
@@ -148,7 +150,7 @@ export const CategoryManagePage = () => {
       <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Category</DialogTitle>
+            <DialogTitle>{t("category.createNewCategory")}</DialogTitle>
           </DialogHeader>
           <CategoryForm
             onSubmit={handleCreate}
@@ -162,7 +164,7 @@ export const CategoryManagePage = () => {
       <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle>{t("category.editCategory")}</DialogTitle>
           </DialogHeader>
           {editingCategory && (
             <CategoryForm
@@ -180,7 +182,7 @@ export const CategoryManagePage = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No categories yet. Create your first category to get started!
+              {t("category.noCategoriesYet")}
             </p>
           </CardContent>
         </Card>

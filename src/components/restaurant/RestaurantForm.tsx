@@ -4,6 +4,7 @@
  */
 
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { restaurantSchema, type RestaurantFormData } from "@/schemas/restaurant_schema";
@@ -27,6 +28,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
   onCancel,
   isSubmitting,
 }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -54,7 +56,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Field>
-        <FieldLabel>Logo</FieldLabel>
+        <FieldLabel>{t("restaurant.logo")}</FieldLabel>
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -82,16 +84,16 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             }}
           />
           <p className="text-xs text-muted-foreground">
-            JPG, PNG or WebP. Max 5MB.
+            {t("restaurant.logoHint")}
           </p>
         </div>
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="name">Restaurant Name *</FieldLabel>
+        <FieldLabel htmlFor="name">{t("restaurant.restaurantName")}</FieldLabel>
         <Input
           id="name"
-          placeholder="My Restaurant"
+          placeholder={t("restaurant.restaurantNamePlaceholder")}
           {...register("name")}
           disabled={isSubmitting}
         />
@@ -99,10 +101,10 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="address">Address</FieldLabel>
+        <FieldLabel htmlFor="address">{t("restaurant.address")}</FieldLabel>
         <Input
           id="address"
-          placeholder="123 Main St"
+          placeholder={t("restaurant.addressPlaceholder")}
           {...register("address")}
           disabled={isSubmitting}
         />
@@ -110,11 +112,11 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="phone">Phone</FieldLabel>
+        <FieldLabel htmlFor="phone">{t("common.phone")}</FieldLabel>
         <Input
           id="phone"
           type="tel"
-          placeholder="09123456789"
+          placeholder={t("restaurant.phonePlaceholder")}
           {...register("phone")}
           disabled={isSubmitting}
         />
@@ -122,10 +124,10 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="currency">Currency</FieldLabel>
+        <FieldLabel htmlFor="currency">{t("restaurant.currency")}</FieldLabel>
         <Input
           id="currency"
-          placeholder="USD"
+          placeholder={t("restaurant.currencyPlaceholder")}
           {...register("currency")}
           disabled={isSubmitting}
         />
@@ -140,16 +142,16 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         )}
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
-            ? "Saving..."
+            ? t("common.saving")
             : restaurant
-            ? "Update Restaurant"
-            : "Create Restaurant"}
+            ? t("restaurant.updateRestaurant")
+            : t("restaurant.createRestaurant")}
         </Button>
       </div>
     </form>

@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,7 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 export const RegisterPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { register: registerUser } = useAuth();
   const [error, setError] = useState<string>("");
@@ -34,7 +36,7 @@ export const RegisterPage = () => {
       await registerUser(data);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.");
+      setError(err.message || t("auth.registrationFailed"));
     }
   };
 
@@ -42,9 +44,9 @@ export const RegisterPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-muted/50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+          <CardTitle className="text-2xl text-center">{t("auth.createAccount")}</CardTitle>
           <p className="text-center text-sm text-muted-foreground">
-            Start managing your restaurant today
+            {t("auth.createAccountSubtitle")}
           </p>
         </CardHeader>
 
@@ -57,11 +59,11 @@ export const RegisterPage = () => {
             )}
 
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
+              <FieldLabel htmlFor="name">{t("auth.fullName")}</FieldLabel>
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder={t("auth.fullNamePlaceholder")}
                 {...register("name")}
                 disabled={isSubmitting}
               />
@@ -69,11 +71,11 @@ export const RegisterPage = () => {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor="email">{t("auth.email")}</FieldLabel>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 {...register("email")}
                 disabled={isSubmitting}
               />
@@ -81,7 +83,7 @@ export const RegisterPage = () => {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
               <Input
                 id="password"
                 type="password"
@@ -91,21 +93,21 @@ export const RegisterPage = () => {
               />
               {errors.password && <FieldError>{errors.password.message}</FieldError>}
               <p className="text-xs text-muted-foreground mt-1">
-                Must be at least 6 characters
+                {t("auth.passwordHint")}
               </p>
             </Field>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting ? t("auth.creatingAccount") : t("auth.createAccount")}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t("auth.haveAccount")}{" "}
             <Link to="/login" className="text-primary hover:underline">
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </p>
         </CardFooter>

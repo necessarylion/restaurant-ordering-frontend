@@ -3,6 +3,7 @@
  * Form for creating and editing tables with seats and zone fields
  */
 
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tableSchema } from "@/schemas/table_schema";
@@ -46,6 +47,7 @@ export const TableForm = ({
   onCancel,
   isSubmitting = false,
 }: TableFormProps) => {
+  const { t } = useTranslation();
   const isEdit = !!table;
 
   const {
@@ -79,11 +81,11 @@ export const TableForm = ({
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Table Number */}
         <Field data-invalid={!!errors.table_number}>
-          <FieldLabel>Table Number</FieldLabel>
+          <FieldLabel>{t("table.tableNumber")}</FieldLabel>
           <FieldContent>
             <Input
               {...register("table_number")}
-              placeholder="e.g., Table 1, A1, VIP-01"
+              placeholder={t("table.tableNumberPlaceholder")}
             />
           </FieldContent>
           {errors.table_number && (
@@ -93,7 +95,7 @@ export const TableForm = ({
 
         {/* Seats */}
         <Field data-invalid={!!errors.seats}>
-          <FieldLabel>Seats</FieldLabel>
+          <FieldLabel>{t("table.seats")}</FieldLabel>
           <FieldContent>
             <Input
               type="number"
@@ -109,7 +111,7 @@ export const TableForm = ({
       {/* Zone */}
       {zones.length > 0 && (
         <Field>
-          <FieldLabel>Zone</FieldLabel>
+          <FieldLabel>{t("table.zone")}</FieldLabel>
           <FieldContent>
             <Select
               value={zoneId ? String(zoneId) : "none"}
@@ -118,10 +120,10 @@ export const TableForm = ({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a zone" />
+                <SelectValue placeholder={t("table.selectZone")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No zone</SelectItem>
+                <SelectItem value="none">{t("table.noZone")}</SelectItem>
                 {zones.map((zone) => (
                   <SelectItem key={zone.id} value={String(zone.id)}>
                     {zone.name}
@@ -142,7 +144,7 @@ export const TableForm = ({
             onCheckedChange={(checked) => setValue("is_active", !!checked)}
           />
           <FieldLabel htmlFor="is_active" className="mb-0! cursor-pointer">
-            Active (available for orders)
+            {t("table.activeForOrders")}
           </FieldLabel>
         </div>
       </Field>
@@ -152,14 +154,14 @@ export const TableForm = ({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? isEdit
-              ? "Updating..."
-              : "Creating..."
+              ? t("common.updating")
+              : t("common.creating")
             : isEdit
-            ? "Update Table"
-            : "Create Table"}
+            ? t("table.updateTable")
+            : t("table.createTable")}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

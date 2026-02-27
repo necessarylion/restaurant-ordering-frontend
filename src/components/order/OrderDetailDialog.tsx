@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useUpdateOrder } from "@/hooks/useOrders";
 import { OrderStatusBadge } from "./OrderStatusBadge";
@@ -50,6 +51,7 @@ export const OrderDetailDialog = ({
   onClose,
   onStatusUpdated,
 }: OrderDetailDialogProps) => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const updateOrderMutation = useUpdateOrder();
   const [newStatus, setNewStatus] = useState<OrderStatus | null>(null);
@@ -88,44 +90,44 @@ export const OrderDetailDialog = ({
         {order && (
           <>
             <DialogHeader>
-              <DialogTitle>Order #{order.id}</DialogTitle>
+              <DialogTitle>{t("order.orderNumber", { id: order.id })}</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
               {/* Order Info */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Created</p>
+                  <p className="text-muted-foreground">{t("order.created")}</p>
                   <p className="font-medium">
                     {formatDateTime(order.created_at)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Table</p>
+                  <p className="text-muted-foreground">{t("booking.table")}</p>
                   <p className="font-medium">
                     {order.table?.table_number || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Type</p>
+                  <p className="text-muted-foreground">{t("order.type")}</p>
                   <Badge variant="outline" className="mt-1">
                     <HugeiconsIcon
                       icon={order.order_type === OrderType.DINE_IN ? Restaurant01Icon : ShoppingBag02Icon}
                       strokeWidth={2}
                       className="size-3.5"
                     />
-                    {order.order_type === OrderType.DINE_IN ? "Dine In" : "Takeaway"}
+                    {order.order_type === OrderType.DINE_IN ? t("order.dineIn") : t("order.takeaway")}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Status</p>
+                  <p className="text-muted-foreground">{t("booking.status")}</p>
                   <OrderStatusBadge status={order.status} />
                 </div>
               </div>
 
               {/* Order Items */}
               <div>
-                <h3 className="font-semibold mb-2">Items</h3>
+                <h3 className="font-semibold mb-2">{t("order.items")}</h3>
                 <div className="space-y-2 border rounded-lg p-3">
                   {order.order_items?.map((item) => (
                     <div
@@ -138,7 +140,7 @@ export const OrderDetailDialog = ({
                         </p>
                         {item.notes && (
                           <p className="text-xs text-muted-foreground">
-                            Note: {item.notes}
+                            {t("order.note", { note: item.notes })}
                           </p>
                         )}
                       </div>
@@ -152,14 +154,14 @@ export const OrderDetailDialog = ({
 
               {/* Total */}
               <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                <span>Total:</span>
+                <span>{t("common.total")}</span>
                 <span>{formatPrice(order.total, currency)}</span>
               </div>
 
               {/* Update Status */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Update Status
+                  {t("order.updateStatus")}
                 </label>
                 <Select
                   value={newStatus || order.status}
@@ -169,12 +171,12 @@ export const OrderDetailDialog = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
-                    <SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
-                    <SelectItem value={OrderStatus.PREPARING}>Preparing</SelectItem>
-                    <SelectItem value={OrderStatus.READY}>Ready</SelectItem>
-                    <SelectItem value={OrderStatus.COMPLETED}>Completed</SelectItem>
-                    <SelectItem value={OrderStatus.CANCELLED}>Cancelled</SelectItem>
+                    <SelectItem value={OrderStatus.PENDING}>{t("order.pending")}</SelectItem>
+                    <SelectItem value={OrderStatus.CONFIRMED}>{t("order.confirmed")}</SelectItem>
+                    <SelectItem value={OrderStatus.PREPARING}>{t("order.preparing")}</SelectItem>
+                    <SelectItem value={OrderStatus.READY}>{t("order.ready")}</SelectItem>
+                    <SelectItem value={OrderStatus.COMPLETED}>{t("order.completed")}</SelectItem>
+                    <SelectItem value={OrderStatus.CANCELLED}>{t("order.cancelled")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -182,7 +184,7 @@ export const OrderDetailDialog = ({
 
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>
-                Close
+                {t("common.close")}
               </Button>
               <Button
                 onClick={handleUpdateStatus}
@@ -191,7 +193,7 @@ export const OrderDetailDialog = ({
                   newStatus === order.status
                 }
               >
-                {updateOrderMutation.isPending ? "Updating..." : "Update Status"}
+                {updateOrderMutation.isPending ? t("order.updatingStatus") : t("order.updateStatus")}
               </Button>
             </DialogFooter>
           </>

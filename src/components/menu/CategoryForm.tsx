@@ -6,6 +6,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createCategoryFormSchema, updateCategoryFormSchema } from "@/schemas/category_schema";
 import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export const CategoryForm = ({
   onCancel,
   isSubmitting = false,
 }: CategoryFormProps) => {
+  const { t } = useTranslation();
   const isEdit = !!category;
   const schema = isEdit ? updateCategoryFormSchema : createCategoryFormSchema;
 
@@ -95,16 +97,16 @@ export const CategoryForm = ({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Category Name */}
       <Field data-invalid={!!errors.name}>
-        <FieldLabel>Category Name</FieldLabel>
+        <FieldLabel>{t("category.categoryName")}</FieldLabel>
         <FieldContent>
-          <Input {...register("name")} placeholder="e.g., Appetizers, Main Course" />
+          <Input {...register("name")} placeholder={t("category.categoryNamePlaceholder")} />
         </FieldContent>
         {errors.name && <FieldError>{errors.name.message}</FieldError>}
       </Field>
 
       {/* Sort Order */}
       <Field data-invalid={!!errors.sort_order}>
-        <FieldLabel>Sort Order</FieldLabel>
+        <FieldLabel>{t("category.sortOrder")}</FieldLabel>
         <FieldContent>
           <Controller
             control={control}
@@ -112,7 +114,7 @@ export const CategoryForm = ({
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className="w-full cursor-pointer">
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder={t("category.selectPriority")} />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_ORDER_OPTIONS.map((option) => (
@@ -133,7 +135,7 @@ export const CategoryForm = ({
 
       {/* Image Upload */}
       <Field data-invalid={!!errors.image}>
-        <FieldLabel>Category Image</FieldLabel>
+        <FieldLabel>{t("category.categoryImage")}</FieldLabel>
         <div className="space-y-2">
           {imagePreview ? (
             <div className="relative inline-block">
@@ -156,7 +158,7 @@ export const CategoryForm = ({
             <label className="flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 hover:bg-muted/80 transition-colors">
               <HugeiconsIcon icon={Upload01Icon} strokeWidth={2} className="size-6 text-muted-foreground" />
               <span className="mt-2 text-xs text-muted-foreground">
-                Upload Image
+                {t("category.uploadImage")}
               </span>
               <input
                 type="file"
@@ -167,7 +169,7 @@ export const CategoryForm = ({
             </label>
           )}
           <p className="text-xs text-muted-foreground">
-            JPG, PNG, or WebP. Max 5MB.
+            {t("category.imageHint")}
           </p>
         </div>
         {errors.image && <FieldError>{errors.image.message}</FieldError>}
@@ -183,7 +185,7 @@ export const CategoryForm = ({
               onCheckedChange={(checked) => setValue("is_active", !!checked)}
             />
             <FieldLabel htmlFor="is_active" className="!mb-0 cursor-pointer">
-              Enable
+              {t("category.enable")}
             </FieldLabel>
           </div>
         </Field>
@@ -194,14 +196,14 @@ export const CategoryForm = ({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? isEdit
-              ? "Updating..."
-              : "Creating..."
+              ? t("common.updating")
+              : t("common.creating")
             : isEdit
-            ? "Update Category"
-            : "Create Category"}
+            ? t("category.updateCategory")
+            : t("category.createCategory")}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

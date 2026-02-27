@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -56,17 +57,17 @@ interface InviteRow {
 
 const roleConfig: Record<Role, { label: string; icon: typeof CrownIcon; className: string }> = {
   [Role.OWNER]: {
-    label: "Owner",
+    label: "member.owner",
     icon: CrownIcon,
     className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   },
   [Role.ADMIN]: {
-    label: "Admin",
+    label: "member.admin",
     icon: ShieldUserIcon,
     className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   },
   [Role.STAFF]: {
-    label: "Staff",
+    label: "member.staff",
     icon: UserIcon,
     className: "bg-muted text-muted-foreground",
   },
@@ -74,17 +75,17 @@ const roleConfig: Record<Role, { label: string; icon: typeof CrownIcon; classNam
 
 const statusConfig: Record<MemberStatus, { label: string; icon: typeof CheckmarkCircle02Icon; className: string }> = {
   [MemberStatus.ACCEPTED]: {
-    label: "Active",
+    label: "member.active",
     icon: CheckmarkCircle02Icon,
     className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   },
   [MemberStatus.PENDING]: {
-    label: "Pending",
+    label: "member.pending",
     icon: Clock04Icon,
     className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   },
   [MemberStatus.REJECTED]: {
-    label: "Rejected",
+    label: "member.rejected",
     icon: Cancel01Icon,
     className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   },
@@ -93,6 +94,7 @@ const statusConfig: Record<MemberStatus, { label: string; icon: typeof Checkmark
 const emptyInviteRow = (): InviteRow => ({ email: "", role: Role.STAFF });
 
 export const MemberListPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { currentRestaurant, setCurrentRestaurant } = useRestaurant();
@@ -110,7 +112,7 @@ export const MemberListPage = () => {
   const [isInviting, setIsInviting] = useState(false);
 
   if (!restaurantId) {
-    return <ErrorCard title="No Restaurant" message="Please select a restaurant first." />;
+    return <ErrorCard title={t("common.noRestaurant")} message={t("common.selectRestaurantFirst")} />;
   }
 
   const handleOpenInviteDialog = () => {
@@ -151,9 +153,9 @@ export const MemberListPage = () => {
     const errors: Record<number, string> = {};
     inviteRows.forEach((row, i) => {
       if (!row.email.trim()) {
-        errors[i] = "Email is required";
+        errors[i] = t("member.emailRequired");
       } else if (!validateEmail(row.email)) {
-        errors[i] = "Invalid email format";
+        errors[i] = t("member.invalidEmail");
       }
     });
 
@@ -175,7 +177,7 @@ export const MemberListPage = () => {
         successCount++;
       } catch (err: unknown) {
         const error = err as { response?: { data?: { error?: string } } };
-        newErrors[i] = error.response?.data?.error || "Failed to invite";
+        newErrors[i] = error.response?.data?.error || t("member.failedToInvite");
       }
     }
 
@@ -198,11 +200,11 @@ export const MemberListPage = () => {
     const isSelf = member.user_id === user?.id;
     const name = member.user?.name || member.invitation_email;
     const confirmed = await confirm({
-      title: isSelf ? "Leave this restaurant?" : `Remove ${name}?`,
+      title: isSelf ? t("member.leaveRestaurant") : t("member.removeConfirm", { name }),
       description: isSelf
-        ? "You will lose access to this restaurant."
-        : "This member will lose access to this restaurant.",
-      confirmLabel: isSelf ? "Leave" : "Remove",
+        ? t("member.leaveDescription")
+        : t("member.removeDescription"),
+      confirmLabel: isSelf ? t("common.leave") : t("common.remove"),
     });
     if (!confirmed) return;
     removeMember.mutate(
@@ -228,15 +230,15 @@ export const MemberListPage = () => {
   };
 
   if (error) {
-    return <ErrorCard title="Error" message="Failed to load members." />;
+    return <ErrorCard title={t("common.error")} message={t("member.failedToLoad")} />;
   }
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Members" description={`Manage members for ${currentRestaurant?.name}`}>
+      <PageHeader title={t("member.title")} description={t("member.description", { name: currentRestaurant?.name })}>
         <Button onClick={handleOpenInviteDialog}>
           <HugeiconsIcon icon={MailAdd01Icon} strokeWidth={2} data-icon="inline-start" />
-          Invite Members
+          {t("member.inviteMembers")}
         </Button>
       </PageHeader>
 
@@ -248,13 +250,13 @@ export const MemberListPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <HugeiconsIcon icon={UserIcon} strokeWidth={2} className="size-10 text-muted-foreground mb-3" />
-            <p className="text-sm font-medium">No members yet</p>
+            <p className="text-sm font-medium">{t("member.noMembersYet")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Invite team members to help manage this restaurant
+              {t("member.inviteSubtitle")}
             </p>
             <Button onClick={handleOpenInviteDialog} className="mt-4">
               <HugeiconsIcon icon={MailAdd01Icon} strokeWidth={2} data-icon="inline-start" />
-              Invite Members
+              {t("member.inviteMembers")}
             </Button>
           </CardContent>
         </Card>
@@ -263,11 +265,11 @@ export const MemberListPage = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left px-4 py-3 font-medium">Member</th>
-                <th className="text-left px-4 py-3 font-medium">Role</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Invited By</th>
-                <th className="text-right px-4 py-3 font-medium">Actions</th>
+                <th className="text-left px-4 py-3 font-medium">{t("member.memberHeader")}</th>
+                <th className="text-left px-4 py-3 font-medium">{t("member.roleHeader")}</th>
+                <th className="text-left px-4 py-3 font-medium">{t("member.statusHeader")}</th>
+                <th className="text-left px-4 py-3 font-medium">{t("member.invitedByHeader")}</th>
+                <th className="text-right px-4 py-3 font-medium">{t("member.actionsHeader")}</th>
               </tr>
             </thead>
             <tbody>
@@ -293,7 +295,7 @@ export const MemberListPage = () => {
                       {isOwner || isSelf ? (
                         <Badge className={isOwner ? role.className : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"}>
                           <HugeiconsIcon icon={role.icon} strokeWidth={2} data-icon="inline-start" />
-                          {role.label}
+                          {t(role.label)}
                         </Badge>
                       ) : (
                         <Select
@@ -306,11 +308,11 @@ export const MemberListPage = () => {
                           <SelectContent>
                             <SelectItem value={Role.ADMIN}>
                               <HugeiconsIcon icon={ShieldUserIcon} strokeWidth={2} data-icon="inline-start" />
-                              Admin
+                              {t("member.admin")}
                             </SelectItem>
                             <SelectItem value={Role.STAFF}>
                               <HugeiconsIcon icon={UserIcon} strokeWidth={2} data-icon="inline-start" />
-                              Staff
+                              {t("member.staff")}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -319,7 +321,7 @@ export const MemberListPage = () => {
                     <td className="px-4 py-3">
                       <Badge className={status.className}>
                         <HugeiconsIcon icon={status.icon} strokeWidth={2} data-icon="inline-start" />
-                        {status.label}
+                        {t(status.label)}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
@@ -335,7 +337,7 @@ export const MemberListPage = () => {
                             className="text-muted-foreground hover:text-destructive"
                           >
                             <HugeiconsIcon icon={Logout03Icon} strokeWidth={2} data-icon="inline-start" />
-                            Leave
+                            {t("common.leave")}
                           </Button>
                         ) : (
                           <Button
@@ -345,7 +347,7 @@ export const MemberListPage = () => {
                             className="text-muted-foreground hover:text-destructive"
                           >
                             <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} data-icon="inline-start" />
-                            Remove
+                            {t("common.remove")}
                           </Button>
                         )
                       )}
@@ -362,9 +364,9 @@ export const MemberListPage = () => {
       <Dialog open={showInviteDialog} onOpenChange={(open) => !open && setShowInviteDialog(false)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Invite Members</DialogTitle>
+            <DialogTitle>{t("member.inviteMembers")}</DialogTitle>
             <DialogDescription>
-              Add email addresses and assign roles. You can invite multiple members at once.
+              {t("member.inviteDialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -374,7 +376,7 @@ export const MemberListPage = () => {
                 <div className="flex-1">
                   <Input
                     type="email"
-                    placeholder="email@example.com"
+                    placeholder={t("member.emailPlaceholder")}
                     value={row.email}
                     onChange={(e) => handleRowChange(index, "email", e.target.value)}
                     className={inviteErrors[index] ? "border-destructive" : ""}
@@ -391,8 +393,8 @@ export const MemberListPage = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={Role.ADMIN}>Admin</SelectItem>
-                    <SelectItem value={Role.STAFF}>Staff</SelectItem>
+                    <SelectItem value={Role.ADMIN}>{t("member.admin")}</SelectItem>
+                    <SelectItem value={Role.STAFF}>{t("member.staff")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {inviteRows.length > 1 && (
@@ -416,12 +418,12 @@ export const MemberListPage = () => {
             className="w-full"
           >
             <HugeiconsIcon icon={Add01Icon} strokeWidth={2} data-icon="inline-start" />
-            Add Another
+            {t("member.addAnother")}
           </Button>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleInviteAll} disabled={isInviting}>
               {isInviting ? (
@@ -429,7 +431,7 @@ export const MemberListPage = () => {
               ) : (
                 <HugeiconsIcon icon={MailAdd01Icon} strokeWidth={2} data-icon="inline-start" />
               )}
-              {isInviting ? "Inviting..." : `Invite ${inviteRows.length > 1 ? `(${inviteRows.length})` : ""}`}
+              {isInviting ? t("member.inviting") : inviteRows.length > 1 ? t("member.inviteCount", { count: inviteRows.length }) : t("member.invite")}
             </Button>
           </DialogFooter>
         </DialogContent>

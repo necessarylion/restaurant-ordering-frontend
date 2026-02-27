@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -37,6 +38,7 @@ import {
 import type { Zone } from "@/types";
 
 export const ZoneManagement = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const { data: tables = [] } = useTables(currentRestaurant?.id);
   const { data: zones = [] } = useZones(currentRestaurant?.id);
@@ -96,9 +98,9 @@ export const ZoneManagement = () => {
     if (!currentRestaurant) return;
 
     const confirmed = await confirm({
-      title: "Delete Zone?",
-      description: `Are you sure you want to delete "${zone.name}"? Tables in this zone will become unassigned.`,
-      confirmLabel: "Delete",
+      title: t("zone.deleteZone"),
+      description: t("zone.deleteConfirm", { name: zone.name }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -177,7 +179,7 @@ export const ZoneManagement = () => {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="none">No zone</SelectItem>
+          <SelectItem value="none">{t("table.noZone")}</SelectItem>
           {zones.map((z) => (
             <SelectItem key={z.id} value={String(z.id)}>
               {z.name}
@@ -195,13 +197,13 @@ export const ZoneManagement = () => {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className="size-4" />
-            Add New Zone
+            {t("zone.addNewZone")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
             <Input
-              placeholder="e.g. Main Dining Room, Outdoor Patio, Bar Area"
+              placeholder={t("zone.zonePlaceholder")}
               value={newZoneName}
               onChange={(e) => setNewZoneName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddZone()}
@@ -216,7 +218,7 @@ export const ZoneManagement = () => {
               onClick={handleAddZone}
               disabled={!newZoneName.trim() || createZoneMutation.isPending}
             >
-              {createZoneMutation.isPending ? "Adding..." : "Add Zone"}
+              {createZoneMutation.isPending ? t("zone.adding") : t("zone.addZone")}
             </Button>
           </div>
         </CardContent>
@@ -253,14 +255,14 @@ export const ZoneManagement = () => {
                     onClick={handleUpdateZone}
                     disabled={!editZoneName.trim() || updateZoneMutation.isPending}
                   >
-                    {updateZoneMutation.isPending ? "Saving..." : "Save"}
+                    {updateZoneMutation.isPending ? t("common.saving") : t("common.save")}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setEditingZone(null)}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                 </div>
               ) : (
@@ -303,7 +305,7 @@ export const ZoneManagement = () => {
             <CardContent>
               {zoneTables.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">
-                  No tables assigned to this zone yet.
+                  {t("zone.noTablesAssigned")}
                 </p>
               ) : (
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -327,11 +329,11 @@ export const ZoneManagement = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base text-muted-foreground flex items-center gap-2">
                   <HugeiconsIcon icon={CellsIcon} strokeWidth={2} className="size-4" />
-                  Unassigned Tables
+                  {t("zone.unassignedTables")}
                 </CardTitle>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <HugeiconsIcon icon={ArrowMoveDownLeftIcon} strokeWidth={2} className="size-3.5" />
-                  Drag to a zone or use the dropdown
+                  {t("zone.dragToZone")}
                 </div>
               </div>
             </CardHeader>

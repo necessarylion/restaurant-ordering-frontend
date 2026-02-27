@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import {
@@ -35,6 +36,7 @@ import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const TableListPage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const {
     data: tables = [],
@@ -86,7 +88,7 @@ export const TableListPage = () => {
       });
       setShowCreateForm(false);
     } catch (error: any) {
-      alert(error.message || "Failed to create table");
+      alert(error.message || t("table.failedToCreate"));
     }
   };
 
@@ -111,7 +113,7 @@ export const TableListPage = () => {
       });
       setEditingTable(null);
     } catch (error: any) {
-      alert(error.message || "Failed to update table");
+      alert(error.message || t("table.failedToUpdate"));
     }
   };
 
@@ -119,9 +121,9 @@ export const TableListPage = () => {
     if (!currentRestaurant) return;
 
     const confirmed = await confirm({
-      title: "Delete Table?",
-      description: `Are you sure you want to delete "${table.table_number}"? This action cannot be undone.`,
-      confirmLabel: "Delete",
+      title: t("table.deleteTable"),
+      description: t("table.deleteConfirm", { name: table.table_number }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -132,7 +134,7 @@ export const TableListPage = () => {
         tableId: table.id,
       });
     } catch (error: any) {
-      alert(error.message || "Failed to delete table");
+      alert(error.message || t("table.failedToDelete"));
     }
   };
 
@@ -150,7 +152,7 @@ export const TableListPage = () => {
         expiresAt: result.expires_at,
       });
     } catch (error: any) {
-      alert(error.message || "Failed to generate QR code");
+      alert(error.message || t("table.failedToGenerateQR"));
     }
   };
 
@@ -159,11 +161,11 @@ export const TableListPage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant to manage tables.
+              {t("table.selectRestaurant")}
             </p>
           </CardContent>
         </Card>
@@ -182,22 +184,22 @@ export const TableListPage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Tables"
-        message={(error as any).message || "Failed to load tables"}
+        title={t("table.errorLoading")}
+        message={(error as any).message || t("table.failedToLoad")}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Tables" description={`Manage tables and QR codes for ${currentRestaurant.name}`}>
+      <PageHeader title={t("table.title")} description={t("table.description", { name: currentRestaurant.name })}>
         <Button
           onClick={() => {
             setShowCreateForm(true);
             setEditingTable(null);
           }}
         >
-          Create Table
+          {t("table.createTable")}
         </Button>
       </PageHeader>
 
@@ -205,7 +207,7 @@ export const TableListPage = () => {
       <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Table</DialogTitle>
+            <DialogTitle>{t("table.createNewTable")}</DialogTitle>
           </DialogHeader>
           <TableForm
             zones={zones}
@@ -220,7 +222,7 @@ export const TableListPage = () => {
       <Dialog open={!!editingTable} onOpenChange={(open) => !open && setEditingTable(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Table</DialogTitle>
+            <DialogTitle>{t("table.editTable")}</DialogTitle>
           </DialogHeader>
           {editingTable && (
             <TableForm
@@ -240,15 +242,15 @@ export const TableListPage = () => {
           <TabsList className="gap-2">
             <TabsTrigger value="floorplan">
               <HugeiconsIcon icon={FloorPlanIcon} strokeWidth={2} className="size-4" />
-              Floor Plan
+              {t("table.floorPlan")}
             </TabsTrigger>
             <TabsTrigger value="list">
               <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4" />
-              Tables
+              {t("table.title")}
             </TabsTrigger>
             <TabsTrigger value="zones">
               <HugeiconsIcon icon={CellsIcon} strokeWidth={2} className="size-4" />
-              Zones
+              {t("table.zones")}
             </TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -281,7 +283,7 @@ export const TableListPage = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">
-                  No tables yet. Create your first table to get started!
+                  {t("table.noTablesYet")}
                 </p>
               </CardContent>
             </Card>

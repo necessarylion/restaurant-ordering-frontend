@@ -4,6 +4,7 @@
  */
 
 import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OrderStatusBadge } from "./OrderStatusBadge";
@@ -27,6 +28,7 @@ interface OrderCardProps {
 
 export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLAttributes<HTMLDivElement>>(
   ({ order, onViewDetails, isDragging, style, className, ...props }, ref) => {
+    const { t } = useTranslation();
     const formatDateTime = (dateString: string) => {
       const date = new Date(dateString);
       return date.toLocaleString("en-US", {
@@ -48,7 +50,7 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
       >
         <CardHeader>
           <div className="flex items-start justify-between">
-            <h3 className="font-semibold text-sm">Order #{order.id}</h3>
+            <h3 className="font-semibold text-sm">{t("order.orderNumber", { id: order.id })}</h3>
             <OrderStatusBadge status={order.status} />
           </div>
           <Badge variant="outline" className="w-fit">
@@ -57,7 +59,7 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
               strokeWidth={2}
               className="size-3.5"
             />
-            {order.order_type === OrderType.DINE_IN ? "Dine In" : "Takeaway"}
+            {order.order_type === OrderType.DINE_IN ? t("order.dineIn") : t("order.takeaway")}
           </Badge>
           <div className="space-y-1 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
@@ -95,12 +97,12 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
                 ))}
                 {order.order_items.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    +{order.order_items.length - 3} more
+                    {t("order.moreItems", { count: order.order_items.length - 3 })}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-xs text-muted-foreground">No items</p>
+              <p className="text-xs text-muted-foreground">{t("order.noItems")}</p>
             )}
           </div>
 
@@ -120,7 +122,7 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
                 strokeWidth={2}
                 className="size-4 mr-1"
               />
-              View Details
+              {t("order.viewDetails")}
             </Button>
           )}
         </CardContent>

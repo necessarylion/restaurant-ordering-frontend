@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { useTables } from "@/hooks/useTables";
@@ -67,14 +68,15 @@ const statusIcons: Record<BookingStatus, any> = {
 };
 
 const statusLabels: Record<BookingStatus, string> = {
-  [BookingStatus.PENDING]: "Pending",
-  [BookingStatus.CONFIRMED]: "Confirmed",
-  [BookingStatus.CANCELLED]: "Cancelled",
-  [BookingStatus.COMPLETED]: "Completed",
-  [BookingStatus.NO_SHOW]: "No Show",
+  [BookingStatus.PENDING]: "booking.pending",
+  [BookingStatus.CONFIRMED]: "booking.confirmed",
+  [BookingStatus.CANCELLED]: "booking.cancelled",
+  [BookingStatus.COMPLETED]: "booking.completed",
+  [BookingStatus.NO_SHOW]: "booking.noShow",
 };
 
 export const BookingListPage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const [searchParams, setSearchParams] = useSearchParams();
   const [statusFilter, setStatusFilter] = useState<string>("today");
@@ -130,7 +132,7 @@ export const BookingListPage = () => {
       setShowCreateForm(false);
       setDefaultTableId(undefined);
     } catch (error: any) {
-      await showAlert({ title: "Error", description: error.message || "Failed to create booking" });
+      await showAlert({ title: t("common.error"), description: error.message || t("booking.failedToCreate") });
     }
   };
 
@@ -151,7 +153,7 @@ export const BookingListPage = () => {
       });
       setEditingBooking(null);
     } catch (error: any) {
-      await showAlert({ title: "Error", description: error.message || "Failed to update booking" });
+      await showAlert({ title: t("common.error"), description: error.message || t("booking.failedToUpdate") });
     }
   };
 
@@ -159,9 +161,9 @@ export const BookingListPage = () => {
     if (!currentRestaurant) return;
 
     const confirmed = await confirm({
-      title: "Delete Booking?",
-      description: `Are you sure you want to delete the booking for "${booking.customer_name}"? This action cannot be undone.`,
-      confirmLabel: "Delete",
+      title: t("booking.deleteBooking"),
+      description: t("booking.deleteConfirm", { name: booking.customer_name }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -172,7 +174,7 @@ export const BookingListPage = () => {
         bookingId: booking.id,
       });
     } catch (error: any) {
-      await showAlert({ title: "Error", description: error.message || "Failed to delete booking" });
+      await showAlert({ title: t("common.error"), description: error.message || t("booking.failedToDelete") });
     }
   };
 
@@ -197,11 +199,11 @@ export const BookingListPage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant to manage bookings.
+              {t("booking.selectRestaurant")}
             </p>
           </CardContent>
         </Card>
@@ -220,22 +222,22 @@ export const BookingListPage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Bookings"
-        message={(error as any).message || "Failed to load bookings"}
+        title={t("booking.errorLoading")}
+        message={(error as any).message || t("booking.failedToLoad")}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bookings" description={`Manage reservations for ${currentRestaurant.name}`}>
+      <PageHeader title={t("booking.title")} description={t("booking.description", { name: currentRestaurant.name })}>
         <Button
           onClick={() => {
             setShowCreateForm(true);
             setEditingBooking(null);
           }}
         >
-          Create Booking
+          {t("booking.createBooking")}
         </Button>
       </PageHeader>
 
@@ -243,7 +245,7 @@ export const BookingListPage = () => {
       <Dialog open={showCreateForm} onOpenChange={(open) => { if (!open) { setShowCreateForm(false); setDefaultTableId(undefined); } }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Create New Booking</DialogTitle>
+            <DialogTitle>{t("booking.createNewBooking")}</DialogTitle>
           </DialogHeader>
           <BookingForm
             tables={tables}
@@ -262,7 +264,7 @@ export const BookingListPage = () => {
       <Dialog open={!!editingBooking} onOpenChange={(open) => !open && setEditingBooking(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Booking</DialogTitle>
+            <DialogTitle>{t("booking.editBooking")}</DialogTitle>
           </DialogHeader>
           {editingBooking && (
             <BookingForm
@@ -281,31 +283,31 @@ export const BookingListPage = () => {
         <TabsList className="gap-2">
           <TabsTrigger value="today">
             <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
-            Today
+            {t("common.today")}
           </TabsTrigger>
           <TabsTrigger value={BookingStatus.PENDING}>
             <HugeiconsIcon icon={Clock04Icon} strokeWidth={2} className="size-4" />
-            Pending
+            {t("booking.pending")}
           </TabsTrigger>
           <TabsTrigger value={BookingStatus.CONFIRMED}>
             <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} className="size-4" />
-            Confirmed
+            {t("booking.confirmed")}
           </TabsTrigger>
           <TabsTrigger value={BookingStatus.CANCELLED}>
             <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} className="size-4" />
-            Cancelled
+            {t("booking.cancelled")}
           </TabsTrigger>
           <TabsTrigger value={BookingStatus.COMPLETED}>
             <HugeiconsIcon icon={TaskDone02Icon} strokeWidth={2} className="size-4" />
-            Completed
+            {t("booking.completed")}
           </TabsTrigger>
           <TabsTrigger value={BookingStatus.NO_SHOW}>
             <HugeiconsIcon icon={UserRemove02Icon} strokeWidth={2} className="size-4" />
-            No Show
+            {t("booking.noShow")}
           </TabsTrigger>
           <TabsTrigger value="all">
             <HugeiconsIcon icon={GridViewIcon} strokeWidth={2} className="size-4" />
-            All
+            {t("common.all")}
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -315,7 +317,7 @@ export const BookingListPage = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No bookings found.
+              {t("booking.noBookingsFound")}
             </p>
           </CardContent>
         </Card>
@@ -331,7 +333,7 @@ export const BookingListPage = () => {
                   </CardTitle>
                   <Badge className={statusStyles[booking.status]}>
                     <HugeiconsIcon icon={statusIcons[booking.status]} strokeWidth={2} className="size-3.5" />
-                    {statusLabels[booking.status]}
+                    {t(statusLabels[booking.status])}
                   </Badge>
                 </div>
               </CardHeader>
@@ -366,7 +368,7 @@ export const BookingListPage = () => {
                     }}
                   >
                     <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                   <Button
                     variant="outline"
@@ -375,7 +377,7 @@ export const BookingListPage = () => {
                     onClick={() => handleDelete(booking)}
                   >
                     <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
-                    Delete
+                    {t("common.delete")}
                   </Button>
                 </div>
               </CardContent>

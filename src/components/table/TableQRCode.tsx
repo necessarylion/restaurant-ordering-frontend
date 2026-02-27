@@ -3,6 +3,7 @@
  * Displays QR code for table ordering with download functionality
  */
 
+import { useTranslation } from "react-i18next";
 import { QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,7 @@ export const TableQRCode = ({
   expiresAt,
   onClose,
 }: TableQRCodeProps) => {
+  const { t } = useTranslation();
   // Generate the guest ordering URL with restaurant ID
   const orderUrl = `${window.location.origin}/guest/${restaurantId}/${token}`;
 
@@ -96,7 +98,7 @@ export const TableQRCode = ({
   return (
     <Card className="max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>{tableName} - QR Code</CardTitle>
+        <CardTitle>{t("table.qrCode", { name: tableName })}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* QR Code Display */}
@@ -112,8 +114,8 @@ export const TableQRCode = ({
 
         {/* Expiry Information */}
         <div className="text-center text-sm text-muted-foreground">
-          <p>Token expires: {formatExpiry(expiresAt)}</p>
-          <p className="mt-1 text-xs">Guests can scan this code to place orders</p>
+          <p>{t("table.tokenExpires", { date: formatExpiry(expiresAt) })}</p>
+          <p className="mt-1 text-xs">{t("table.scanToOrder")}</p>
         </div>
 
         {/* Actions */}
@@ -124,7 +126,7 @@ export const TableQRCode = ({
               strokeWidth={2}
               className="size-4 mr-1"
             />
-            Download
+            {t("common.download")}
           </Button>
           <Button onClick={handlePrint} variant="outline" className="flex-1">
             <HugeiconsIcon
@@ -132,12 +134,12 @@ export const TableQRCode = ({
               strokeWidth={2}
               className="size-4 mr-1"
             />
-            Print
+            {t("common.print")}
           </Button>
         </div>
 
         <Button onClick={onClose} variant="outline" className="w-full">
-          Close
+          {t("common.close")}
         </Button>
       </CardContent>
     </Card>

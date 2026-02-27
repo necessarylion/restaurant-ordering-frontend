@@ -6,6 +6,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   createMenuItemFormSchema,
   updateMenuItemFormSchema,
@@ -55,6 +56,7 @@ export const MenuItemForm = ({
   onCancel,
   isSubmitting = false,
 }: MenuItemFormProps) => {
+  const { t } = useTranslation();
   const isEdit = !!menuItem;
   const schema = isEdit ? updateMenuItemFormSchema : createMenuItemFormSchema;
 
@@ -152,13 +154,13 @@ export const MenuItemForm = ({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Category Selection */}
       <Field data-invalid={!!errors.category_id}>
-        <FieldLabel>Category</FieldLabel>
+        <FieldLabel>{t("menu.category")}</FieldLabel>
         <Select
           value={selectedCategory}
           onValueChange={(value) => setValue("category_id", value)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
+            <SelectValue placeholder={t("menu.selectCategory")} />
           </SelectTrigger>
           <SelectContent>
             {categories
@@ -178,20 +180,20 @@ export const MenuItemForm = ({
 
       {/* Item Name */}
       <Field data-invalid={!!errors.name}>
-        <FieldLabel>Item Name</FieldLabel>
+        <FieldLabel>{t("menu.itemName")}</FieldLabel>
         <FieldContent>
-          <Input {...register("name")} placeholder="e.g., Fried Rice" />
+          <Input {...register("name")} placeholder={t("menu.itemNamePlaceholder")} />
         </FieldContent>
         {errors.name && <FieldError>{errors.name.message}</FieldError>}
       </Field>
 
       {/* Description */}
       <Field data-invalid={!!errors.description}>
-        <FieldLabel>Description (Optional)</FieldLabel>
+        <FieldLabel>{t("menu.descriptionOptional")}</FieldLabel>
         <FieldContent>
           <Textarea
             {...register("description")}
-            placeholder="Describe the dish..."
+            placeholder={t("menu.descriptionPlaceholder")}
             rows={3}
           />
         </FieldContent>
@@ -202,7 +204,7 @@ export const MenuItemForm = ({
 
       {/* Price */}
       <Field data-invalid={!!errors.price}>
-        <FieldLabel>Price</FieldLabel>
+        <FieldLabel>{t("menu.price")}</FieldLabel>
         <FieldContent>
           <Input
             {...register("price")}
@@ -212,13 +214,13 @@ export const MenuItemForm = ({
             placeholder="0.00"
           />
         </FieldContent>
-        <p className="text-xs text-muted-foreground">Price in dollars</p>
+        <p className="text-xs text-muted-foreground">{t("menu.priceHint")}</p>
         {errors.price && <FieldError>{errors.price.message}</FieldError>}
       </Field>
 
       {/* Images Upload */}
       <Field data-invalid={!!errors.images}>
-        <FieldLabel>Images (Optional)</FieldLabel>
+        <FieldLabel>{t("menu.imagesOptional")}</FieldLabel>
         <div className="space-y-3">
           {imagePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
@@ -247,8 +249,8 @@ export const MenuItemForm = ({
             <HugeiconsIcon icon={Upload01Icon} strokeWidth={2} className="size-6 text-muted-foreground" />
             <span className="mt-2 text-xs text-muted-foreground">
               {imagePreviews.length > 0
-                ? "Upload More Images"
-                : "Upload Images"}
+                ? t("menu.uploadMoreImages")
+                : t("menu.uploadImages")}
             </span>
             <input
               type="file"
@@ -260,7 +262,7 @@ export const MenuItemForm = ({
           </label>
 
           <p className="text-xs text-muted-foreground">
-            JPG, PNG, or WebP. Max 5MB each. Multiple images allowed.
+            {t("menu.imagesHint")}
           </p>
         </div>
         {errors.images && <FieldError>{errors.images.message}</FieldError>}
@@ -276,7 +278,7 @@ export const MenuItemForm = ({
               onCheckedChange={(checked) => setValue("is_available", !!checked)}
             />
             <FieldLabel htmlFor="is_available" className="!mb-0 cursor-pointer">
-              Available for order
+              {t("menu.availableForOrder")}
             </FieldLabel>
           </div>
         </Field>
@@ -287,14 +289,14 @@ export const MenuItemForm = ({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? isEdit
-              ? "Updating..."
-              : "Creating..."
+              ? t("common.updating")
+              : t("common.creating")
             : isEdit
-            ? "Update Item"
-            : "Create Item"}
+            ? t("menu.updateItem")
+            : t("menu.createItem")}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

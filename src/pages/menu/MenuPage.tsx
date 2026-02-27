@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo, useDeferredValue } from "react";
+import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { useCategories } from "@/hooks/useCategories";
@@ -32,6 +33,7 @@ import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const MenuPage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const {
     data: categories = [],
@@ -92,7 +94,7 @@ export const MenuPage = () => {
       });
       setShowCreateForm(false);
     } catch (error: any) {
-      alert(error.message || "Failed to create menu item");
+      alert(error.message || t("menu.failedToCreate"));
     }
   };
 
@@ -112,7 +114,7 @@ export const MenuPage = () => {
       });
       setEditingItem(null);
     } catch (error: any) {
-      alert(error.message || "Failed to update menu item");
+      alert(error.message || t("menu.failedToUpdate"));
     }
   };
 
@@ -120,9 +122,9 @@ export const MenuPage = () => {
     if (!currentRestaurant) return;
 
     const confirmed = await confirm({
-      title: "Delete Menu Item?",
-      description: `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
-      confirmLabel: "Delete",
+      title: t("menu.deleteMenuItem"),
+      description: t("menu.deleteConfirm", { name: item.name }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -133,7 +135,7 @@ export const MenuPage = () => {
         itemId: item.id,
       });
     } catch (error: any) {
-      alert(error.message || "Failed to delete menu item");
+      alert(error.message || t("menu.failedToDelete"));
     }
   };
 
@@ -142,11 +144,11 @@ export const MenuPage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant to manage menu items.
+              {t("menu.selectRestaurant")}
             </p>
           </CardContent>
         </Card>
@@ -165,8 +167,8 @@ export const MenuPage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Menu"
-        message={(error as any).message || "Failed to load menu items"}
+        title={t("menu.errorLoading")}
+        message={(error as any).message || t("menu.failedToLoad")}
       />
     );
   }
@@ -175,14 +177,14 @@ export const MenuPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Menu Items" description={`Manage menu items for ${currentRestaurant.name}`}>
+      <PageHeader title={t("menu.title")} description={t("menu.description", { name: currentRestaurant.name })}>
         <Button
           onClick={() => {
             setShowCreateForm(true);
             setEditingItem(null);
           }}
         >
-          Create Menu Item
+          {t("menu.createMenuItem")}
         </Button>
       </PageHeader>
 
@@ -190,7 +192,7 @@ export const MenuPage = () => {
       <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Create New Menu Item</DialogTitle>
+            <DialogTitle>{t("menu.createNewMenuItem")}</DialogTitle>
           </DialogHeader>
           <MenuItemForm
             categories={activeCategories}
@@ -205,7 +207,7 @@ export const MenuPage = () => {
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Menu Item</DialogTitle>
+            <DialogTitle>{t("menu.editMenuItem")}</DialogTitle>
           </DialogHeader>
           {editingItem && (
             <MenuItemForm
@@ -225,7 +227,7 @@ export const MenuPage = () => {
           <TabsList className="gap-2">
           <TabsTrigger value="all">
             <HugeiconsIcon icon={GridViewIcon} strokeWidth={2} className="size-4" />
-            All Items ({menuItems.length})
+            {t("menu.allItems", { count: menuItems.length })}
           </TabsTrigger>
           {activeCategories
             .sort((a, b) => a.sort_order - b.sort_order)
@@ -243,7 +245,7 @@ export const MenuPage = () => {
           <div className="relative w-64">
             <HugeiconsIcon icon={Search01Icon} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search menu items..."
+              placeholder={t("menu.searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9 pr-9"
@@ -266,8 +268,8 @@ export const MenuPage = () => {
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">
                   {selectedCategory === "all"
-                    ? "No menu items yet. Create your first menu item to get started!"
-                    : "No items in this category yet."}
+                    ? t("menu.noMenuItemsYet")
+                    : t("menu.noItemsInCategory")}
                 </p>
               </CardContent>
             </Card>

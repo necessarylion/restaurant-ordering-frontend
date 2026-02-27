@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRestaurants, useCreateRestaurant, useUpdateRestaurant, useDeleteRestaurant } from "@/hooks/useRestaurants";
 import { useRestaurant } from "@/hooks/useRestaurant";
@@ -24,6 +25,7 @@ import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const RestaurantListPage = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: restaurants = [], isLoading, error } = useRestaurants();
   const { currentRestaurant, setCurrentRestaurant } = useRestaurant();
@@ -51,7 +53,7 @@ export const RestaurantListPage = () => {
       setShowCreateForm(false);
       setCurrentRestaurant(newRestaurant);
     } catch (error: any) {
-      alert(error.message || "Failed to create restaurant");
+      alert(error.message || t("restaurant.failedToCreate"));
     }
   };
 
@@ -73,7 +75,7 @@ export const RestaurantListPage = () => {
         setCurrentRestaurant(updated);
       }
     } catch (error: any) {
-      alert(error.message || "Failed to update restaurant");
+      alert(error.message || t("restaurant.failedToUpdate"));
     }
   };
 
@@ -83,9 +85,9 @@ export const RestaurantListPage = () => {
 
   const handleDelete = async (restaurant: Restaurant) => {
     const confirmed = await confirm({
-      title: "Delete Restaurant?",
-      description: `Are you sure you want to delete "${restaurant.name}"? This action cannot be undone.`,
-      confirmLabel: "Delete",
+      title: t("restaurant.deleteRestaurant"),
+      description: t("restaurant.deleteConfirm", { name: restaurant.name }),
+      confirmLabel: t("common.delete"),
       destructive: true,
     });
     if (!confirmed) return;
@@ -98,7 +100,7 @@ export const RestaurantListPage = () => {
         setCurrentRestaurant(null);
       }
     } catch (error: any) {
-      alert(error.message || "Failed to delete restaurant");
+      alert(error.message || t("restaurant.failedToDelete"));
     }
   };
 
@@ -113,8 +115,8 @@ export const RestaurantListPage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Restaurants"
-        message={(error as any).message || "Failed to load restaurants"}
+        title={t("restaurant.errorLoading")}
+        message={(error as any).message || t("restaurant.failedToLoad")}
       />
     );
   }
@@ -122,16 +124,16 @@ export const RestaurantListPage = () => {
   return (
     <div className="min-h-screen">
       <div className="space-y-6">
-        <PageHeader title="My Restaurants">
+        <PageHeader title={t("restaurant.myRestaurants")}>
           <Button onClick={() => setShowCreateForm(true)}>
-            Create Restaurant
+            {t("restaurant.createRestaurant")}
           </Button>
         </PageHeader>
 
         <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Restaurant</DialogTitle>
+              <DialogTitle>{t("restaurant.createNewRestaurant")}</DialogTitle>
             </DialogHeader>
             <RestaurantForm
               onSubmit={handleCreate}
@@ -144,7 +146,7 @@ export const RestaurantListPage = () => {
         <Dialog open={!!editingRestaurant} onOpenChange={(open) => !open && setEditingRestaurant(null)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Restaurant</DialogTitle>
+              <DialogTitle>{t("restaurant.editRestaurant")}</DialogTitle>
             </DialogHeader>
             {editingRestaurant && (
               <RestaurantForm
@@ -161,7 +163,7 @@ export const RestaurantListPage = () => {
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">
-                No restaurants yet. Create your first restaurant to get started!
+                {t("restaurant.noRestaurantsYet")}
               </p>
             </CardContent>
           </Card>

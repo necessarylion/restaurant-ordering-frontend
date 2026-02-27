@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { MenuItem } from "@/types";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ export const MenuItemCard = ({
   onDelete,
   categoryName,
 }: MenuItemCardProps) => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const sortedImages = menuItem.images
     ? [...menuItem.images].sort((a, b) => a.sort_order - b.sort_order)
@@ -83,7 +85,7 @@ export const MenuItemCard = ({
           variant={menuItem.is_available ? "default" : "secondary"}
           className="absolute top-2 right-2"
         >
-          {menuItem.is_available ? "Available" : "Unavailable"}
+          {menuItem.is_available ? t("common.available") : t("common.unavailable")}
         </Badge>
       </div>
 
@@ -119,7 +121,7 @@ export const MenuItemCard = ({
                 className="flex-1"
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4 mr-1" />
-                Edit
+                {t("common.edit")}
               </Button>
             )}
             {onDelete && (
@@ -130,7 +132,7 @@ export const MenuItemCard = ({
                 className="flex-1 text-destructive hover:text-destructive"
               >
                 <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
-                Delete
+                {t("common.delete")}
               </Button>
             )}
           </div>

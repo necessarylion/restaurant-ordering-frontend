@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useCart } from "@/hooks/useCart";
 import { useCreateGuestOrder } from "@/hooks/useOrders";
 import { useRestaurant } from "@/hooks/useRestaurant";
@@ -27,6 +28,7 @@ interface CartDrawerProps {
 }
 
 export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
+  const { t } = useTranslation();
   const {
     items,
     total,
@@ -59,7 +61,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
 
   const handleCheckout = async () => {
     if (!restaurantId || !tableToken || items.length === 0) {
-      await alert({ title: "Error", description: "Cart is empty or invalid session" });
+      await alert({ title: t("common.error"), description: t("order.cartEmptyOrInvalid") });
       return;
     }
 
@@ -81,9 +83,9 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
       clear();
       onOpenChange(false);
 
-      await alert({ title: "Order Placed", description: "Your order has been placed successfully!" });
+      await alert({ title: t("order.orderPlaced"), description: t("order.orderPlacedSuccess") });
     } catch (error: any) {
-      await alert({ title: "Error", description: error.message || "Failed to place order" });
+      await alert({ title: t("common.error"), description: error.message || t("order.failedToPlaceOrder") });
     } finally {
       setIsSubmitting(false);
     }
@@ -93,12 +95,12 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
         <SheetHeader>
-          <SheetTitle>Your Order</SheetTitle>
+          <SheetTitle>{t("order.yourOrder")}</SheetTitle>
         </SheetHeader>
 
         {items.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-muted-foreground">Your cart is empty</p>
+            <p className="text-muted-foreground">{t("order.cartEmpty")}</p>
           </div>
         ) : (
           <>
@@ -114,7 +116,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
 
             <SheetFooter className="border-t pt-4 flex-col gap-3">
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Total:</span>
+                <span>{t("common.total")}</span>
                 <span>{formatPrice(total, currency)}</span>
               </div>
               <Button
@@ -123,7 +125,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                 className="w-full"
                 size="lg"
               >
-                {isSubmitting ? "Placing Order..." : "Place Order"}
+                {isSubmitting ? t("order.placingOrder") : t("order.placeOrder")}
               </Button>
             </SheetFooter>
           </>

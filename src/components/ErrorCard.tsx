@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ErrorCardProps {
@@ -6,6 +7,7 @@ interface ErrorCardProps {
 }
 
 export function ErrorCard({ title, message }: ErrorCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex h-screen items-center justify-center">
       <Card className="max-w-md">
@@ -14,7 +16,7 @@ export function ErrorCard({ title, message }: ErrorCardProps) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-destructive">
-            {message || "Something went wrong"}
+            {message || t("common.somethingWentWrong")}
           </p>
         </CardContent>
       </Card>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 export const AcceptInvitationPage = () => {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
@@ -19,7 +21,7 @@ export const AcceptInvitationPage = () => {
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("Invalid invitation link.");
+      setMessage(t("invitation.invalidLink"));
       return;
     }
 
@@ -27,16 +29,16 @@ export const AcceptInvitationPage = () => {
       try {
         await api.post(endpoints.members.acceptInvitation(token));
         setStatus("success");
-        setMessage("You have successfully joined the restaurant!");
+        setMessage(t("invitation.joinedSuccess"));
       } catch (err: unknown) {
         setStatus("error");
         const error = err as { response?: { data?: { error?: string } } };
-        setMessage(error.response?.data?.error || "Failed to accept invitation.");
+        setMessage(error.response?.data?.error || t("invitation.failedToAccept"));
       }
     };
 
     acceptInvitation();
-  }, [token]);
+  }, [token, t]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -49,7 +51,7 @@ export const AcceptInvitationPage = () => {
                 strokeWidth={2}
                 className="size-12 animate-spin text-muted-foreground"
               />
-              <p className="text-sm text-muted-foreground">Accepting invitation...</p>
+              <p className="text-sm text-muted-foreground">{t("invitation.acceptingInvitation")}</p>
             </>
           )}
 
@@ -63,11 +65,11 @@ export const AcceptInvitationPage = () => {
                 />
               </div>
               <div>
-                <p className="text-base font-semibold">Invitation Accepted</p>
+                <p className="text-base font-semibold">{t("invitation.invitationAccepted")}</p>
                 <p className="text-sm text-muted-foreground mt-1">{message}</p>
               </div>
               <Button asChild className="mt-2">
-                <Link to="/dashboard/restaurants">Go to Dashboard</Link>
+                <Link to="/dashboard/restaurants">{t("invitation.goToDashboard")}</Link>
               </Button>
             </>
           )}
@@ -82,11 +84,11 @@ export const AcceptInvitationPage = () => {
                 />
               </div>
               <div>
-                <p className="text-base font-semibold">Something went wrong</p>
+                <p className="text-base font-semibold">{t("common.somethingWentWrong")}</p>
                 <p className="text-sm text-muted-foreground mt-1">{message}</p>
               </div>
               <Button asChild variant="outline" className="mt-2">
-                <Link to="/dashboard/restaurants">Go to Dashboard</Link>
+                <Link to="/dashboard/restaurants">{t("invitation.goToDashboard")}</Link>
               </Button>
             </>
           )}

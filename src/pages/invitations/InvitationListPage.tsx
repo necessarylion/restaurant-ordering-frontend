@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useInvitations, useAcceptInvitation } from "@/hooks/useInvitations";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,12 +16,13 @@ import { Role, type RestaurantMember } from "@/types";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 const roleLabels: Record<Role, { label: string; icon: typeof ShieldUserIcon }> = {
-  [Role.OWNER]: { label: "Owner", icon: ShieldUserIcon },
-  [Role.ADMIN]: { label: "Admin", icon: ShieldUserIcon },
-  [Role.STAFF]: { label: "Staff", icon: UserIcon },
+  [Role.OWNER]: { label: "member.owner", icon: ShieldUserIcon },
+  [Role.ADMIN]: { label: "member.admin", icon: ShieldUserIcon },
+  [Role.STAFF]: { label: "member.staff", icon: UserIcon },
 };
 
 export const InvitationListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: invitations, isLoading } = useInvitations();
   const acceptInvitation = useAcceptInvitation();
@@ -52,7 +54,7 @@ export const InvitationListPage = () => {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Invitations" />
+      <PageHeader title={t("invitation.title")} />
 
       <div className="grid gap-3">
         {invitations.map((invitation) => {
@@ -84,11 +86,11 @@ export const InvitationListPage = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="secondary" className="text-xs">
                       <HugeiconsIcon icon={role.icon} strokeWidth={2} data-icon="inline-start" />
-                      {role.label}
+                      {t(role.label)}
                     </Badge>
                     {invitation.inviter && (
                       <span className="text-xs text-muted-foreground">
-                        Invited by {invitation.inviter.name}
+                        {t("invitation.invitedBy", { name: invitation.inviter.name })}
                       </span>
                     )}
                   </div>
@@ -105,7 +107,7 @@ export const InvitationListPage = () => {
                   ) : (
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} data-icon="inline-start" />
                   )}
-                  Accept
+                  {t("invitation.accept")}
                 </Button>
               </CardContent>
             </Card>

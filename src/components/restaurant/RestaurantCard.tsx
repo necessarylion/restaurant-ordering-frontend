@@ -3,6 +3,7 @@
  * Displays restaurant information in a card format
  */
 
+import { useTranslation } from "react-i18next";
 import type { Restaurant } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
   onDelete,
   isSelected,
 }) => {
+  const { t } = useTranslation();
   return (
     <Card className={`flex flex-col ${isSelected ? "border-primary" : ""}`}>
       <CardHeader>
@@ -53,14 +55,14 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
         <div className="space-y-4">
           {restaurant.phone && (
             <div className="text-sm">
-              <span className="text-muted-foreground">Phone: </span>
+              <span className="text-muted-foreground">{t("restaurant.phoneLabel")}</span>
               <span>{restaurant.phone}</span>
             </div>
           )}
 
           {restaurant.members && restaurant.members.length > 0 && (
             <div className="text-sm">
-              <span className="text-muted-foreground">Members: </span>
+              <span className="text-muted-foreground">{t("restaurant.membersLabel")}</span>
               <span>{restaurant.members.length}</span>
             </div>
           )}
@@ -75,7 +77,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 className="flex-1"
               >
                 <HugeiconsIcon icon={isSelected ? CheckmarkCircle02Icon : Tick01Icon} strokeWidth={2} className="size-4" />
-                {isSelected ? "Selected" : "Select"}
+                {isSelected ? t("restaurant.selected") : t("restaurant.select")}
               </Button>
             )}
 
@@ -86,7 +88,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 size="sm"
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-4" />
-                Edit
+                {t("common.edit")}
               </Button>
             )}
 
@@ -97,7 +99,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 size="sm"
               >
                 <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
-                Delete
+                {t("common.delete")}
               </Button>
             )}
           </div>

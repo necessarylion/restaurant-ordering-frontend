@@ -4,6 +4,7 @@
  */
 
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createBookingFormSchema,
@@ -40,11 +41,11 @@ interface BookingFormProps {
 }
 
 const bookingStatusLabels: Record<BookingStatus, string> = {
-  [BookingStatus.PENDING]: "Pending",
-  [BookingStatus.CONFIRMED]: "Confirmed",
-  [BookingStatus.CANCELLED]: "Cancelled",
-  [BookingStatus.COMPLETED]: "Completed",
-  [BookingStatus.NO_SHOW]: "No Show",
+  [BookingStatus.PENDING]: "booking.pending",
+  [BookingStatus.CONFIRMED]: "booking.confirmed",
+  [BookingStatus.CANCELLED]: "booking.cancelled",
+  [BookingStatus.COMPLETED]: "booking.completed",
+  [BookingStatus.NO_SHOW]: "booking.noShow",
 };
 
 export const BookingForm = ({
@@ -55,6 +56,7 @@ export const BookingForm = ({
   onCancel,
   isSubmitting = false,
 }: BookingFormProps) => {
+  const { t } = useTranslation();
   const isEdit = !!booking;
   const schema = isEdit ? updateBookingFormSchema : createBookingFormSchema;
 
@@ -92,11 +94,11 @@ export const BookingForm = ({
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Customer Name */}
         <Field data-invalid={!!errors.customer_name}>
-          <FieldLabel>Customer Name</FieldLabel>
+          <FieldLabel>{t("booking.customerName")}</FieldLabel>
           <FieldContent>
             <Input
               {...register("customer_name")}
-              placeholder="e.g., John Doe"
+              placeholder={t("booking.customerNamePlaceholder")}
             />
           </FieldContent>
           {errors.customer_name && (
@@ -106,11 +108,11 @@ export const BookingForm = ({
 
         {/* Phone */}
         <Field data-invalid={!!errors.phone}>
-          <FieldLabel>Phone</FieldLabel>
+          <FieldLabel>{t("common.phone")}</FieldLabel>
           <FieldContent>
             <Input
               {...register("phone")}
-              placeholder="e.g., 09123456789"
+              placeholder={t("booking.phonePlaceholder")}
             />
           </FieldContent>
           {errors.phone && <FieldError>{errors.phone.message}</FieldError>}
@@ -120,19 +122,19 @@ export const BookingForm = ({
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Table */}
         <Field data-invalid={!!errors.table_id}>
-          <FieldLabel>Table</FieldLabel>
+          <FieldLabel>{t("booking.table")}</FieldLabel>
           <FieldContent>
             <Select
               value={tableId || ""}
               onValueChange={(val) => setValue("table_id", val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a table" />
+                <SelectValue placeholder={t("booking.selectTable")} />
               </SelectTrigger>
               <SelectContent>
                 {tables.map((table) => (
                   <SelectItem key={table.id} value={String(table.id)}>
-                    {table.table_number} ({table.seats} seats)
+                    {t("booking.tableSeats", { table: table.table_number, seats: table.seats })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -145,7 +147,7 @@ export const BookingForm = ({
 
         {/* Booking Date/Time */}
         <Field data-invalid={!!errors.booking_date_time}>
-          <FieldLabel>Date & Time</FieldLabel>
+          <FieldLabel>{t("booking.dateTime")}</FieldLabel>
           <FieldContent>
             <Input
               type="datetime-local"
@@ -161,19 +163,19 @@ export const BookingForm = ({
       {/* Status (edit only) */}
       {isEdit && (
         <Field data-invalid={!!(errors as any).status}>
-          <FieldLabel>Status</FieldLabel>
+          <FieldLabel>{t("booking.status")}</FieldLabel>
           <FieldContent>
             <Select
               value={status || ""}
               onValueChange={(val) => setValue("status" as any, val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select status" />
+                <SelectValue placeholder={t("booking.selectStatus")} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(BookingStatus).map((s) => (
                   <SelectItem key={s} value={s}>
-                    {bookingStatusLabels[s]}
+                    {t(bookingStatusLabels[s])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -187,11 +189,11 @@ export const BookingForm = ({
 
       {/* Notes */}
       <Field data-invalid={!!errors.notes}>
-        <FieldLabel>Notes</FieldLabel>
+        <FieldLabel>{t("common.notes")}</FieldLabel>
         <FieldContent>
           <Textarea
             {...register("notes")}
-            placeholder="e.g., Window seat preferred"
+            placeholder={t("booking.notesPlaceholder")}
             rows={3}
           />
         </FieldContent>
@@ -203,14 +205,14 @@ export const BookingForm = ({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? isEdit
-              ? "Updating..."
-              : "Creating..."
+              ? t("common.updating")
+              : t("common.creating")
             : isEdit
-            ? "Update Booking"
-            : "Create Booking"}
+            ? t("booking.updateBooking")
+            : t("booking.createBooking")}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

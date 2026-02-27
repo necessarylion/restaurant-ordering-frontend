@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useDeferredValue } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCart } from "@/hooks/useCart";
 import { useGuestMenuItems } from "@/hooks/useMenuItems";
 import { useGuestRestaurant } from "@/hooks/useRestaurants";
@@ -14,6 +15,7 @@ import type { MenuItem } from "@/types";
 
 
 export const GuestMenuPage = () => {
+  const { t } = useTranslation();
   const { restaurantId: restaurantIdParam, token } = useParams<{
     restaurantId: string;
     token: string;
@@ -53,11 +55,11 @@ export const GuestMenuPage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>Invalid Access</CardTitle>
+            <CardTitle>{t("guest.invalidAccess")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please scan the QR code at your table to access the menu.
+              {t("guest.scanQRCode")}
             </p>
           </CardContent>
         </Card>

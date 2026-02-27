@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DndContext,
   DragOverlay,
@@ -36,7 +37,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 const columns = [
   {
     key: "pending",
-    label: "Pending",
+    labelKey: "order.pending",
     icon: Clock04Icon,
     statuses: [OrderStatus.PENDING],
     dropStatus: OrderStatus.PENDING,
@@ -44,7 +45,7 @@ const columns = [
   },
   {
     key: "confirmed",
-    label: "Confirmed",
+    labelKey: "order.confirmed",
     icon: CheckmarkCircle02Icon,
     statuses: [OrderStatus.CONFIRMED],
     dropStatus: OrderStatus.CONFIRMED,
@@ -52,7 +53,7 @@ const columns = [
   },
   {
     key: "preparing",
-    label: "Preparing",
+    labelKey: "order.preparing",
     icon: Loading03Icon,
     statuses: [OrderStatus.PREPARING],
     dropStatus: OrderStatus.PREPARING,
@@ -60,7 +61,7 @@ const columns = [
   },
   {
     key: "ready",
-    label: "Ready",
+    labelKey: "order.ready",
     icon: DeliveryBox01Icon,
     statuses: [OrderStatus.READY],
     dropStatus: OrderStatus.READY,
@@ -68,7 +69,7 @@ const columns = [
   },
   {
     key: "done",
-    label: "Done",
+    labelKey: "order.done",
     icon: TaskDone02Icon,
     statuses: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
     dropStatus: OrderStatus.COMPLETED,
@@ -131,6 +132,7 @@ const DroppableColumn = ({
 };
 
 export const OrderListPage = () => {
+  const { t } = useTranslation();
   const { currentRestaurant } = useRestaurant();
   const { data: orders = [], isLoading, error } = useOrders(currentRestaurant?.id);
   const updateOrderMutation = useUpdateOrder();
@@ -206,11 +208,11 @@ export const OrderListPage = () => {
       <div className="flex h-screen items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>No Restaurant Selected</CardTitle>
+            <CardTitle>{t("common.noRestaurantSelected")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Please select a restaurant to view orders.
+              {t("order.selectRestaurant")}
             </p>
           </CardContent>
         </Card>
@@ -229,15 +231,15 @@ export const OrderListPage = () => {
   if (error) {
     return (
       <ErrorCard
-        title="Error Loading Orders"
-        message={(error as any).message || "Failed to load orders"}
+        title={t("order.errorLoading")}
+        message={(error as any).message || t("order.failedToLoad")}
       />
     );
   }
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <PageHeader title="Orders" description={`Manage orders for ${currentRestaurant.name}`} />
+      <PageHeader title={t("order.title")} description={t("order.description", { name: currentRestaurant.name })} />
       {/* Kanban Board */}
       <DndContext
         sensors={sensors}
@@ -253,7 +255,7 @@ export const OrderListPage = () => {
                 {/* Column Header */}
                 <div className={`flex items-center gap-2 px-1 shrink-0 ${col.headerClass}`}>
                   <HugeiconsIcon icon={col.icon} strokeWidth={2} className="size-4" />
-                  <span className="font-semibold text-sm">{col.label}</span>
+                  <span className="font-semibold text-sm">{t(col.labelKey)}</span>
                   <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground rounded-full px-2 py-0.5">
                     {colOrders.length}
                   </span>
@@ -263,7 +265,7 @@ export const OrderListPage = () => {
                 <DroppableColumn id={col.key}>
                   {colOrders.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center p-4">
-                      <p className="text-xs text-muted-foreground">No orders</p>
+                      <p className="text-xs text-muted-foreground">{t("order.noOrders")}</p>
                     </div>
                   ) : (
                     colOrders.map((order) => (

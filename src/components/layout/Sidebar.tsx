@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
@@ -18,6 +19,7 @@ import {
   SidebarRight01Icon,
   UserGroupIcon,
   Mail01Icon,
+  LanguageSkillIcon,
 } from "@hugeicons/core-free-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useRestaurant } from "@/hooks/useRestaurant";
@@ -44,21 +46,22 @@ interface SidebarSection {
 
 const sidebarSections: SidebarSection[] = [
   {
-    label: "Main Menu",
+    label: "sidebar.mainMenu",
     items: [
-      { to: "/dashboard/overview", label: "Dashboard", icon: DashboardSpeed01Icon, requiresRestaurant: true },
-      { to: "/dashboard/tables", label: "Tables", icon: TableRoundIcon, requiresRestaurant: true },
-      { to: "/dashboard/categories", label: "Categories", icon: Grid02Icon, requiresRestaurant: true },
-      { to: "/dashboard/menu", label: "Menu Items", icon: Menu01Icon, requiresRestaurant: true },
-      { to: "/dashboard/bookings", label: "Bookings", icon: Calendar03Icon, requiresRestaurant: true },
-      { to: "/dashboard/orders", label: "Orders", icon: ShoppingBasket01Icon, requiresRestaurant: true },
+      { to: "/dashboard/overview", label: "sidebar.dashboard", icon: DashboardSpeed01Icon, requiresRestaurant: true },
+      { to: "/dashboard/tables", label: "sidebar.tables", icon: TableRoundIcon, requiresRestaurant: true },
+      { to: "/dashboard/categories", label: "sidebar.categories", icon: Grid02Icon, requiresRestaurant: true },
+      { to: "/dashboard/menu", label: "sidebar.menuItems", icon: Menu01Icon, requiresRestaurant: true },
+      { to: "/dashboard/bookings", label: "sidebar.bookings", icon: Calendar03Icon, requiresRestaurant: true },
+      { to: "/dashboard/orders", label: "sidebar.orders", icon: ShoppingBasket01Icon, requiresRestaurant: true },
     ],
   },
   {
-    label: "Settings",
+    label: "sidebar.settings",
     items: [
-      { to: "/dashboard/restaurants", label: "Restaurants", icon: Store01Icon },
-      { to: "/dashboard/members", label: "Members", icon: UserGroupIcon, requiresRestaurant: true },
+      { to: "/dashboard/restaurants", label: "sidebar.restaurants", icon: Store01Icon },
+      { to: "/dashboard/members", label: "sidebar.members", icon: UserGroupIcon, requiresRestaurant: true },
+      { to: "/dashboard/settings", label: "sidebar.languageSettings", icon: LanguageSkillIcon, requiresRestaurant: false },
     ],
   },
 ];
@@ -66,6 +69,7 @@ const sidebarSections: SidebarSection[] = [
 const SIDEBAR_KEY = "sidebar_collapsed";
 
 export const Sidebar = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { currentRestaurant } = useRestaurant();
   const { theme, toggleTheme } = useTheme();
@@ -86,9 +90,9 @@ export const Sidebar = () => {
 
   const handleLogout = async () => {
     const confirmed = await confirm({
-      title: "Are you sure you want to logout?",
-      description: "You will be redirected to the login page.",
-      confirmLabel: "Logout",
+      title: t("sidebar.logoutConfirm"),
+      description: t("sidebar.logoutDescription"),
+      confirmLabel: t("sidebar.logout"),
     });
     if (!confirmed) return;
     await logout();
@@ -108,7 +112,7 @@ export const Sidebar = () => {
             <HugeiconsIcon icon={item.icon} strokeWidth={2} className="size-5" />
           </NavLink>
         </TooltipTrigger>
-        <TooltipContent side="right">{item.label}</TooltipContent>
+        <TooltipContent side="right">{t(item.label)}</TooltipContent>
       </Tooltip>
     ) : (
       <NavLink
@@ -123,7 +127,7 @@ export const Sidebar = () => {
         }
       >
         <HugeiconsIcon icon={item.icon} strokeWidth={2} className="size-4 shrink-0" />
-        <span className="whitespace-nowrap">{item.label}</span>
+        <span className="whitespace-nowrap">{t(item.label)}</span>
       </NavLink>
     );
 
@@ -135,7 +139,7 @@ export const Sidebar = () => {
       <button
         onClick={toggleCollapsed}
         className="absolute top-5 -right-3 z-10 flex size-6 items-center justify-center rounded-full border bg-card text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer shadow-sm"
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? t("sidebar.expandSidebar") : t("sidebar.collapseSidebar")}
       >
         <HugeiconsIcon icon={collapsed ? SidebarRight01Icon : SidebarLeft01Icon} strokeWidth={2} className="size-3.5" />
       </button>
@@ -171,7 +175,7 @@ export const Sidebar = () => {
                     </span>
                   </NavLink>
                 </TooltipTrigger>
-                <TooltipContent side="right">Invitations ({invitationCount})</TooltipContent>
+                <TooltipContent side="right">{t("sidebar.invitations")} ({invitationCount})</TooltipContent>
               </Tooltip>
             ) : (
               <NavLink
@@ -185,7 +189,7 @@ export const Sidebar = () => {
                 }
               >
                 <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} className="size-4 shrink-0" />
-                <span className="whitespace-nowrap flex-1">Invitations</span>
+                <span className="whitespace-nowrap flex-1">{t("sidebar.invitations")}</span>
                 <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
                   {invitationCount}
                 </span>
@@ -200,10 +204,10 @@ export const Sidebar = () => {
               <div key={section.label}>
                 {!collapsed && (
                   <p className="text-xs font-medium text-muted-foreground mb-2 mt-4 first:mt-0">
-                    {section.label}
+                    {t(section.label)}
                   </p>
                 )}
-                {collapsed && section.label === "Settings" && (
+                {collapsed && section.label === "sidebar.settings" && (
                   <div className="w-8 border-t my-2" />
                 )}
                 {visibleItems.map(renderNavItem)}
@@ -225,7 +229,7 @@ export const Sidebar = () => {
                     <HugeiconsIcon icon={ShutDownIcon} strokeWidth={2} className="size-5" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Logout</TooltipContent>
+                <TooltipContent side="right">{t("sidebar.logout")}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -241,7 +245,7 @@ export const Sidebar = () => {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  {theme === "dark" ? "Light mode" : "Dark mode"}
+                  {theme === "dark" ? t("sidebar.lightMode") : t("sidebar.darkMode")}
                 </TooltipContent>
               </Tooltip>
             </>
@@ -250,7 +254,7 @@ export const Sidebar = () => {
               <button
                 onClick={handleLogout}
                 className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
-                title="Logout"
+                title={t("sidebar.logout")}
               >
                 <HugeiconsIcon icon={ShutDownIcon} strokeWidth={2} className="size-5" />
               </button>
@@ -261,7 +265,7 @@ export const Sidebar = () => {
               <button
                 onClick={toggleTheme}
                 className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                title={theme === "dark" ? t("sidebar.switchToLight") : t("sidebar.switchToDark")}
               >
                 <HugeiconsIcon
                   icon={theme === "dark" ? Sun02Icon : Moon02Icon}

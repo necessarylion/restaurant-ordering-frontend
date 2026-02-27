@@ -4,6 +4,7 @@
  * Used by both CartDrawer (guest) and StaffOrderCreatePage (staff).
  */
 
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -38,6 +39,7 @@ export const OrderItemsList = ({
   onUpdateNotes,
   onRemoveItem,
 }: OrderItemsListProps) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       {items.map((item) => (
@@ -51,7 +53,7 @@ export const OrderItemsList = ({
             />
           ) : (
             <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center shrink-0">
-              <span className="text-xs text-muted-foreground">No image</span>
+              <span className="text-xs text-muted-foreground">{t("common.noImage")}</span>
             </div>
           )}
 
@@ -105,7 +107,7 @@ export const OrderItemsList = ({
 
             {/* Notes Input */}
             <Input
-              placeholder="Add notes (optional)"
+              placeholder={t("order.addNotes")}
               value={item.notes}
               onChange={(e) => onUpdateNotes(item.id, e.target.value)}
               className="mt-2 h-8 text-sm"

@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ import type { MenuItem, Category } from "@/types";
 import { formatPrice } from "@/lib/utils";
 
 const MenuItemImage = ({ item }: { item: MenuItem }) => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const sortedImages = item.images
     ? [...item.images].sort((a, b) => a.sort_order - b.sort_order)
@@ -39,7 +41,7 @@ const MenuItemImage = ({ item }: { item: MenuItem }) => {
   if (sortedImages.length === 0) {
     return (
       <div className="w-full h-48 bg-muted flex items-center justify-center">
-        <span className="text-muted-foreground">No image</span>
+        <span className="text-muted-foreground">{t("common.noImage")}</span>
       </div>
     );
   }
@@ -106,6 +108,7 @@ export const MenuBrowser = ({
   selectedCategory,
   onCategoryChange,
 }: MenuBrowserProps) => {
+  const { t } = useTranslation();
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const availableMenuItems = menuItems.filter((item) => item.is_available);
 
@@ -135,7 +138,7 @@ export const MenuBrowser = ({
           className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
         />
         <Input
-          placeholder="Search menu..."
+          placeholder={t("menu.searchMenu")}
           value={searchInput}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-9"
@@ -165,7 +168,7 @@ export const MenuBrowser = ({
                 strokeWidth={2}
                 className="size-4"
               />
-              All ({availableMenuItems.length})
+              {t("common.all")} ({availableMenuItems.length})
             </TabsTrigger>
             {activeCategories.map((category) => (
               <TabsTrigger key={category.id} value={category.id.toString()}>
@@ -192,7 +195,7 @@ export const MenuBrowser = ({
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No menu items available at the moment.
+              {t("menu.noMenuAvailable")}
             </p>
           </CardContent>
         </Card>
@@ -243,7 +246,7 @@ export const MenuBrowser = ({
                           strokeWidth={2}
                           className="size-4 mr-1"
                         />
-                        Add
+                        {t("common.add")}
                       </Button>
                     </div>
                   </div>
@@ -287,7 +290,7 @@ export const MenuBrowser = ({
                       strokeWidth={2}
                       className="size-4 mr-1"
                     />
-                    Add to Order
+                    {t("menu.addToOrder")}
                   </Button>
                 </div>
               </div>
