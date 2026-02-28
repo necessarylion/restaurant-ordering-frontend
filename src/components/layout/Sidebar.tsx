@@ -13,7 +13,6 @@ import {
   DashboardSpeed01Icon,
   ShutDownIcon,
   Sun02Icon,
-  Restaurant01Icon,
   Moon02Icon,
   SidebarLeft01Icon,
   SidebarRight01Icon,
@@ -21,6 +20,7 @@ import {
   Mail01Icon,
   LanguageSkillIcon,
 } from "@hugeicons/core-free-icons";
+import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useTheme } from "@/hooks/useTheme";
@@ -149,11 +149,11 @@ export const Sidebar = () => {
         <div className="border-b p-4">
           {collapsed ? (
             <div className="flex items-center justify-center">
-              <HugeiconsIcon icon={Restaurant01Icon} strokeWidth={2} className="size-7 shrink-0" />
+              <img src={logo} alt="Dine Q" className="size-7 shrink-0 rounded-full bg-black border-none outline-none" />
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <HugeiconsIcon icon={Restaurant01Icon} strokeWidth={2} className="size-8 shrink-0 ml-3" />
+              <img src={logo} alt="Dine Q" className="size-8 shrink-0 ml-3 rounded-full bg-black border-none outline-none" />
               <p className="text-xl whitespace-nowrap ml-3" style={{ fontFamily: "'Rammetto One', cursive" }}>DINE Q</p>
             </div>
           )}

@@ -8,10 +8,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Sun02Icon,
+  Moon02Icon,
+} from "@hugeicons/core-free-icons";
+import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { registerSchema, type RegisterFormData } from "@/schemas/auth_schema";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -19,6 +25,7 @@ export const RegisterPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { register: registerUser } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [error, setError] = useState<string>("");
 
   const {
@@ -41,16 +48,58 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">{t("auth.createAccount")}</CardTitle>
-          <p className="text-center text-sm text-muted-foreground">
-            {t("auth.createAccountSubtitle")}
-          </p>
-        </CardHeader>
+    <div className="flex min-h-screen bg-background">
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 z-10 rounded-full p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        title={theme === "dark" ? t("sidebar.switchToLight") : t("sidebar.switchToDark")}
+      >
+        <HugeiconsIcon
+          icon={theme === "dark" ? Sun02Icon : Moon02Icon}
+          size={20}
+        />
+      </button>
 
-        <CardContent>
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary p-12 text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <img src={logo} alt="Dine Q" className="size-10 rounded-full" />
+          <span className="font-['Rammetto_One'] text-2xl">DINE Q</span>
+        </div>
+
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold leading-tight">
+            Start managing<br />in minutes.
+          </h1>
+          <p className="text-lg text-primary-foreground/80 max-w-md">
+            Create your account and set up your restaurant with menus, tables, and QR ordering — all for free.
+          </p>
+        </div>
+
+        <p className="text-sm text-primary-foreground/60">
+          &copy; {new Date().getFullYear()} Dine Q
+        </p>
+      </div>
+
+      {/* Right form panel */}
+      <div className="flex w-full lg:w-1/2 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm space-y-8">
+          {/* Mobile logo */}
+          <div className="flex flex-col items-center gap-2 lg:hidden">
+            <div className="flex items-center gap-2 text-primary">
+              <img src={logo} alt="Dine Q" className="size-8 rounded-full bg-primary border-none outline-none" />
+              <span className="font-['Rammetto_One'] text-xl">DINE Q</span>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-center lg:text-left">
+            <h2 className="text-2xl font-bold tracking-tight">{t("auth.createAccount")}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t("auth.createAccountSubtitle")}
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
@@ -101,17 +150,15 @@ export const RegisterPage = () => {
               {isSubmitting ? t("auth.creatingAccount") : t("auth.createAccount")}
             </Button>
           </form>
-        </CardContent>
 
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t("auth.haveAccount")}{" "}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/login" className="text-primary font-medium hover:underline">
               {t("auth.signIn")}
             </Link>
           </p>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
