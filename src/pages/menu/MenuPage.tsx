@@ -190,8 +190,8 @@ export const MenuPage = () => {
 
       {/* Create Form Dialog */}
       <Dialog open={showCreateForm} onOpenChange={(open) => !open && setShowCreateForm(false)}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 pt-4 gap-0">
+          <DialogHeader className="px-4 pb-4">
             <DialogTitle>{t("menu.createNewMenuItem")}</DialogTitle>
           </DialogHeader>
           <MenuItemForm
@@ -205,8 +205,8 @@ export const MenuPage = () => {
 
       {/* Edit Form Dialog */}
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 pt-4 gap-0">
+          <DialogHeader className="px-4 pb-4">
             <DialogTitle>{t("menu.editMenuItem")}</DialogTitle>
           </DialogHeader>
           {editingItem && (

@@ -151,33 +151,8 @@ export const MenuItemForm = ({
   const selectedCategory = watch("category_id");
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Category Selection */}
-      <Field data-invalid={!!errors.category_id}>
-        <FieldLabel>{t("menu.category")}</FieldLabel>
-        <Select
-          value={selectedCategory}
-          onValueChange={(value) => setValue("category_id", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t("menu.selectCategory")} />
-          </SelectTrigger>
-          <SelectContent>
-            {categories
-              .filter((cat) => cat.is_active)
-              .sort((a, b) => a.sort_order - b.sort_order)
-              .map((category) => (
-                <SelectItem key={category.id} value={category.id.toString()}>
-                  {category.name}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-        {errors.category_id && (
-          <FieldError>{errors.category_id.message}</FieldError>
-        )}
-      </Field>
-
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
+      <div className="overflow-y-auto flex-1 space-y-6 px-4 pb-1">
       {/* Item Name */}
       <Field data-invalid={!!errors.name}>
         <FieldLabel>{t("menu.itemName")}</FieldLabel>
@@ -186,6 +161,48 @@ export const MenuItemForm = ({
         </FieldContent>
         {errors.name && <FieldError>{errors.name.message}</FieldError>}
       </Field>
+
+      {/* Category & Price Row */}
+      <div className="grid grid-cols-2 gap-4">
+        <Field data-invalid={!!errors.category_id}>
+          <FieldLabel>{t("menu.category")}</FieldLabel>
+          <Select
+            value={selectedCategory}
+            onValueChange={(value) => setValue("category_id", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("menu.selectCategory")} />
+            </SelectTrigger>
+            <SelectContent>
+              {categories
+                .filter((cat) => cat.is_active)
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          {errors.category_id && (
+            <FieldError>{errors.category_id.message}</FieldError>
+          )}
+        </Field>
+
+        <Field data-invalid={!!errors.price}>
+          <FieldLabel>{t("menu.price")}</FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("price")}
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+            />
+          </FieldContent>
+          {errors.price && <FieldError>{errors.price.message}</FieldError>}
+        </Field>
+      </div>
 
       {/* Description */}
       <Field data-invalid={!!errors.description}>
@@ -200,22 +217,6 @@ export const MenuItemForm = ({
         {errors.description && (
           <FieldError>{errors.description.message}</FieldError>
         )}
-      </Field>
-
-      {/* Price */}
-      <Field data-invalid={!!errors.price}>
-        <FieldLabel>{t("menu.price")}</FieldLabel>
-        <FieldContent>
-          <Input
-            {...register("price")}
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-          />
-        </FieldContent>
-        <p className="text-xs text-muted-foreground">{t("menu.priceHint")}</p>
-        {errors.price && <FieldError>{errors.price.message}</FieldError>}
       </Field>
 
       {/* Images Upload */}
@@ -284,8 +285,10 @@ export const MenuItemForm = ({
         </Field>
       )}
 
+      </div>
+
       {/* Form Actions */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 border-t pt-4 pb-4 px-4 mt-4">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? isEdit
