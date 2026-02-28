@@ -109,7 +109,7 @@ export const Sidebar = () => {
         <TooltipTrigger asChild>
           <NavLink
             to={item.to}
-            className="flex items-center justify-center size-10 rounded-xl transition-all hover:bg-accent text-muted-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
+            className="mb-1 flex items-center justify-center size-10 rounded-xl transition-all hover:bg-accent text-muted-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
           >
             <HugeiconsIcon icon={item.icon} strokeWidth={2} className="size-5" />
           </NavLink>
@@ -121,7 +121,7 @@ export const Sidebar = () => {
         key={item.to}
         to={item.to}
         className={({ isActive }) =>
-          `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent ${
+          `mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent ${
             isActive
               ? "bg-accent text-accent-foreground font-medium"
               : "text-muted-foreground"
@@ -183,7 +183,7 @@ export const Sidebar = () => {
               <NavLink
                 to="/dashboard/invitations"
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent mb-2 ${
+                  `mb-5 flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent mb-2 ${
                     isActive
                       ? "bg-accent text-accent-foreground font-medium"
                       : "text-muted-foreground"

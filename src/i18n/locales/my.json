@@ -394,7 +394,11 @@
     "discount": "လျှော့စျေး",
     "total": "စုစုပေါင်း",
     "date": "ရက်စွဲ",
-    "actions": "လုပ်ဆောင်ချက်"
+    "actions": "လုပ်ဆောင်ချက်",
+    "paymentNumber": "ငွေပေးချေမှု {{number}}",
+    "orders": "အော်ဒါများ",
+    "backToPayments": "ငွေပေးချေမှုများ ပြန်သွားမည်",
+    "paymentNotFound": "ငွေပေးချေမှု မတွေ့ပါ။"
   },
   "settings": {
     "title": "ဆက်တင်",

@@ -394,7 +394,11 @@
     "discount": "Rabatt",
     "total": "Gesamt",
     "date": "Datum",
-    "actions": "Aktionen"
+    "actions": "Aktionen",
+    "paymentNumber": "Zahlung {{number}}",
+    "orders": "Bestellungen",
+    "backToPayments": "Zurück zu Zahlungen",
+    "paymentNotFound": "Zahlung nicht gefunden."
   },
   "settings": {
     "title": "Einstellungen",

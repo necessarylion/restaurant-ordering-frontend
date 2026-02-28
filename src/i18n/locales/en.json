@@ -394,7 +394,11 @@
     "discount": "Discount",
     "total": "Total",
     "date": "Date",
-    "actions": "Actions"
+    "actions": "Actions",
+    "paymentNumber": "Payment {{number}}",
+    "orders": "Orders",
+    "backToPayments": "Back to Payments",
+    "paymentNotFound": "Payment not found."
   },
   "settings": {
     "title": "Settings",

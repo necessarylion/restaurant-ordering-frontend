@@ -3,6 +3,7 @@
  * Display payment history for a restaurant
  */
 
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@/hooks/useRestaurant";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
@@ -18,6 +19,8 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PaymentDetailDialog } from "@/components/payment/PaymentDetailDialog";
+import type { Payment } from "@/types";
 
 export const PaymentListPage = () => {
   const { t } = useTranslation();
@@ -29,6 +32,7 @@ export const PaymentListPage = () => {
   } = usePayments(currentRestaurant?.id);
   const deleteMutation = useDeletePayment();
   const { confirm, alert: showAlert } = useAlertDialog();
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   const formatDateTime = (dateStr: string) => {
     let normalized = dateStr;
@@ -137,7 +141,11 @@ export const PaymentListPage = () => {
             </thead>
             <tbody>
               {payments.map((payment) => (
-                <tr key={payment.id} className="border-b hover:bg-muted/30 transition-colors">
+                <tr
+                  key={payment.id}
+                  className="border-b hover:bg-muted/30 transition-colors cursor-pointer"
+                  onClick={() => setSelectedPayment(payment)}
+                >
                   <td className="px-4 py-3 text-muted-foreground">{payment.id}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-1.5">
@@ -164,7 +172,7 @@ export const PaymentListPage = () => {
                       variant="outline"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(payment.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(payment.id); }}
                     >
                       <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4 mr-1" />
                       {t("payment.rollback")}
@@ -176,6 +184,11 @@ export const PaymentListPage = () => {
           </table>
         </div>
       )}
+
+      <PaymentDetailDialog
+        payment={selectedPayment}
+        onClose={() => setSelectedPayment(null)}
+      />
     </div>
   );
 };

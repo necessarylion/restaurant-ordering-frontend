@@ -18,16 +18,19 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/ui/badge";
 import { OrderType, type Order } from "@/types";
+import { formatPrice } from "@/lib/utils";
 
 interface OrderCardProps {
   order: Order;
   onViewDetails?: (order: Order) => void;
   isDragging?: boolean;
   style?: React.CSSProperties;
+  showPrice?: boolean;
+  currency?: string;
 }
 
 export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLAttributes<HTMLDivElement>>(
-  ({ order, onViewDetails, isDragging, style, className, ...props }, ref) => {
+  ({ order, onViewDetails, isDragging, style, className, showPrice, currency, ...props }, ref) => {
     const { t } = useTranslation();
     const formatDateTime = (dateString: string) => {
       const date = new Date(dateString);
@@ -85,9 +88,16 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
                     key={item.id}
                     className="pb-1.5 border-b last:border-0 last:pb-0"
                   >
-                    <p className="text-xs font-medium">
-                      {item.quantity}x {item?.name || "Item"}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-xs font-medium">
+                        {item.quantity}x {item?.name || "Item"}
+                      </p>
+                      {showPrice && (
+                        <p className="text-xs font-medium text-yellow-500 shrink-0">
+                          {formatPrice(item.price * item.quantity, currency || "USD")}
+                        </p>
+                      )}
+                    </div>
                     {item.notes && (
                       <p className="text-xs text-amber-600 dark:text-amber-400 italic">
                         {item.notes}
@@ -105,6 +115,16 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps & React.HTMLA
               <p className="text-xs text-muted-foreground">{t("order.noItems")}</p>
             )}
           </div>
+
+          {/* Order Total */}
+          {showPrice && (
+            <div className="flex justify-between border-t pt-2">
+              <span className="text-xs font-semibold">{t("payment.total")}</span>
+              <span className="text-sm font-bold text-yellow-500">
+                {formatPrice(order.total, currency || "USD")}
+              </span>
+            </div>
+          )}
 
           {/* Actions */}
           {onViewDetails && (
