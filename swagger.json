@@ -3725,6 +3725,10 @@
                     "type": "string",
                     "example": "09123456789"
                 },
+                "tax_percent": {
+                    "type": "number",
+                    "example": 5
+                },
                 "updated_at": {
                     "type": "string",
                     "example": "2025-01-01T00:00:00Z"

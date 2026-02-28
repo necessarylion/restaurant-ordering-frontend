@@ -51,6 +51,9 @@ export interface Restaurant {
   phone?: string;
   currency: string; // e.g., "USD", "MMK"
   logo?: string; // URL to logo image
+  booking_window_start_hours: number;
+  booking_window_end_hours: number;
+  tax_percent: number;
   created_at: string;
   updated_at: string;
   members?: RestaurantMember[];

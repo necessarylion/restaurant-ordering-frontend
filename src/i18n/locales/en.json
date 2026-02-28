@@ -135,7 +135,10 @@
     "selected": "Selected",
     "select": "Select",
     "phoneLabel": "Phone: ",
-    "membersLabel": "Members: "
+    "membersLabel": "Members: ",
+    "bookingDuration": "Default Booking Duration (hrs)",
+    "bookingDurationHint": "Each booking will reserve the table for {{count}} hour(s)",
+    "taxPercent": "Tax (%)"
   },
   "table": {
     "title": "Tables",

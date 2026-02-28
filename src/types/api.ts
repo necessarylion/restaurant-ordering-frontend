@@ -36,6 +36,9 @@ export interface CreateRestaurantInput {
   phone?: string;
   currency?: string;
   logo?: File;
+  booking_window_start_hours?: number;
+  booking_window_end_hours?: number;
+  tax_percent?: number;
 }
 
 export interface UpdateRestaurantInput {
@@ -44,6 +47,9 @@ export interface UpdateRestaurantInput {
   phone?: string;
   currency?: string;
   logo?: File;
+  booking_window_start_hours?: number;
+  booking_window_end_hours?: number;
+  tax_percent?: number;
 }
 
 // Category API types

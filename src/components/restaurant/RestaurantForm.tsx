@@ -44,11 +44,19 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
           address: restaurant.address || "",
           phone: restaurant.phone || "",
           currency: restaurant.currency || "",
+          booking_window_start_hours: restaurant.booking_window_start_hours ?? 0,
+          booking_window_end_hours: restaurant.booking_window_end_hours ?? 2,
+          tax_percent: restaurant.tax_percent ?? 0,
         }
-      : undefined,
+      : {
+          booking_window_start_hours: 0,
+          booking_window_end_hours: 2,
+          tax_percent: 0,
+        },
   });
 
   const logoFiles = watch("logo");
+  const endHours = watch("booking_window_end_hours") ?? 2;
   const previewUrl = logoFiles instanceof FileList && logoFiles.length > 0
     ? URL.createObjectURL(logoFiles[0])
     : restaurant?.logo || null;
@@ -111,28 +119,61 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
         {errors.address && <FieldError>{errors.address.message}</FieldError>}
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor="phone">{t("common.phone")}</FieldLabel>
-        <Input
-          id="phone"
-          type="tel"
-          placeholder={t("restaurant.phonePlaceholder")}
-          {...register("phone")}
-          disabled={isSubmitting}
-        />
-        {errors.phone && <FieldError>{errors.phone.message}</FieldError>}
-      </Field>
+      <div className="grid grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel htmlFor="phone">{t("common.phone")}</FieldLabel>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder={t("restaurant.phonePlaceholder")}
+            {...register("phone")}
+            disabled={isSubmitting}
+          />
+          {errors.phone && <FieldError>{errors.phone.message}</FieldError>}
+        </Field>
 
-      <Field>
-        <FieldLabel htmlFor="currency">{t("restaurant.currency")}</FieldLabel>
-        <Input
-          id="currency"
-          placeholder={t("restaurant.currencyPlaceholder")}
-          {...register("currency")}
-          disabled={isSubmitting}
-        />
-        {errors.currency && <FieldError>{errors.currency.message}</FieldError>}
-      </Field>
+        <Field>
+          <FieldLabel htmlFor="currency">{t("restaurant.currency")}</FieldLabel>
+          <Input
+            id="currency"
+            placeholder={t("restaurant.currencyPlaceholder")}
+            {...register("currency")}
+            disabled={isSubmitting}
+          />
+          {errors.currency && <FieldError>{errors.currency.message}</FieldError>}
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel htmlFor="tax_percent">{t("restaurant.taxPercent")}</FieldLabel>
+          <Input
+            id="tax_percent"
+            type="number"
+            min={0}
+            max={100}
+            step="0.01"
+            placeholder="0"
+            {...register("tax_percent", { valueAsNumber: true })}
+            disabled={isSubmitting}
+          />
+          {errors.tax_percent && <FieldError>{errors.tax_percent.message}</FieldError>}
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="booking_window_end_hours">{t("restaurant.bookingDuration")}</FieldLabel>
+          <Input
+            id="booking_window_end_hours"
+            type="number"
+            min={0}
+            placeholder="2"
+            {...register("booking_window_end_hours", { valueAsNumber: true })}
+            disabled={isSubmitting}
+          />
+          <p className="text-xs text-muted-foreground">{t("restaurant.bookingDurationHint", { count: endHours })}</p>
+          {errors.booking_window_end_hours && <FieldError>{errors.booking_window_end_hours.message}</FieldError>}
+        </Field>
+      </div>
 
       <div className="flex gap-2 justify-end">
         {onCancel && (

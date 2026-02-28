@@ -135,7 +135,10 @@
     "selected": "ရွေးထား",
     "select": "ရွေးမည်",
     "phoneLabel": "ဖုန်း: ",
-    "membersLabel": "အဖွဲ့ဝင်: "
+    "membersLabel": "အဖွဲ့ဝင်: ",
+    "bookingDuration": "Booking ကြာချိန် (နာရီ)",
+    "bookingDurationHint": "Booking တစ်ခုအတွက် စားပွဲကို {{count}} နာရီ သီးသန့်ချန်ထားမယ်",
+    "taxPercent": "အခွန် (%)"
   },
   "table": {
     "title": "စားပွဲများ",

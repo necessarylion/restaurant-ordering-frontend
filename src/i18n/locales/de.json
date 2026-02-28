@@ -135,7 +135,10 @@
     "selected": "Ausgewählt",
     "select": "Auswählen",
     "phoneLabel": "Telefon: ",
-    "membersLabel": "Mitglieder: "
+    "membersLabel": "Mitglieder: ",
+    "bookingDuration": "Standard-Buchungsdauer (Std.)",
+    "bookingDurationHint": "Jede Buchung reserviert den Tisch für {{count}} Stunde(n)",
+    "taxPercent": "Steuer (%)"
   },
   "table": {
     "title": "Tische",

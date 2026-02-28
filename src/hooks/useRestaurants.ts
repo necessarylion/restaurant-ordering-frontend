@@ -73,6 +73,12 @@ const buildRestaurantFormData = (
   if (data.phone) formData.append("phone", data.phone);
   if (data.currency) formData.append("currency", data.currency);
   if (data.logo) formData.append("logo", data.logo);
+  if (data.booking_window_start_hours !== undefined)
+    formData.append("booking_window_start_hours", String(data.booking_window_start_hours));
+  if (data.booking_window_end_hours !== undefined)
+    formData.append("booking_window_end_hours", String(data.booking_window_end_hours));
+  if (data.tax_percent !== undefined)
+    formData.append("tax_percent", String(data.tax_percent));
   return formData;
 };
 
