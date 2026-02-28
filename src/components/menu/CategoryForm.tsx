@@ -88,7 +88,7 @@ export const CategoryForm = ({
 
   const handleRemoveImage = () => {
     setValue("image", undefined);
-    setImagePreview(category?.image || null);
+    setImagePreview(null);
   };
 
   const isActive = watch("is_active");
