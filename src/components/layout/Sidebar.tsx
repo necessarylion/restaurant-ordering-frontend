@@ -10,6 +10,7 @@ import {
   TableRoundIcon,
   ShoppingBasket01Icon,
   Calendar03Icon,
+  CreditCardIcon,
   DashboardSpeed01Icon,
   ShutDownIcon,
   Sun02Icon,
@@ -54,6 +55,7 @@ const sidebarSections: SidebarSection[] = [
       { to: "/dashboard/menu", label: "sidebar.menuItems", icon: Menu01Icon, requiresRestaurant: true },
       { to: "/dashboard/bookings", label: "sidebar.bookings", icon: Calendar03Icon, requiresRestaurant: true },
       { to: "/dashboard/orders", label: "sidebar.orders", icon: ShoppingBasket01Icon, requiresRestaurant: true },
+      { to: "/dashboard/payments", label: "sidebar.payments", icon: CreditCardIcon, requiresRestaurant: true },
     ],
   },
   {

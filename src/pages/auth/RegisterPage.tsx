@@ -40,8 +40,8 @@ export const RegisterPage = () => {
     setError("");
 
     try {
-      await registerUser(data);
-      navigate("/dashboard");
+      const user = await registerUser(data);
+      navigate(user.email_verified_at ? "/dashboard" : "/verify-email-notice");
     } catch (err: any) {
       setError(err.message || t("auth.registrationFailed"));
     }

@@ -23,6 +23,7 @@ export const useBookings = (
 ) => {
   return useQuery({
     queryKey: ["bookings", restaurantId, filters],
+    refetchOnMount: "always",
     queryFn: () => {
       const params = new URLSearchParams();
       if (filters?.table_id) params.set("table_id", String(filters.table_id));

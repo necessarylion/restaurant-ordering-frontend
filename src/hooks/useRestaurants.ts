@@ -18,6 +18,7 @@ import type {
 export const useRestaurants = () => {
   return useQuery({
     queryKey: ["restaurants"],
+    refetchOnMount: "always",
     queryFn: () => api.get<Restaurant[]>(endpoints.restaurants.list),
   });
 };

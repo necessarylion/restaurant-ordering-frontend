@@ -124,6 +124,15 @@ const createApiClient = (): AxiosInstance => {
         }
       }
 
+      // Handle 403 email not verified - redirect to verification page
+      if (error.response?.status === 403) {
+        const data = error.response.data as Record<string, unknown>;
+        if (data?.code === "EMAIL_NOT_VERIFIED" && typeof window !== "undefined") {
+          window.location.href = "/verify-email-notice";
+          return Promise.reject(transformError(error));
+        }
+      }
+
       // Transform and reject error
       return Promise.reject(transformError(error));
     }

@@ -40,8 +40,8 @@ export const LoginPage = () => {
     setError("");
 
     try {
-      await login(data);
-      navigate("/dashboard");
+      const user = await login(data);
+      navigate(user.email_verified_at ? "/dashboard" : "/verify-email-notice");
     } catch (err: any) {
       setError(err.message || t("auth.loginFailed"));
     }

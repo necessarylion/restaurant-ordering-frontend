@@ -55,7 +55,20 @@
     "passwordHint": "Must be at least 6 characters",
     "creatingAccount": "Creating account...",
     "registrationFailed": "Registration failed. Please try again.",
-    "haveAccount": "Already have an account?"
+    "haveAccount": "Already have an account?",
+    "verifyEmailTitle": "Check Your Email",
+    "verifyEmailDescription": "We sent a verification link to <strong>{{email}}</strong>. Click the link in the email to verify your account.",
+    "resendEmail": "Resend Verification Email",
+    "resendingEmail": "Resending...",
+    "emailResent": "Verification email sent! Check your inbox.",
+    "resendFailed": "Failed to resend verification email. Please try again.",
+    "checkSpam": "Didn't receive the email? Check your spam folder or click resend.",
+    "verifyingEmail": "Verifying your email...",
+    "emailVerified": "Email Verified!",
+    "emailVerifiedDescription": "Your email has been verified. Redirecting to dashboard...",
+    "verificationFailed": "Verification failed. The link may be invalid or expired.",
+    "invalidToken": "Invalid or missing verification token.",
+    "goToLogin": "Go to Login"
   },
   "sidebar": {
     "mainMenu": "Main Menu",
@@ -65,6 +78,7 @@
     "menuItems": "Menu Items",
     "bookings": "Bookings",
     "orders": "Orders",
+    "payments": "Payments",
     "settings": "Settings",
     "restaurants": "Restaurants",
     "members": "Members",
@@ -362,6 +376,25 @@
   "guest": {
     "invalidAccess": "Invalid Access",
     "scanQRCode": "Please scan the QR code at your table to access the menu."
+  },
+  "payment": {
+    "title": "Payments",
+    "description": "Payment history for {{name}}",
+    "noPayments": "No payments yet.",
+    "rollbackPayment": "Rollback Payment",
+    "rollbackConfirm": "Are you sure you want to rollback this payment? The table orders will be restored.",
+    "rollback": "Rollback",
+    "failedToDelete": "Failed to rollback payment",
+    "errorLoading": "Error Loading Payments",
+    "failedToLoad": "Failed to load payments",
+    "selectRestaurant": "Please select a restaurant to view payments.",
+    "table": "Table",
+    "subTotal": "Sub Total",
+    "tax": "Tax",
+    "discount": "Discount",
+    "total": "Total",
+    "date": "Date",
+    "actions": "Actions"
   },
   "settings": {
     "title": "Settings",

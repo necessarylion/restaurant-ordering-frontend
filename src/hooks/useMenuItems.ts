@@ -18,6 +18,7 @@ import type { MenuItem } from "@/types";
 export const useMenuItems = (restaurantId: number | undefined, keyword?: string) => {
   return useQuery({
     queryKey: ["menuItems", restaurantId, keyword],
+    refetchOnMount: "always",
     queryFn: () =>
       api.get<MenuItem[]>(endpoints.menuItems.list(restaurantId!), {
         params: keyword ? { keyword } : undefined,

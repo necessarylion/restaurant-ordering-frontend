@@ -18,6 +18,7 @@ import type { Category } from "@/types";
 export const useCategories = (restaurantId: number | undefined) => {
   return useQuery({
     queryKey: ["categories", restaurantId],
+    refetchOnMount: "always",
     queryFn: () =>
       api.get<Category[]>(endpoints.categories.list(restaurantId!)),
     enabled: !!restaurantId,

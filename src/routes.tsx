@@ -13,10 +13,13 @@ import { GuestMenuPage } from "@/pages/guest/GuestMenuPage";
 import { OrderListPage } from "@/pages/orders/OrderListPage";
 import { StaffOrderCreatePage } from "@/pages/orders/StaffOrderCreatePage";
 import { BookingListPage } from "@/pages/bookings/BookingListPage";
+import { PaymentListPage } from "@/pages/payments/PaymentListPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 import { MemberListPage } from "@/pages/members/MemberListPage";
 import { InvitationListPage } from "@/pages/invitations/InvitationListPage";
 import { SettingsPage } from "@/pages/settings/SettingsPage";
+import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
+import { VerifyEmailNoticePage } from "@/pages/auth/VerifyEmailNoticePage";
 
 interface PageRoute {
   path: string;
@@ -34,6 +37,8 @@ export const publicRoutes: RouteConfig[] = [
   { path: "/", redirectTo: "/dashboard/restaurants" },
   { path: "/login", element: LoginPage },
   { path: "/register", element: RegisterPage },
+  { path: "/verify-email", element: VerifyEmailPage },
+  { path: "/verify-email-notice", element: VerifyEmailNoticePage },
   { path: "*", redirectTo: "/dashboard/restaurants" },
 ];
 
@@ -50,6 +55,7 @@ export const dashboardRoutes: RouteConfig[] = [
   { path: "bookings", element: BookingListPage },
   { path: "orders", element: OrderListPage },
   { path: "orders/create", element: StaffOrderCreatePage },
+  { path: "payments", element: PaymentListPage },
   { path: "members", element: MemberListPage },
   { path: "invitations", element: InvitationListPage },
   { path: "settings", element: SettingsPage },

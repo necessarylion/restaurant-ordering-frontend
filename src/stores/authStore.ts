@@ -13,10 +13,12 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginInput) => Promise<void>;
-  register: (data: RegisterInput) => Promise<void>;
+  login: (credentials: LoginInput) => Promise<User>;
+  register: (data: RegisterInput) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerification: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -33,6 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       );
       setToken(response.access_token);
       set({ user: response.user, isAuthenticated: true });
+      return response.user;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : "Login failed");
     } finally {
@@ -49,6 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       );
       setToken(response.access_token);
       set({ user: response.user, isAuthenticated: true });
+      return response.user;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : "Registration failed");
     } finally {
@@ -76,6 +80,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: null, isAuthenticated: false });
       throw error;
     }
+  },
+
+  verifyEmail: async (token) => {
+    await api.post(endpoints.auth.verifyEmail, { token });
+    const userData = await api.get<User>(endpoints.auth.me);
+    set({ user: userData });
+  },
+
+  resendVerification: async () => {
+    await api.post(endpoints.auth.resendVerification);
   },
 }));
 

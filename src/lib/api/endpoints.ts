@@ -10,6 +10,8 @@ export const endpoints = {
     logout: "/auth/logout",
     refresh: "/auth/refresh",
     me: "/auth/user",
+    verifyEmail: "/auth/verify-email",
+    resendVerification: "/auth/resend-verification",
   },
 
   restaurants: {

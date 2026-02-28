@@ -7,6 +7,7 @@ import type { InviteMemberInput, UpdateMemberRoleInput } from "@/types/api";
 export const useMembers = (restaurantId: number | undefined) => {
   return useQuery({
     queryKey: ["members", restaurantId],
+    refetchOnMount: "always",
     queryFn: () =>
       api.get<RestaurantMember[]>(endpoints.members.list(restaurantId!)),
     enabled: !!restaurantId,

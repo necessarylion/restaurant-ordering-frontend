@@ -39,6 +39,7 @@ export interface User {
   email: string;
   name: string;
   max_restaurants: number;
+  email_verified_at: string | null;
   created_at: string;
   updated_at: string;
   memberships?: RestaurantMember[];
