@@ -195,6 +195,7 @@ export const MenuPage = () => {
             <DialogTitle>{t("menu.createNewMenuItem")}</DialogTitle>
           </DialogHeader>
           <MenuItemForm
+            restaurantId={currentRestaurant.id}
             categories={activeCategories}
             onSubmit={handleCreate}
             onCancel={() => setShowCreateForm(false)}
@@ -211,6 +212,7 @@ export const MenuPage = () => {
           </DialogHeader>
           {editingItem && (
             <MenuItemForm
+              restaurantId={currentRestaurant.id}
               menuItem={editingItem}
               categories={activeCategories}
               onSubmit={handleUpdate}

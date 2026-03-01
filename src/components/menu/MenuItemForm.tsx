@@ -30,9 +30,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Upload01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { Upload01Icon, Delete02Icon, AiMagicIcon } from "@hugeicons/core-free-icons";
+import { useGenerateDescription } from "@/hooks/useMenuItems";
 
 interface MenuItemFormProps {
+  restaurantId: number;
   menuItem?: MenuItem; // If provided, we're editing
   categories: Category[]; // Available categories
   onSubmit: (data: any) => void | Promise<void>;
@@ -50,14 +52,16 @@ type MenuItemFormData = {
 };
 
 export const MenuItemForm = ({
+  restaurantId,
   menuItem,
   categories,
   onSubmit,
   onCancel,
   isSubmitting = false,
 }: MenuItemFormProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isEdit = !!menuItem;
+  const generateDescription = useGenerateDescription();
   const schema = isEdit ? updateMenuItemFormSchema : createMenuItemFormSchema;
 
   const {
@@ -206,7 +210,37 @@ export const MenuItemForm = ({
 
       {/* Description */}
       <Field data-invalid={!!errors.description}>
-        <FieldLabel>{t("menu.descriptionOptional")}</FieldLabel>
+        <div className="flex items-center justify-between">
+          <FieldLabel>{t("menu.descriptionOptional")}</FieldLabel>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-6 text-xs gap-1"
+            disabled={generateDescription.isPending || !watch("name")}
+            onClick={() => {
+              const name = watch("name");
+              const categoryId = watch("category_id");
+              const category = categories.find((c) => c.id.toString() === categoryId);
+              generateDescription.mutate(
+                {
+                  restaurantId,
+                  name,
+                  category: category?.name || "",
+                  language: i18n.language,
+                },
+                {
+                  onSuccess: (data) => {
+                    setValue("description", data.description);
+                  },
+                }
+              );
+            }}
+          >
+            <HugeiconsIcon icon={AiMagicIcon} className="size-3" />
+            {generateDescription.isPending ? t("menu.generating") : t("menu.useAI")}
+          </Button>
+        </div>
         <FieldContent>
           <Textarea
             {...register("description")}

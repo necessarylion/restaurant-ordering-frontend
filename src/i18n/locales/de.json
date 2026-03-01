@@ -234,7 +234,10 @@
     "createItem": "Artikel erstellen",
     "noMenuAvailable": "Derzeit keine Menüpunkte verfügbar.",
     "searchMenu": "Menü durchsuchen...",
-    "addToOrder": "Zur Bestellung hinzufügen"
+    "addToOrder": "Zur Bestellung hinzufügen",
+    "useAI": "KI verwenden",
+    "generating": "Generieren...",
+    "failedToGenerate": "Beschreibung konnte nicht generiert werden"
   },
   "category": {
     "title": "Kategorien",

@@ -1764,6 +1764,66 @@
                 }
             }
         },
+        "/restaurants/{restaurantId}/menu-items/generate-description": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu Items"
+                ],
+                "summary": "Generate AI description for menu item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Menu item details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.GenerateDescriptionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/restaurants/{restaurantId}/menu-items/{menuItemId}": {
             "get": {
                 "security": [
@@ -4367,6 +4427,23 @@
                 "y": {
                     "type": "number",
                     "example": 200
+                }
+            }
+        },
+        "validators.GenerateDescriptionInput": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

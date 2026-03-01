@@ -234,7 +234,10 @@
     "createItem": "Create Item",
     "noMenuAvailable": "No menu items available at the moment.",
     "searchMenu": "Search menu...",
-    "addToOrder": "Add to Order"
+    "addToOrder": "Add to Order",
+    "useAI": "Use AI",
+    "generating": "Generating...",
+    "failedToGenerate": "Failed to generate description"
   },
   "category": {
     "title": "Categories",

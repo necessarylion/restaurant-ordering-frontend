@@ -212,6 +212,28 @@ export const useUpdateMenuItem = () => {
   });
 };
 
+interface GenerateDescriptionInput {
+  restaurantId: number;
+  name: string;
+  category: string;
+  language: string;
+}
+
+/**
+ * Generate AI description for a menu item
+ */
+export const useGenerateDescription = () => {
+  return useMutation({
+    mutationFn: async (input: GenerateDescriptionInput) => {
+      const { restaurantId, ...body } = input;
+      return api.post<{ description: string }>(
+        endpoints.menuItems.generateDescription(restaurantId),
+        body
+      );
+    },
+  });
+};
+
 /**
  * Delete a menu item
  */

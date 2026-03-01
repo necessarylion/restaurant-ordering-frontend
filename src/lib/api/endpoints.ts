@@ -59,6 +59,8 @@ export const endpoints = {
       `/restaurants/${restaurantId}/menu-items/${itemId}`,
     delete: (restaurantId: number, itemId: number) =>
       `/restaurants/${restaurantId}/menu-items/${itemId}`,
+    generateDescription: (restaurantId: number) =>
+      `/restaurants/${restaurantId}/menu-items/generate-description`,
   },
 
   zones: {

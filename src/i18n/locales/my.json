@@ -234,7 +234,10 @@
     "createItem": "မီနူး ဖန်တီးမည်",
     "noMenuAvailable": "လောလောဆယ် မီနူး မရှိပါ။",
     "searchMenu": "မီနူး ရှာ...",
-    "addToOrder": "အော်ဒါထဲ ထည့်မည်"
+    "addToOrder": "အော်ဒါထဲ ထည့်မည်",
+    "useAI": "AI သုံးမည်",
+    "generating": "ရေးနေတယ်...",
+    "failedToGenerate": "ဖော်ပြချက် ရေးမရပါ"
   },
   "category": {
     "title": "အမျိုးအစားများ",
