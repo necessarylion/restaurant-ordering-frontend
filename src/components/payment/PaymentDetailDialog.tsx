@@ -128,7 +128,7 @@ ${discount}
 
   return (
     <Dialog open={!!payment} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[80vw] max-w-[80vw] sm:max-w-[80vw] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[50vw] max-w-[60vw] sm:max-w-[80vw] max-h-[85vh] overflow-y-auto">
         {payment && (
           <>
             <DialogHeader>
@@ -137,15 +137,15 @@ ${discount}
               </DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-5">
               {/* Left: Orders */}
-              <div className="lg:col-span-2 space-y-3">
+              <div className="lg:col-span-3 space-y-3">
                 <h3 className="text-sm font-medium text-muted-foreground">
                   {t("payment.orders")} ({orders.length})
                 </h3>
 
                 {orders.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {orders.map((order) => (
                       <OrderCard
                         key={order.id}
@@ -164,7 +164,7 @@ ${discount}
               </div>
 
               {/* Right: Payment Summary */}
-              <div className="space-y-4">
+              <div className="col-span-2 space-y-4">
                 {/* Table */}
                 <div className="flex items-center gap-2 text-sm mt-7">
                   <HugeiconsIcon icon={TableRoundIcon} strokeWidth={2} className="size-4 text-muted-foreground" />

@@ -16,6 +16,11 @@ import {
   TableRoundIcon,
 } from "@hugeicons/core-free-icons";
 import { formatPrice } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ErrorCard } from "@/components/ErrorCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaymentDetailDialog } from "@/components/payment/PaymentDetailDialog";
@@ -115,11 +120,36 @@ export const PaymentListPage = () => {
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium">#</th>
                 <th className="text-left px-4 py-3 font-medium">{t("payment.table")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.priceBeforeDiscount")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.discount")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.total")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.subTotal")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.tax")}</th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <Tooltip>
+                    <TooltipTrigger asChild><span className="cursor-help border-b border-dashed border-muted-foreground/50">{t("payment.priceBeforeDiscount")}</span></TooltipTrigger>
+                    <TooltipContent>{t("payment.priceBeforeDiscountHint")}</TooltipContent>
+                  </Tooltip>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <Tooltip>
+                    <TooltipTrigger asChild><span className="cursor-help border-b border-dashed border-muted-foreground/50">{t("payment.discount")}</span></TooltipTrigger>
+                    <TooltipContent>{t("payment.discountHint")}</TooltipContent>
+                  </Tooltip>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <Tooltip>
+                    <TooltipTrigger asChild><span className="cursor-help border-b border-dashed border-muted-foreground/50">{t("payment.total")}</span></TooltipTrigger>
+                    <TooltipContent>{t("payment.totalHint")}</TooltipContent>
+                  </Tooltip>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <Tooltip>
+                    <TooltipTrigger asChild><span className="cursor-help border-b border-dashed border-muted-foreground/50">{t("payment.subTotal")}</span></TooltipTrigger>
+                    <TooltipContent>{t("payment.subTotalHint")}</TooltipContent>
+                  </Tooltip>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <Tooltip>
+                    <TooltipTrigger asChild><span className="cursor-help border-b border-dashed border-muted-foreground/50">{t("payment.tax")}</span></TooltipTrigger>
+                    <TooltipContent>{t("payment.taxHint")}</TooltipContent>
+                  </Tooltip>
+                </th>
                 <th className="text-center px-4 py-3 font-medium">{t("payment.totalOrders")}</th>
                 <th className="text-right px-4 py-3 font-medium">{t("payment.actions")}</th>
               </tr>
