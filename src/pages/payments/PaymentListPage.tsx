@@ -14,7 +14,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Delete01Icon,
   TableRoundIcon,
-  Calendar03Icon,
 } from "@hugeicons/core-free-icons";
 import { formatPrice } from "@/lib/utils";
 import { ErrorCard } from "@/components/ErrorCard";
@@ -33,21 +32,6 @@ export const PaymentListPage = () => {
   const deleteMutation = useDeletePayment();
   const { confirm, alert: showAlert } = useAlertDialog();
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-
-  const formatDateTime = (dateStr: string) => {
-    let normalized = dateStr;
-    if (!/Z$/.test(dateStr) && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
-      normalized = dateStr + "Z";
-    }
-    const date = new Date(normalized);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleDelete = async (paymentId: number) => {
     if (!currentRestaurant) return;
@@ -131,11 +115,12 @@ export const PaymentListPage = () => {
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium">#</th>
                 <th className="text-left px-4 py-3 font-medium">{t("payment.table")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.subTotal")}</th>
-                <th className="text-right px-4 py-3 font-medium">{t("payment.tax")}</th>
+                <th className="text-right px-4 py-3 font-medium">{t("payment.priceBeforeDiscount")}</th>
                 <th className="text-right px-4 py-3 font-medium">{t("payment.discount")}</th>
                 <th className="text-right px-4 py-3 font-medium">{t("payment.total")}</th>
-                <th className="text-left px-4 py-3 font-medium">{t("payment.date")}</th>
+                <th className="text-right px-4 py-3 font-medium">{t("payment.subTotal")}</th>
+                <th className="text-right px-4 py-3 font-medium">{t("payment.tax")}</th>
+                <th className="text-center px-4 py-3 font-medium">{t("payment.totalOrders")}</th>
                 <th className="text-right px-4 py-3 font-medium">{t("payment.actions")}</th>
               </tr>
             </thead>
@@ -153,20 +138,16 @@ export const PaymentListPage = () => {
                       {payment.table?.table_number || `#${payment.table_id}`}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">{formatPrice(payment.sub_total, currency)}</td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{formatPrice(payment.tax, currency)}</td>
+                  <td className="px-4 py-3 text-right">{formatPrice(payment.price_before_discount, currency)}</td>
                   <td className="px-4 py-3 text-right text-muted-foreground">
                     {payment.discount > 0 ? `-${formatPrice(payment.discount, currency)}` : "—"}
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-yellow-500">
                     {formatPrice(payment.total, currency)}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    <span className="inline-flex items-center gap-1.5">
-                      <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} className="size-4" />
-                      {formatDateTime(payment.created_at)}
-                    </span>
-                  </td>
+                  <td className="px-4 py-3 text-right">{formatPrice(payment.sub_total, currency)}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground">{formatPrice(payment.tax, currency)}</td>
+                  <td className="px-4 py-3 text-center">{payment.orders?.length ?? 0}</td>
                   <td className="px-4 py-3 text-right">
                     <Button
                       variant="outline"

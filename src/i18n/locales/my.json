@@ -152,7 +152,9 @@
     "membersLabel": "အဖွဲ့ဝင်: ",
     "bookingDuration": "Booking ကြာချိန် (နာရီ)",
     "bookingDurationHint": "Booking တစ်ခုအတွက် စားပွဲကို {{count}} နာရီ သီးသန့်ချန်ထားမယ်",
-    "taxPercent": "အခွန် (%)"
+    "taxPercent": "အခွန် (%)",
+    "removeDecimal": "ဒသမကိန်း ဖယ်ရှားမည်",
+    "removeDecimalHint": "ဖောက်သည်များအတွက် စုစုပေါင်းစျေးနှုန်းမှ ဒသမကိန်းကို ဖယ်ရှားသည်"
   },
   "table": {
     "title": "စားပွဲများ",
@@ -389,14 +391,17 @@
     "failedToLoad": "ငွေပေးချေမှုများ ဖွင့်မရပါ",
     "selectRestaurant": "ငွေပေးချေမှုများ ကြည့်ရန် ဆိုင်တစ်ခု ရွေးပါ။",
     "table": "စားပွဲ",
+    "priceBeforeDiscount": "လျှော့မဖြတ်မီ စျေးနှုန်း",
     "subTotal": "စျေးနှုန်း",
     "tax": "အခွန်",
     "discount": "လျှော့စျေး",
     "total": "စုစုပေါင်း",
+    "totalOrders": "အော်ဒါ အရေအတွက်",
     "date": "ရက်စွဲ",
     "actions": "လုပ်ဆောင်ချက်",
     "paymentNumber": "ငွေပေးချေမှု {{number}}",
     "orders": "အော်ဒါများ",
+    "vatIncluded": "အခွန်ပါဝင်ပြီး",
     "backToPayments": "ငွေပေးချေမှုများ ပြန်သွားမည်",
     "paymentNotFound": "ငွေပေးချေမှု မတွေ့ပါ။"
   },

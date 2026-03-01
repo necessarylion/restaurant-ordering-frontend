@@ -114,11 +114,10 @@ td{padding:2px 0;vertical-align:top}
 <table>${itemsHtml}</table>
 <div class="sep"></div>
 <table>
-<tr><td>${t("payment.subTotal")}</td><td class="r">${formatPrice(payment.sub_total, currency)}</td></tr>
+<tr><td>${t("payment.subTotal")}</td><td class="r">${formatPrice(payment.price_before_discount, currency)}</td></tr>
 ${discount}
-<tr><td>${t("payment.tax")}</td><td class="r">${formatPrice(payment.tax, currency)}</td></tr>
 <tr class="total"><td colspan="2"><div class="sep-solid"></div></td></tr>
-<tr class="total"><td>${t("payment.total")}</td><td class="r">${formatPrice(payment.total, currency)}</td></tr>
+<tr class="total"><td>${t("payment.total")} <span style="font-weight:normal;font-size:10px">(${t("payment.vatIncluded")})</span></td><td class="r">${formatPrice(payment.total, currency)}</td></tr>
 </table>
 <div class="sep"></div>
 <div class="center footer">Thank you!</div>
@@ -184,7 +183,7 @@ ${discount}
                 <div className="border-t pt-4 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t("payment.subTotal")}</span>
-                    <span>{formatPrice(payment.sub_total, currency)}</span>
+                    <span>{formatPrice(payment.price_before_discount, currency)}</span>
                   </div>
                   {payment.discount > 0 && (
                     <div className="flex justify-between">
@@ -192,12 +191,8 @@ ${discount}
                       <span className="text-green-600 dark:text-green-400">-{formatPrice(payment.discount, currency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("payment.tax")}</span>
-                    <span>{formatPrice(payment.tax, currency)}</span>
-                  </div>
                   <div className="flex justify-between border-t pt-2 text-base font-bold">
-                    <span>{t("payment.total")}</span>
+                    <span>{t("payment.total")} <span className="text-xs font-normal text-muted-foreground">({t("payment.vatIncluded")})</span></span>
                     <span className="text-yellow-500">{formatPrice(payment.total, currency)}</span>
                   </div>
                 </div>

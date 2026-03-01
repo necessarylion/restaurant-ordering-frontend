@@ -152,7 +152,9 @@
     "membersLabel": "Mitglieder: ",
     "bookingDuration": "Standard-Buchungsdauer (Std.)",
     "bookingDurationHint": "Jede Buchung reserviert den Tisch für {{count}} Stunde(n)",
-    "taxPercent": "Steuer (%)"
+    "taxPercent": "Steuer (%)",
+    "removeDecimal": "Preise runden",
+    "removeDecimalHint": "Dezimalstellen aus den Gesamtpreisen für Kunden entfernen"
   },
   "table": {
     "title": "Tische",
@@ -389,14 +391,17 @@
     "failedToLoad": "Zahlungen konnten nicht geladen werden",
     "selectRestaurant": "Bitte wählen Sie ein Restaurant, um Zahlungen anzuzeigen.",
     "table": "Tisch",
+    "priceBeforeDiscount": "Preis vor Rabatt",
     "subTotal": "Zwischensumme",
     "tax": "Steuer",
     "discount": "Rabatt",
     "total": "Gesamt",
+    "totalOrders": "Gesamtbestellungen",
     "date": "Datum",
     "actions": "Aktionen",
     "paymentNumber": "Zahlung {{number}}",
     "orders": "Bestellungen",
+    "vatIncluded": "MwSt. enthalten",
     "backToPayments": "Zurück zu Zahlungen",
     "paymentNotFound": "Zahlung nicht gefunden."
   },

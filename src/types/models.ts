@@ -55,6 +55,7 @@ export interface Restaurant {
   booking_window_start_hours: number;
   booking_window_end_hours: number;
   tax_percent: number;
+  remove_decimal: boolean;
   created_at: string;
   updated_at: string;
   members?: RestaurantMember[];
@@ -176,6 +177,7 @@ export interface Payment {
   id: number;
   restaurant_id: number;
   table_id: number;
+  price_before_discount: number;
   sub_total: number;
   tax: number;
   discount: number;

@@ -152,7 +152,9 @@
     "membersLabel": "Members: ",
     "bookingDuration": "Default Booking Duration (hrs)",
     "bookingDurationHint": "Each booking will reserve the table for {{count}} hour(s)",
-    "taxPercent": "Tax (%)"
+    "taxPercent": "Tax (%)",
+    "removeDecimal": "Round Prices",
+    "removeDecimalHint": "Remove decimal points from total prices for customers"
   },
   "table": {
     "title": "Tables",
@@ -389,14 +391,17 @@
     "failedToLoad": "Failed to load payments",
     "selectRestaurant": "Please select a restaurant to view payments.",
     "table": "Table",
+    "priceBeforeDiscount": "Price Before Discount",
     "subTotal": "Sub Total",
     "tax": "Tax",
     "discount": "Discount",
     "total": "Total",
+    "totalOrders": "Total Orders",
     "date": "Date",
     "actions": "Actions",
     "paymentNumber": "Payment {{number}}",
     "orders": "Orders",
+    "vatIncluded": "VAT included",
     "backToPayments": "Back to Payments",
     "paymentNotFound": "Payment not found."
   },

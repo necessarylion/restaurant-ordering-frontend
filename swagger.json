@@ -3717,6 +3717,10 @@
                         "$ref": "#/definitions/models.Order"
                     }
                 },
+                "price_before_discount": {
+                    "type": "integer",
+                    "example": 55000
+                },
                 "restaurant": {
                     "$ref": "#/definitions/models.Restaurant"
                 },
@@ -3793,6 +3797,10 @@
                 "phone": {
                     "type": "string",
                     "example": "09123456789"
+                },
+                "remove_decimal": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "tax_percent": {
                     "type": "number",
@@ -4268,7 +4276,20 @@
             }
         },
         "validators.CreatePaymentInput": {
-            "type": "object"
+            "type": "object",
+            "required": [
+                "table_id"
+            ],
+            "properties": {
+                "discount": {
+                    "type": "number",
+                    "example": 10
+                },
+                "table_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
         },
         "validators.CreateTableInput": {
             "type": "object",

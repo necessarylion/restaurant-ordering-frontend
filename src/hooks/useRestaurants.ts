@@ -80,6 +80,8 @@ const buildRestaurantFormData = (
     formData.append("booking_window_end_hours", String(data.booking_window_end_hours));
   if (data.tax_percent !== undefined)
     formData.append("tax_percent", String(data.tax_percent));
+  if (data.remove_decimal !== undefined)
+    formData.append("remove_decimal", String(data.remove_decimal));
   return formData;
 };
 

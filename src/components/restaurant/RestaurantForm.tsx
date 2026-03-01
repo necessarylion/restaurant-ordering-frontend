@@ -11,6 +11,7 @@ import { restaurantSchema, type RestaurantFormData } from "@/schemas/restaurant_
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Restaurant } from "@/types";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ImageUpload01Icon } from "@hugeicons/core-free-icons";
@@ -35,6 +36,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<RestaurantFormData>({
     resolver: zodResolver(restaurantSchema),
@@ -47,16 +49,19 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
           booking_window_start_hours: restaurant.booking_window_start_hours ?? 0,
           booking_window_end_hours: restaurant.booking_window_end_hours ?? 2,
           tax_percent: restaurant.tax_percent ?? 0,
+          remove_decimal: restaurant.remove_decimal ?? false,
         }
       : {
           booking_window_start_hours: 0,
           booking_window_end_hours: 2,
           tax_percent: 0,
+          remove_decimal: false,
         },
   });
 
   const logoFiles = watch("logo");
   const endHours = watch("booking_window_end_hours") ?? 2;
+  const removeDecimal = watch("remove_decimal") ?? false;
   const previewUrl = logoFiles instanceof FileList && logoFiles.length > 0
     ? URL.createObjectURL(logoFiles[0])
     : restaurant?.logo || null;
@@ -174,6 +179,22 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
           {errors.booking_window_end_hours && <FieldError>{errors.booking_window_end_hours.message}</FieldError>}
         </Field>
       </div>
+
+      <Field>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="remove_decimal"
+            checked={removeDecimal}
+            onCheckedChange={(checked) => setValue("remove_decimal", !!checked)}
+          />
+          <div>
+            <FieldLabel htmlFor="remove_decimal" className="mb-0! cursor-pointer">
+              {t("restaurant.removeDecimal")}
+            </FieldLabel>
+            <p className="text-xs text-muted-foreground">{t("restaurant.removeDecimalHint")}</p>
+          </div>
+        </div>
+      </Field>
 
       <div className="flex gap-2 justify-end">
         {onCancel && (

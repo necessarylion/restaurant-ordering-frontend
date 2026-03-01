@@ -9,6 +9,7 @@ export const restaurantSchema = z.object({
   booking_window_start_hours: z.number().int().min(0).optional(),
   booking_window_end_hours: z.number().int().min(0).optional(),
   tax_percent: z.number().min(0).max(100).optional(),
+  remove_decimal: z.boolean().optional(),
 });
 
 export type RestaurantFormData = z.infer<typeof restaurantSchema>;
